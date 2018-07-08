@@ -258,8 +258,8 @@
   (setq ibuffer-saved-filter-groups
         (quote (("default"
                  ("dired" (mode . dired-mode))
-                 ("org" (name . "^.*org$"))
-
+                 ("org" (mode . org-mode))
+                 ("magit" (name . "^magit.*$"))
                  ("shell" (or (mode . eshell-mode) (mode . shell-mode) (mode . shell-script-mode)))
                  ("c/c++" (or
                            (mode . c++-mode)
@@ -427,12 +427,22 @@
 #+END_SRC
 ** yasnippet
 #+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :ensure t
-  :init
-  (yas-global-mode 1)
-  )
+  (use-package yasnippet
+    :ensure t
+    :init
+    (setq yas-snippet-dirs
+          '("~/.emacs.d/snippets"                 ;; personal snippets
+            "/path/to/yasnippet/yasmate/snippets" ;; the yasmate collection
+            ))
+    (yas-global-mode 1)
+    )
 #+END_SRC
+*** yasnippet-snippets
+# official collection of snippets
+  #+BEGIN_SRC emacs-lisp
+  (use-package yasnippet-snippets
+    :ensure t)
+  #+END_SRC
 ** irony
 #+BEGIN_SRC emacs-lisp
   (use-package irony
@@ -641,7 +651,7 @@
   (use-package ox-reveal
     :ensure t
     :config
-    (setq org-reveal-root "file:///home/xegodup/github/projects/foreign/reveal.js"))
+    (setq org-reveal-root "file:///home/xegodup/Tools/GitRepos/reveal.js"))
 
   (use-package org-jira
     :ensure t)
@@ -783,6 +793,20 @@
      :init
      (setq command-log-mode-auto-show t))
  #+END_SRC
+** cheatsheet
+ #+begin_src emacs-lisp :tangle yes
+   (use-package cheatsheet
+     :ensure t)
+ #+end_src
+*** marking
+#+begin_src emacs-lisp :tangle yes
+  (cheatsheet-add-group 'Marking
+                        '(:key "C-SPC C-SPC" :description "Set mark at the point.")
+                        '(:key "C-x C-x" :description "Go back to the mark.")
+                        '(:key "C-u C-SPC" :description "Cycle through the mark ring of the current buffer.")
+                        '(:key "C-x C-SPC" :description "Cycle through the global mark ring.")
+                        '(:key "counseal-mark-ring" :description "Interactive cycle through the mark ring of the current buffer."))
+#+end_src
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
