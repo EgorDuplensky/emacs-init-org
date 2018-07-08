@@ -170,10 +170,7 @@
 ** iedit
 #+BEGIN_SRC emacs-lisp
   (use-package iedit
-    :ensure t
-    :config
-    (global-set-key (kbd "M-;") 'iedit-mode)
-    )
+    :ensure t)
 #+END_SRC
 ** visual-regexp
 #+BEGIN_SRC emacs-lisp
@@ -432,7 +429,6 @@
     :init
     (setq yas-snippet-dirs
           '("~/.emacs.d/snippets"                 ;; personal snippets
-            "/path/to/yasnippet/yasmate/snippets" ;; the yasmate collection
             ))
     (yas-global-mode 1)
     )
@@ -565,17 +561,17 @@
                "~/.emacs.d/plugins/magit/Documentation/"))
 #+END_SRC
 ** gitignore-mode
-#+BEGIN_SRC
+#+begin_src emacs-lisp
 (use-package gitignore-mode
              :ensure t
              )
-#+END_SRC
+#+end_src
 ** gitconfig-mode
-#+BEGIN_SRC
+#+begin_src emacs-lisp
 (use-package gitconfig-mode
              :ensure t
              )
-#+END_SRC
+#+end_src
 * ansi-term
 #+BEGIN_SRC emacs-lisp
   ;; C-X M-X to wotk with M-X in ansi-term
@@ -794,12 +790,12 @@
      (setq command-log-mode-auto-show t))
  #+END_SRC
 ** cheatsheet
- #+begin_src emacs-lisp :tangle yes
+ #+begin_src emacs-lisp
    (use-package cheatsheet
      :ensure t)
  #+end_src
 *** marking
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
   (cheatsheet-add-group 'Marking
                         '(:key "C-SPC C-SPC" :description "Set mark at the point.")
                         '(:key "C-x C-x" :description "Go back to the mark.")
