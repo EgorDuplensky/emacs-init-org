@@ -4,42 +4,28 @@
 ** TODO should be spread over other chapters
 #+BEGIN_SRC emacs-lisp
   ;; ####################################### MODES FOR ADDITIONAL FILE EXTENTIONS #######################################
-  (add-to-list 'auto-mode-alist '("\\.bb\\'" . makefile-mode))
-  (add-to-list 'auto-mode-alist '("\\.spec\\'" . makefile-mode))
-  (add-to-list 'auto-mode-alist '("\\.con\\'" . c-mode))
-
   (setq custom-safe-themes t)
   (setq package-enable-at-startup nil) ; To avoid initializing twice
   (setq save-interprogram-paste-before-kill t)
-  ;;(global-unset-key (kbd "M-,"))
-                                          ; (global-set-key (kbd "M-,") 'find-next-tag)
   (fset 'yes-or-no-p 'y-or-n-p)
   (global-set-key (kbd "C-<right>") 'forward-word)
   (global-set-key (kbd "C-<left>") 'backward-word)
   (setq make-backup-files nil) ; stop creating backup~ files
   (setq auto-save-default nil) ; stop creating #autosave# file
-  (global-set-key (kbd "C-x \\") 'align-regexp)
-  (global-set-key (kbd "S-<right>") 'move-cursor-next-pane)
-  (global-set-key (kbd "S-<left>") 'move-cursor-previous-pane)
   (global-set-key "\M-g" 'goto-line)
   (global-set-key "\C-c\C-c" 'compile)
   (global-set-key "\C-c\C-k" 'indent-for-comment)
   (global-set-key "\C-c\C-l" 'indent-new-comment-line)
   (global-set-key "\C-c\C-s" 'kill-compilation)
   (global-set-key "\C-c\M-b" 'emu-backend-find)
-  (global-set-key "\C-co" 'switch-to-minibuffer) ;; Bind to `C-c o'
-  (define-key global-map "\C-c\C-w" 'my-insert-word-regexp)
   (global-set-key [(shift f1)] 'next-error)
   (define-key global-map [f1] '(lambda ()  (interactive) (switch-to-buffer "*ansi-term*") (delete-other-windows)))
-  (define-key global-map [f3] 'git-status)
-  (define-key global-map [f4] 'find-tag-at-point) ;; etags find...
+  (define-key global-map [f2] 'next-error)
+  (define-key global-map [f3] 'previous-error)
   (define-key global-map [f5]  'revert-buffer)
-  (define-key global-map [f6]  'show-menu-and-line)
   (define-key global-map [f7]  'repeat-complex-command)
   (define-key global-map [f9]  'manual-entry)     ;; man <command>
-  ;; (define-key global-map [f10]'cleanuptabs-buffer)
   (define-key global-map [f11]'grep)
-  (global-set-key [(shift f12)] 'toolbar-com);; pile
   (define-key global-map [f27]'beginning-of-buffer)
   (define-key global-map [f29]'scroll-down)
   (define-key global-map [f33]'end-of-buffer)
@@ -58,8 +44,6 @@
 
   (my-global-linum-mode 1)
   ;; window navigation
-  ;; (global-set-key (kbd "S-<right>") 'other-window)
-  ;; (global-set-key (kbd "S-<left>") 'prev-window)
 
   ;; Comment/uncomment current line
   (defun comment-or-uncomment-region-or-line ()
@@ -252,9 +236,7 @@
     (("\C-s" . swiper)
      ("C-c C-r" . ivy-resume)
      ("M-x"  . counsel-M-x)
-     ("C-x C-f" . counsel-find-file)
-     ("<f2> f" . counsel-describe-function)
-     ("<f2> v" . counsel-describe-variable))
+     ("C-x C-f" . counsel-find-file))
     :config
     (progn
       (ivy-mode    1)
@@ -267,38 +249,38 @@
 #+END_SRC
 ** ibuffer
 #+BEGIN_SRC emacs-lisp
-  (defalias 'list-buffers 'ibuffer)
+  (defalias 'list-buffers 'ibuffer)	;
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
-        (quote (("default"
-                 ("dired" (mode . dired-mode))
-                 ("org" (mode . org-mode))
-                 ("magit" (name . "^magit.*$"))
-                 ("shell" (or (mode . eshell-mode) (mode . shell-mode) (mode . shell-script-mode)))
-                 ("c/c++" (or
-                           (mode . c++-mode)
-                           (mode . c-mode)))
-                 ("tcl" (or
-                         (mode . tcl-mode)
-                         ))
-                 ("log-files" (name . "^\\.log$|messages[.]?[1-9]*$"))
-                 ;; ("log-files" (name . "^\\.log$"))
-                 ("cnf-files" (name . "^\\.cnf$"))
-                 ("xml-files" (name . "^\\.xml$"))
-                 ("other-languages" (or
-                                     (mode . java-mode)
-                                     (mode . python-mode)
-                                     (mode . groovy-mode)
-                                     ))
-                 ("emacs" (or
-                           (name . "^\\*scratch\\*$")
-                           (name . "^\\*Messages\\*$")))
-                 ("gdb" (or (mode . gdb-threads-mode) (mode . gud-mode) (mode . gdb-locals-mode) (mode . gdb-inferior-io-mode)))
-                 ))))
+	(quote (("default"
+		 ("dired" (mode . dired-mode))
+		 ("org" (mode . org-mode))
+		 ("magit" (name . "^magit.*$"))
+		 ("shell" (or (mode . eshell-mode) (mode . shell-mode) (mode . shell-script-mode)))
+		 ("c/c++" (or
+			   (mode . c++-mode)
+			   (mode . c-mode)))
+		 ("tcl" (or
+			 (mode . tcl-mode)
+			 ))
+		 ("log-files" (name . "^\\.log$|messages[.]?[1-9]*$"))
+		 ;; ("log-files" (name . "^\\.log$"))
+		 ("cnf-files" (name . "^\\.cnf$"))
+		 ("xml-files" (name . "^\\.xml$"))
+		 ("other-languages" (or
+				     (mode . java-mode)
+				     (mode . python-mode)
+				     (mode . groovy-mode)
+				     ))
+		 ("emacs" (or
+			   (name . "^\\*scratch\\*$")
+			   (name . "^\\*Messages\\*$")))
+		 ("gdb" (or (mode . gdb-threads-mode) (mode . gud-mode) (mode . gdb-locals-mode) (mode . gdb-inferior-io-mode)))
+		 ))))
   (add-hook 'ibuffer-mode-hook
-            (lambda ()
-              (ibuffer-auto-mode 1)
-              (ibuffer-switch-to-saved-filter-groups "default")))
+	    (lambda ()
+	      (ibuffer-auto-mode 1)
+	      (ibuffer-switch-to-saved-filter-groups "default")))
 
   ;; don't show these
   ;;(add-to-list 'ibuffer-never-show-predicates "zowie")
@@ -662,6 +644,7 @@
     (setq org-reveal-root "file:///home/xegodup/Tools/GitRepos/reveal.js"))
 
   (use-package org-jira
+    :disabled t
     :ensure t)
  #+END_SRC
 ** org-capture
