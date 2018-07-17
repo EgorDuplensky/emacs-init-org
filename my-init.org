@@ -95,7 +95,7 @@
 
   (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
 #+END_SRC
-* editiang stuff
+* editing stuff
 ** undo-tree
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
