@@ -2,7 +2,6 @@
 ;;; Commentary:
 ;;; Lisp modules goes here -- load some buffers
 ;;; Code:
-
 ;;; Set up package
 (require 'package)
 ;;(setq package-enable-at-startup nil)
@@ -21,8 +20,11 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+;; always work with real files, not sym links
+(setq vc-follow-symlinks t)
 (org-babel-load-file (expand-file-name "~/.emacs.d/my-init.org"))
 (if (file-exists-p "~/.emacs.d/work-specific-settings.org")
     (org-babel-load-file (expand-file-name "~/.emacs.d/work-specific-settings.org")))
+(load custom-file)
 ;;(provide 'init)
 ;;; init.el ends here
