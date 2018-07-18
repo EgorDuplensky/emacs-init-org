@@ -22,9 +22,13 @@
 
 ;; always work with real files, not sym links
 (setq vc-follow-symlinks t)
+;; common configuratiom
 (org-babel-load-file (expand-file-name "~/.emacs.d/my-init.org"))
+;; work specific configuration
 (if (file-exists-p "~/.emacs.d/work-specific-settings.org")
     (org-babel-load-file (expand-file-name "~/.emacs.d/work-specific-settings.org")))
-(load custom-file)
+;; autogenereated configuration (e.g. by use-package)
+(if (file-exists-p custom-file)
+    (load custom-file))
 ;;(provide 'init)
 ;;; init.el ends here

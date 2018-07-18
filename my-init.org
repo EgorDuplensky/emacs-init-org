@@ -4,7 +4,7 @@
 ** TODO should be spread over other chapters
 #+BEGIN_SRC emacs-lisp
   ;; ####################################### MODES FOR ADDITIONAL FILE EXTENTIONS #######################################
-  (setq custom-file "~/.emacs-custom.el") ; to put emacs's autogenerating lisp code into separate file 
+  (setq custom-file "~/.emacs.d/.emacs-custom.el") ; to put emacs's autogenerating lisp code into separate file 
   (setq custom-safe-themes t)
   (setq package-enable-at-startup nil) ; To avoid initializing twice
   (setq save-interprogram-paste-before-kill t)
