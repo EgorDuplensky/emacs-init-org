@@ -198,11 +198,28 @@
   (use-package ivy
     :ensure t
     :diminish ivy-mode
+    :custom-face
+    (ivy-current-match ((t
+                         :background "#000000"
+                         :underline nil
+                         :foreground "#FFFFFF"
+                         )))
     :config
     (setq ivy-format-function 'ivy-format-function-arrow)
-    ;; change face to highlighting instead of default underlining
-    (set-face-attribute 'ivy-current-match nil :background "#000000" :underline nil)
     )
+#+END_SRC
+*** ivy-rich
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-rich
+    :ensure t
+    :after ivy
+    :custom
+    (ivy-virtual-abbreviate 'full
+                            ivy-rich-switch-buffer-align-virtual-buffer t
+                            ivy-rich-path-style 'abbrev)
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer))
 #+END_SRC
 ** smex
   Needed for nicer counsel
@@ -234,7 +251,7 @@
   (use-package swiper
     :ensure t
     :bind
-    (("\C-s" . swiper)
+    (("C-x M-s" . swiper)
      ("C-c C-r" . ivy-resume)
      ("M-x"  . counsel-M-x)
      ("C-x C-f" . counsel-find-file))
@@ -249,45 +266,85 @@
     )
 #+END_SRC
 ** ibuffer
+*** ibuffer-vc
+#+BEGIN_SRC emacs-lisp
+  (use-package ibuffer-vc
+    :ensure t)
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defalias 'list-buffers 'ibuffer)	;
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
-	(quote (("default"
-		 ("dired" (mode . dired-mode))
-		 ("org" (mode . org-mode))
-		 ("magit" (name . "^magit.*$"))
-		 ("shell" (or (mode . eshell-mode) (mode . shell-mode) (mode . shell-script-mode)))
-		 ("c/c++" (or
-			   (mode . c++-mode)
-			   (mode . c-mode)))
-		 ("tcl" (or
-			 (mode . tcl-mode)
-			 ))
-		 ("log-files" (name . "^\\.log$|messages[.]?[1-9]*$"))
-		 ;; ("log-files" (name . "^\\.log$"))
-		 ("cnf-files" (name . "^\\.cnf$"))
-		 ("xml-files" (name . "^\\.xml$"))
-		 ("other-languages" (or
-				     (mode . java-mode)
-				     (mode . python-mode)
-				     (mode . groovy-mode)
-				     ))
-		 ("emacs" (or
-			   (name . "^\\*scratch\\*$")
-			   (name . "^\\*Messages\\*$")))
-		 ("gdb" (or (mode . gdb-threads-mode) (mode . gud-mode) (mode . gdb-locals-mode) (mode . gdb-inferior-io-mode)))
-		 ))))
+        (quote (("default"
+                 ("dired" (mode . dired-mode))
+                 ("org" (mode . org-mode))
+                 ("magit" (name . "^magit.*$"))
+                 ("shell" (or (mode . eshell-mode) (mode . shell-mode) (mode . shell-script-mode)))
+                 ("c/c++" (or
+                           (mode . c++-mode)
+                           (mode . c-mode)))
+                 ("tcl" (or
+                         (mode . tcl-mode)
+                         ))
+                 ("log-files" (name . "^\\.log$|messages[.]?[1-9]*$"))
+                 ;; ("log-files" (name . "^\\.log$"))
+                 ("cnf-files" (name . "^\\.cnf$"))
+                 ("xml-files" (name . "^\\.xml$"))
+                 ("other-languages" (or
+                                     (mode . java-mode)
+                                     (mode . python-mode)
+                                     (mode . groovy-mode)
+                                     ))
+                 ("emacs" (or
+                           (name . "^\\*scratch\\*$")
+                           (name . "^\\*Messages\\*$")))
+                 ("gdb" (or (mode . gdb-threads-mode) (mode . gud-mode) (mode . gdb-locals-mode) (mode . gdb-inferior-io-mode)))
+                 ))))
   (add-hook 'ibuffer-mode-hook
-	    (lambda ()
-	      (ibuffer-auto-mode 1)
-	      (ibuffer-switch-to-saved-filter-groups "default")))
+            (lambda ()
+              (ibuffer-auto-mode 1)
+              (ibuffer-switch-to-saved-filter-groups "default")))
+
+              ;; Use human readable Size column instead of original one
+              (define-ibuffer-column size-h
+                (:name "Size" :inline t)
+                (cond
+                 ((> (buffer-size) 1000000) (format "%7.1fM" (/ (buffer-size) 1000000.0)))
+                 ((> (buffer-size) 1000) (format "%7.1fk" (/ (buffer-size) 1000.0)))
+                 (t (format "%8d" (buffer-size)))))
+
+  ;; Explicitly require ibuffer-vc to get its column definitions, which
+  ;; can't be autoloaded
+  (require 'ibuffer-vc)
+
+  ;; Modify the default ibuffer-formats (toggle with `)
+  (setq ibuffer-formats
+        '((mark modified read-only vc-status-mini " "
+                (name 18 18 :left :elide)
+                " "
+                (size-h 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " "
+                filename-and-process)
+          (mark modified read-only vc-status-mini " "
+                (name 18 18 :left :elide)
+                " "
+                (size-h 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " "
+                (vc-status 16 16 :left)
+                " "
+                filename-and-process)))
 
   ;; don't show these
   ;;(add-to-list 'ibuffer-never-show-predicates "zowie")
 
   ;; Don't show filter groups if there are no buffers in that group
   (setq ibuffer-show-empty-filter-groups nil)
+  ;; Use more human readable 'ls' options
+  (setq dired-listing-switches "-lahF --group-directories-first")
 #+END_SRC
 ** smooth-scrolling
 #+begin_src emacs-lisp
@@ -453,7 +510,7 @@
 #+begin_src emacs-lisp
   (use-package hideshow-org
     :ensure t
-    :bind ("C-r" . hs-toggle-hiding))
+    :bind ("C-t" . hs-toggle-hiding))
 #+end_src
 ** tabs and indentations
 #+BEGIN_SRC emacs-lisp
