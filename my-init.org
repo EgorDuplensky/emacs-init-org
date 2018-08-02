@@ -44,6 +44,7 @@ Other
   (define-key global-map [f2] 'next-error)
   (define-key global-map [f3] 'previous-error)
   (define-key global-map [f5]  'revert-buffer)
+  (define-key global-map [f6]  'ivy-resume)
   (define-key global-map [f7]  'repeat-complex-command)
   (define-key global-map [f9]  'manual-entry)     ;; man <command>
   (define-key global-map [f11]'grep)
@@ -578,9 +579,7 @@ An alternative of counsel-yank-pop
 ** projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :ensure t
-  ;;  :hook (c-mode . projectile-mode)
-    )
+    :ensure t)
 #+END_SRC
 ** treemacs
 #+BEGIN_SRC emacs-lisp
@@ -670,6 +669,7 @@ in terminal mode. Most likely can be removed.
                (lambda ()
                  ;; (org-set-local 'yas/trigger-key [tab])
                  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+     :hook (org-mode . flyspell-mode)
      )
  #+END_SRC
 ** org-bullets
