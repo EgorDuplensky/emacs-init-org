@@ -1,4 +1,6 @@
 #+STARTIP: My emacs configuration. Synced with Ubuntu through dropbox. =*Edit carefully*=
+#+startup: overview
+#+creator: Egor Duplensky
 
 * common settings
 ** TODO should be spread over other chapters
@@ -170,7 +172,8 @@ Other
 ** smartparens
    #+begin_src emacs-lisp
      (use-package smartparens
-       :ensure t)
+       :ensure t
+       :config (smartparens-global-mode t))
    #+end_src
 ** iedit
 #+BEGIN_SRC emacs-lisp
@@ -256,7 +259,7 @@ Other
   (use-package counsel
     :ensure t
     :bind
-    (("M-y" . counsel-yank-pop)
+    (
      :map ivy-minibuffer-map
      ("M-y" . ivy-next-line)
      )
@@ -379,25 +382,38 @@ Use ivy for projectile
 #+end_src
 ** ace-window
 #+BEGIN_SRC emacs-lisp
-(use-package ace-window
-  :ensure t
-  :init
-  (global-set-key [remap other-window] 'ace-window)
-)
+  (use-package ace-window
+    :ensure t
+    :init
+    (global-set-key [remap other-window] 'ace-window)
+    (setq aw-background nil)
+    :custom-face
+    (aw-leading-char-face ((t :inherit ace-jump-face-foreground :height 3.0)))
+    )
 #+END_SRC
 ** browse-kill-ring
 An alternative of counsel-yank-pop
 #+BEGIN_SRC emacs-lisp
   (use-package browse-kill-ring
-    :ensure t)
+    :ensure t
+    :init
+    (defface my-browse-kill-ring-separator-face
+      '((t :foreground "#276E9E"
+           :weight bold
+           ))
+      "Face for browse-kill-ring-separator."
+      )
+    :config
+    (setq browse-kill-ring-highlight-current-entry t)
+    (setq browse-kill-ring-separator "-------------------------------------------")
+    (setq browse-kill-ring-separator-face 'my-browse-kill-ring-separator-face)
+    :bind ("M-y" . browse-kill-ring))
 #+END_SRC
 * code navigation
 ** xcscope
  #+BEGIN_SRC emacs-lisp
    (use-package xcscope
      :ensure t
-     :config
-     (setq cscope-program "gtags-cscope")
      :init
      (cscope-setup))
  #+END_SRC
@@ -408,6 +424,12 @@ An alternative of counsel-yank-pop
      :hook ((c-mode c++-mode) . ggtags-mode)
      )
  #+END_SRC
+** call-graph
+#+BEGIN_SRC emacs-lisp
+  (use-package call-graph
+    :ensure t
+    :config (setq cg-path-to-global "/usr/local/bin/"))
+#+END_SRC
 * coding facilities
 ** flycheck
 #+BEGIN_SRC emacs-lisp
@@ -862,7 +884,8 @@ in terminal mode. Most likely can be removed.
 ** dired-rainbow
  #+BEGIN_SRC emacs-lisp
    (use-package dired-rainbow
-     :ensure t)
+     :ensure t
+     :hook (help-mode . rainbow-mode))
  #+END_SRC
 ** rainbow-mode
  #+BEGIN_SRC emacs-lisp
@@ -890,6 +913,10 @@ in terminal mode. Most likely can be removed.
                         '(:key "C-x C-SPC" :description "Cycle through the global mark ring.")
                         '(:key "counseal-mark-ring" :description "Interactive cycle through the mark ring of the current buffer."))
 #+end_src
+** flyspell-settings
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'text-mode-hook 'flyspell-mode)
+#+END_SRC
 ** flyspell-correct
 *** flyspell-correct-ivy
  #+begin_src emacs-lisp
@@ -899,10 +926,9 @@ in terminal mode. Most likely can be removed.
 *** flyspell-correct-popup
  #+begin_src emacs-lisp
    (use-package flyspell-correct-popup
+     :disabled t
      :ensure t
-     :bind ("C-;" . flyspell-correct-previous-word-generic)
-     :config
-     (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-previous-word-generic))
+     :bind ("C-;" . flyspell-correct-previous-word-generic))
  #+end_src
 ** google-translate
 #+begin_src emacs-lisp
@@ -964,4 +990,6 @@ in terminal mode. Most likely can be removed.
   ;; change 'select region' faces
   (set-face-attribute 'region nil :background "#276E9E")
   (set-face-attribute 'region nil :foreground "#FFFFFF")
+  ;; also highlight underlying entities in documentation
+  (set-face-attribute 'button nil :foreground "#7F9F7F")
 #+END_SRC

@@ -2,3 +2,12 @@
 my-init.el
 .emacs-custom.el
 ####################
+# emacs stuff
+GPATH
+GRTAGS
+GTAGS
+ETAGS
+TAGS
+####################
+# compilation
+*.o
