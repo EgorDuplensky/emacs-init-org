@@ -236,14 +236,17 @@ Other
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
     :ensure t
-    :after ivy
+    :after (ivy swiper)
     :custom
     (ivy-virtual-abbreviate 'full
                             ivy-rich-switch-buffer-align-virtual-buffer t
                             ivy-rich-path-style 'abbrev)
     :config
-    (ivy-set-display-transformer 'ivy-switch-buffer
-                                 'ivy-rich-switch-buffer-transformer))
+    (progn
+      (ivy-set-display-transformer 'ivy-switch-buffer
+                                   'ivy-rich-switch-buffer-transformer))
+    :hook (ivy-mode . ivy-rich-mode)
+    )
 #+END_SRC
 ** smex
   Needed for nicer counsel
@@ -752,7 +755,7 @@ in terminal mode. Most likely can be removed.
     (dashboard-setup-startup-hook))
 #+end_src
 ** languages modes
-*** gravy
+*** groovy
  #+BEGIN_SRC emacs-lisp
    (use-package groovy-mode
      :ensure t
@@ -785,6 +788,11 @@ in terminal mode. Most likely can be removed.
                 :ensure t
                 )
  #+END_SRC
+*** dockerfile
+#+BEGIN_SRC emacs-lisp
+  (use-package dockerfile-mode
+    :ensure t)
+#+END_SRC
 ** modelines
 *** smart-mode-line
   #+BEGIN_SRC emacs-lisp
