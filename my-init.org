@@ -412,6 +412,18 @@ An alternative of counsel-yank-pop
     (setq browse-kill-ring-separator-face 'my-browse-kill-ring-separator-face)
     :bind ("M-y" . browse-kill-ring))
 #+END_SRC
+** isearch
+Enable possibility to exit isearch with leaving cursor
+at the beginning of the word (C-Ret)  
+#+BEGIN_SRC emacs-lisp
+(define-key isearch-mode-map [(control return)]
+  #'isearch-exit-other-end)
+(defun isearch-exit-other-end ()
+  "Exit isearch, at the opposite end of the string."
+  (interactive)
+  (isearch-exit)
+  (goto-char isearch-other-end))
+#+END_SRC
 ** ace-isearch
 #+BEGIN_SRC emacs-lisp
   (use-package ace-isearch
