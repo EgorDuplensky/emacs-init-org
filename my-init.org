@@ -412,6 +412,11 @@ An alternative of counsel-yank-pop
     (setq browse-kill-ring-separator-face 'my-browse-kill-ring-separator-face)
     :bind ("M-y" . browse-kill-ring))
 #+END_SRC
+** ace-isearch
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-isearch
+    :ensure t)
+#+END_SRC
 * code navigation
 ** xcscope
  #+BEGIN_SRC emacs-lisp
@@ -968,6 +973,11 @@ in terminal mode. Most likely can be removed.
     :config
     (dimmer-mode))
 #+end_src
+** kubernetes
+#+BEGIN_SRC emacs-lisp
+  (use-package kubernetes
+    :ensure t)
+#+END_SRC
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
