@@ -15,11 +15,11 @@
 ;;; Bootstrap use-package
 ;; Install use-package if it's not already installed.
 ;; use-package is used to configure the rest of the packages.
-(require 'use-package)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
+(require 'use-package)
 ;; always work with real files, not sym links
 (setq vc-follow-symlinks t)
 ;; common configuratiom
