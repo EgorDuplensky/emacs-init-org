@@ -196,7 +196,7 @@ Other
   (use-package ialign
     :ensure t)
 #+end_src
-** wgre
+** wgrep
 #+begin_src emacs-lisp
   (use-package wgrep
     :ensure t
