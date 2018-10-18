@@ -2,6 +2,8 @@
 #+startup: overview
 #+creator: Egor Duplensky
 
+asjfajflkajflkajfaljflkasdjflk
+
 * common settings
 ** TODO should be spread over other chapters
 Scrolling without moving point
@@ -610,7 +612,7 @@ at the beginning of the word (C-Ret)
   (use-package quickrun
     :ensure t)
 #+end_src
-** git-messenge
+** git-messenger
 #+BEGIN_SRC emacs-lisp
   (use-package git-messenger
     :ensure t
