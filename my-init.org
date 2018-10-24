@@ -3,72 +3,121 @@
 #+creator: Egor Duplensky
 
 * common settings
-** TODO should be spread over other chapters
-Scrolling without moving point
+** Custom variables
 #+BEGIN_SRC emacs-lisp
-  (defun gcm-scroll-down ()
-    (interactive)
-    (scroll-up 1))
-  (defun gcm-scroll-up ()
-    (interactive)
-    (scroll-down 1))
-  (global-set-key (kbd "M-p") 'gcm-scroll-up)
-  (global-set-key (kbd "M-n") 'gcm-scroll-down)
+    ;; Save to kill ring before kill
+    (setq save-interprogram-paste-before-kill t)
+    ;; To avoid initializing twice
+    (setq package-enable-at-startup nil)
+    ;; to put emacs's autogenerating lisp code into separate file
+    (setq custom-file "~/.emacs.d/.emacs-custom.el")
+    ;; Treat all custom themes as safe
+    (setq custom-safe-themes t)
+    ;; Suppress starting emacs message
+    (setq inhibit-startup-message 1)
+    ;; Top frame: <filename with full path>
+    (setq frame-title-format "%b")
+    (defvar x-strech-cursor)
+    (setq x-strech-cursor 1)
+    ;; Copy/paste from another system apps
+    (setq x-select-enable-clipboard t)
+    ;; scrolling speed
+    ;; (setq mouse-wheel-scroll-amount '(2 ((shift) . 2) ((control) . nil)))
+    (setq mouse-wheel-progressive-speed nil)
 #+END_SRC
-Disable alarm bell for "C-g"
+** Enable/Disable some minor modes
 #+BEGIN_SRC emacs-lisp
-  (setq ring-bell-function 
-        (lambda ()
-          (unless (memq this-command
-                        '(isearch-abort abort-recursive-edit exit-minibuffer keyboard-quit))
-            (ding))))
+    ;; Mode line config
+    (column-number-mode 1)
+    ;; hide default TOOLBAR
+    (hide-ifdef-mode 1)
+    ;; hightlight brackets
+    (show-paren-mode t)
+    ;; disable toolbar
+    (tool-bar-mode -1)
+    ;; hightlight current line
+    (global-hl-line-mode 1)
+    ;;Displays the current function name in the mode line
+    (which-function-mode 1)
+    (menu-bar-mode 0)
+    (scroll-bar-mode 0)
+    ;; Cursor color
+    ;; (set-cursor-color "red")
+    (blink-cursor-mode 0)
+    ;; Overwrite selected text
+    (delete-selection-mode 1)
 #+END_SRC
-Other
+** Scrolling without moving point
+ Useful feature but not sure about bindings yet
+ #+BEGIN_SRC emacs-lisp
+   (defun gcm-scroll-down ()
+     (interactive)
+     (scroll-up 1))
+   (defun gcm-scroll-up ()
+     (interactive)
+     (scroll-down 1))
+   ;; (global-set-key (kbd "M-p") 'gcm-scroll-up)
+   ;; (global-set-key (kbd "M-n") 'gcm-scroll-down)
+ #+END_SRC
+** Disable alarm bell for "C-g"
+ #+BEGIN_SRC emacs-lisp
+   (setq ring-bell-function 
+         (lambda ()
+           (unless (memq this-command
+                         '(isearch-abort abort-recursive-edit exit-minibuffer keyboard-quit))
+             (ding))))
+ #+END_SRC
+** y-or-n-p
 #+BEGIN_SRC emacs-lisp
-  ;; ####################################### MODES FOR ADDITIONAL FILE EXTENTIONS #######################################
-  (setq custom-file "~/.emacs.d/.emacs-custom.el") ; to put emacs's autogenerating lisp code into separate file 
-  (setq custom-safe-themes t)
-  (setq package-enable-at-startup nil) ; To avoid initializing twice
-  (setq save-interprogram-paste-before-kill t)
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (global-set-key (kbd "C-<right>") 'forward-word)
-  (global-set-key (kbd "C-<left>") 'backward-word)
-  (setq make-backup-files nil) ; stop creating backup~ files
-  (setq auto-save-default nil) ; stop creating #autosave# file
-  (global-set-key "\M-g" 'goto-line)
-  (global-set-key "\C-c\C-c" 'compile)
-  (global-set-key "\C-c\C-k" 'indent-for-comment)
-  (global-set-key "\C-c\C-l" 'indent-new-comment-line)
-  (global-set-key "\C-c\C-s" 'kill-compilation)
-  (global-set-key "\C-c\M-b" 'emu-backend-find)
-  (global-set-key [(shift f1)] 'next-error)
-  (define-key global-map [f1] '(lambda ()  (interactive) (switch-to-buffer "*ansi-term*") (delete-other-windows)))
-  (define-key global-map [f2] 'next-error)
-  (define-key global-map [f3] 'previous-error)
-  (define-key global-map [f5]  'revert-buffer)
-  (define-key global-map [f6]  'ivy-resume)
-  (define-key global-map [f7]  'repeat-complex-command)
-  (define-key global-map [f9]  'manual-entry)     ;; man <command>
-  (define-key global-map [f11]'grep)
-  (define-key global-map [f27]'beginning-of-buffer)
-  (define-key global-map [f29]'scroll-down)
-  (define-key global-map [f33]'end-of-buffer)
-  (define-key global-map [f35]'scroll-up)
-  (global-unset-key [home])
-  (global-unset-key [end])
-  (define-key function-key-map [home] 'beginning-of-buffer)
-  (define-key function-key-map [end] 'end-of-buffer)
-  (setq linum-format "%d ")
-  ;; enable linum-mode for all the buffers except some specific ones
-  (define-global-minor-mode my-global-linum-mode linum-mode
-    (lambda ()
-      (when (not (memq major-mode
-                       (list 'term-mode)))
-        (linum-mode))))
+    (fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+** Do not need backup and autosave files
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (setq make-backup-files nil) ; stop creating backup~ files
+    (setq auto-save-default nil) ; stop creating #autosave# file
+#+END_SRC
+** Keybindings
+#+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "C-<right>") 'forward-word)
+    (global-set-key (kbd "C-<left>") 'backward-word)
+    (global-set-key "\M-g" 'goto-line)
+    (global-set-key "\C-c\C-c" 'compile)
+    (global-set-key "\C-c\C-k" 'indent-for-comment)
+    (global-set-key "\C-c\C-l" 'indent-new-comment-line)
+    (global-set-key "\C-c\C-s" 'kill-compilation)
+    (global-set-key "\C-c\M-b" 'emu-backend-find)
+    (global-set-key [(shift f1)] 'next-error)
+    (define-key global-map [f1] '(lambda ()  (interactive) (switch-to-buffer "*ansi-term*") (delete-other-windows)))
+    (define-key global-map [f2] 'next-error)
+    (define-key global-map [f3] 'previous-error)
+    (define-key global-map [f5]  'revert-buffer)
+    (define-key global-map [f6]  'ivy-resume)
+    (define-key global-map [f7]  'repeat-complex-command)
+    (define-key global-map [f9]  'manual-entry)     ;; man <command>
+    (define-key global-map [f11]'grep)
+    (define-key global-map [f27]'beginning-of-buffer)
+    (define-key global-map [f29]'scroll-down)
+    (define-key global-map [f33]'end-of-buffer)
+    (define-key global-map [f35]'scroll-up)
+    (global-unset-key [home])
+    (global-unset-key [end])
+    (define-key function-key-map [home] 'beginning-of-buffer)
+    (define-key function-key-map [end] 'end-of-buffer)
+#+END_SRC
+** linum-mode configuration
+#+BEGIN_SRC emacs-lisp
+    (setq linum-format "%d ")
+    ;; enable linum-mode for all the buffers except some specific ones
+    (define-global-minor-mode my-global-linum-mode linum-mode
+      (lambda ()
+        (when (not (memq major-mode
+                         (list 'term-mode)))
+          (linum-mode))))
 
-  (my-global-linum-mode 1)
-  ;; window navigation
-
+    (my-global-linum-mode 1)
+#+END_SRC
+** comment / comment out
+#+BEGIN_SRC emacs-lisp
   ;; Comment/uncomment current line
   (defun comment-or-uncomment-region-or-line ()
     "Comments or uncomments the region or the current line if there's no active region."
@@ -79,46 +128,12 @@ Other
         (setq beg (line-beginning-position) end (line-end-position)))
       (comment-or-uncomment-region beg end)
       (next-line)))
-
   (global-set-key (kbd "C-c C-v") 'comment-or-uncomment-region-or-line)
-
-  ;; DEBUGGING
-  ;; (toggle-debug-on-error 1)
-  ;; Mode line config
-  (column-number-mode 1)
-  ;; hide default TOOLBAR
-  (hide-ifdef-mode 1)
-  ;; hightlight brackets
-  (show-paren-mode t)
-  ;; disable toolbar
-  (tool-bar-mode -1)
-  ;; hightlight current line
-  (global-hl-line-mode 1)
-  ;; Suppress starting emacs message
-  (setq inhibit-startup-message 1)
-  ;;Displays the current function name in the mode line
-  (which-function-mode 1)
-  (menu-bar-mode 0)
-  (scroll-bar-mode 0)
-  ;;Show current ifdef
-  ;;(setq which-func-functions '(name-of-current-conditional))
-  ;; Top frame: <filename with full path>
-  (setq frame-title-format "%b")
-  ;; Cursor color
-  ;; (set-cursor-color "red")
-  (blink-cursor-mode 0)
-  (defvar x-strech-cursor)
-  (setq x-strech-cursor 1)
-  ;; Overwrite selected text
-  (delete-selection-mode 1)
-  ;; Copy/paste from another system apps
-  (setq x-select-enable-clipboard t)
-  ;; scrolling speed
-  ;; (setq mouse-wheel-scroll-amount '(2 ((shift) . 2) ((control) . nil)))
-  (setq mouse-wheel-progressive-speed nil)
-
-  (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
 #+END_SRC
+** Other
+ #+BEGIN_SRC emacs-lisp
+   (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
+ #+END_SRC
 * editing stuff
 ** undo-tree
 #+BEGIN_SRC emacs-lisp
