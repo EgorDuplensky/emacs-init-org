@@ -2,8 +2,6 @@
 #+startup: overview
 #+creator: Egor Duplensky
 
-asjfajflkajflkajfaljflkasdjflk
-
 * common settings
 ** TODO should be spread over other chapters
 Scrolling without moving point
