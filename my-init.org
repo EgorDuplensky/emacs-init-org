@@ -546,6 +546,8 @@ at the beginning of the word (C-Ret)
       (company-quickhelp-mode 1)
       (setq company-quickhelp-delay 1)
       :bind ("\C-c h" . #'company-quickhelp-manual-begin))
+    (use-package company-ansible
+      :ensure t)
     (setq company-idle-delay              0
           company-minimum-prefix-length   2
           company-show-numbers            t
@@ -825,6 +827,11 @@ in terminal mode. Most likely can be removed.
   (use-package dockerfile-mode
     :ensure t)
 #+END_SRC
+*** ansible
+#+BEGIN_SRC emacs-lisp
+  (use-package ansible
+    :ensure t)
+#+END_SRC
 ** modelines
 *** smart-mode-line
   #+BEGIN_SRC emacs-lisp
@@ -1003,6 +1010,11 @@ in terminal mode. Most likely can be removed.
 ** kubernetes
 #+BEGIN_SRC emacs-lisp
   (use-package kubernetes
+    :ensure t)
+#+END_SRC
+** docker
+#+BEGIN_SRC emacs-lisp
+  (use-package docker
     :ensure t)
 #+END_SRC
 * theme
