@@ -72,7 +72,7 @@
     (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 ** Do not need backup and autosave files
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp
     (setq make-backup-files nil) ; stop creating backup~ files
     (setq auto-save-default nil) ; stop creating #autosave# file
 #+END_SRC
@@ -480,7 +480,7 @@ at the beginning of the word (C-Ret)
       (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
       )
     (setq-default flycheck-temp-prefix ".")
-    (setq-default temporary-file-directory "~/emacs-tmp")
+    (setq-default temporary-file-directory "~/.emacs-tmp-dir")
     )
 #+END_SRC
 *** flycheck-pos-tip
