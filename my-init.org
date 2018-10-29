@@ -252,14 +252,8 @@
   (use-package ivy-rich
     :ensure t
     :after (ivy swiper)
-    :custom
-    (ivy-virtual-abbreviate 'full
-                            ivy-rich-switch-buffer-align-virtual-buffer t
-                            ivy-rich-path-style 'abbrev)
-    :config
-    (progn
-      (ivy-set-display-transformer 'ivy-switch-buffer
-                                   'ivy-rich-switch-buffer-transformer))
+    :init (setq ivy-rich-path-style 'abbrev
+                ivy-virtual-abbreviate 'full)
     :hook (ivy-mode . ivy-rich-mode)
     )
 #+END_SRC
@@ -457,6 +451,7 @@ at the beginning of the word (C-Ret)
    (use-package ggtags
      :ensure t
      :hook ((c-mode c++-mode) . ggtags-mode)
+     :config (setq ggtags-sort-by-nearness t)
      )
  #+END_SRC
 ** call-graph
@@ -744,7 +739,7 @@ in terminal mode. Most likely can be removed.
   (use-package ox-reveal
     :ensure t
     :config
-    (setq org-reveal-root "file:///home/xegodup/Tools/GitRepos/reveal.js"))
+    (setq org-reveal-root "file:///home/xegodup/github/reveal.js"))
 
   (use-package org-jira
     :disabled t
@@ -766,6 +761,17 @@ in terminal mode. Most likely can be removed.
           ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")))
 #+end_src
+** gnuplot
+#+BEGIN_SRC emacs-lisp
+  (use-package gnuplot
+    :ensure t)
+#+END_SRC
+** gnuplot-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package gnuplot-mode
+    :ensure t)
+#+END_SRC
+
 * other minor stuff
 ** diminish
 #+begin_src emacs-lisp
