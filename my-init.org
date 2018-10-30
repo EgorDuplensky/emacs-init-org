@@ -275,6 +275,7 @@
      :map ivy-minibuffer-map
      ("M-y" . ivy-next-line)
      )
+    :config (counsel-mode 1)
     )
 #+END_SRC
 ** counsel-projectile
