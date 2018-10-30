@@ -793,6 +793,7 @@ in terminal mode. Most likely can be removed.
                             (projects . 5)
                             (agenda . 5)
                             (registers . 5)))
+    (setq dashboard-startup-banner "~/.emacs.d/misc/images/emacs_icon.png")
     (dashboard-setup-startup-hook))
 #+end_src
 ** languages modes
