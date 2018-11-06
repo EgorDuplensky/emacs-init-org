@@ -840,6 +840,11 @@ in terminal mode. Most likely can be removed.
   (use-package ansible
     :ensure t)
 #+END_SRC
+*** asciidoc
+#+BEGIN_SRC emacs-lisp
+  (use-package adoc-mode
+    :ensure t)
+#+END_SRC
 ** modelines
 *** smart-mode-line
   #+BEGIN_SRC emacs-lisp
