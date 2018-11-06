@@ -1058,3 +1058,10 @@ in terminal mode. Most likely can be removed.
   ;; also highlight underlying entities in documentation
   (set-face-attribute 'button nil :foreground "#7F9F7F")
 #+END_SRC
+* non-elpa
+Current kubernetes in mode-line
+#+BEGIN_SRC emacs-lisp :tangle yes
+(add-to-list 'load-path "~/.emacs.d/non-elpa/emacs-kubectx-mode-line")
+(require 'kubectx)
+(kubectx-mode 1)
+#+END_SRC
