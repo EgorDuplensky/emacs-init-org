@@ -106,15 +106,21 @@
 #+END_SRC
 ** linum-mode configuration
 #+BEGIN_SRC emacs-lisp
-    (setq linum-format "%d ")
-    ;; enable linum-mode for all the buffers except some specific ones
-    (define-global-minor-mode my-global-linum-mode linum-mode
-      (lambda ()
-        (when (not (memq major-mode
-                         (list 'term-mode)))
-          (linum-mode))))
+  (setq linum-format "%d ")
+  ;; enable linum-mode for all the buffers except some specific ones
+  (define-global-minor-mode my-global-linum-mode linum-mode
+    (lambda ()
+      (when (not (memq major-mode
+                       (list 'term-mode
+                             'treemacs-mode
+                             'minibuffer-inactive-mode
+                             'ibuffer-mode
+                             'magit-status-mode
+                             'magit-popup-mode
+                             )))
+        (linum-mode))))
 
-    (my-global-linum-mode 1)
+  (my-global-linum-mode 1)
 #+END_SRC
 ** comment / comment out
 #+BEGIN_SRC emacs-lisp
