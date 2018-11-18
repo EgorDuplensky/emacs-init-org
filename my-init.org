@@ -1067,6 +1067,16 @@ at the beginning of the word (C-Ret)
   (use-package tramp-term
     :ensure t)
 #+END_SRC
+** markdown-preview-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-preview-mode
+    :ensure t)
+#+END_SRC
+** markdown-preview-eww
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-preview-eww
+    :ensure t)
+#+END_SRC
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
