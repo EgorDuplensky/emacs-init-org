@@ -136,6 +136,15 @@
       (next-line)))
   (global-set-key (kbd "C-c C-v") 'comment-or-uncomment-region-or-line)
 #+END_SRC
+** ansi-term
+Some old settings related to running emacs
+in terminal mode. Most likely can be removed.
+#+BEGIN_SRC emacs-lisp
+  (defun fix-performance-bug ()
+    (setq bidi-paragraph-direction 'left-to-right))
+  (add-hook 'term-mode-hook 'fix-performance-bug)
+#+END_SRC 
+
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
@@ -722,14 +731,6 @@ at the beginning of the word (C-Ret)
              :ensure t
              )
 #+end_src
-* ansi-term
-Some old settings related to running emacs
-in terminal mode. Most likely can be removed.
-#+BEGIN_SRC emacs-lisp
-  (defun fix-performance-bug ()
-    (setq bidi-paragraph-direction 'left-to-right))
-  (add-hook 'term-mode-hook 'fix-performance-bug)
-#+END_SRC
 * org-mode
 ** org
  #+BEGIN_SRC emacs-lisp
@@ -1059,6 +1060,11 @@ in terminal mode. Most likely can be removed.
 ** docker
 #+BEGIN_SRC emacs-lisp
   (use-package docker
+    :ensure t)
+#+END_SRC
+** tramp-term
+#+BEGIN_SRC emacs-lisp
+  (use-package tramp-term
     :ensure t)
 #+END_SRC
 * theme
