@@ -1057,6 +1057,11 @@ at the beginning of the word (C-Ret)
   (use-package kubernetes
     :ensure t)
 #+END_SRC
+** kubernetes-tramp
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package kubernetes-tramp
+    :ensure t)
+#+END_SRC
 ** docker
 #+BEGIN_SRC emacs-lisp
   (use-package docker
