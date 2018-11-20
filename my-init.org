@@ -745,7 +745,7 @@ at the beginning of the word (C-Ret)
      )
  #+END_SRC
 ** org-ref
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp
   (use-package org-ref
     :ensure t)
 #+END_SRC
@@ -802,7 +802,7 @@ at the beginning of the word (C-Ret)
 
 * other minor stuff
 ** pandoc
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp
   (use-package pandoc-mode
     :ensure t)
 #+END_SRC
@@ -1058,7 +1058,7 @@ at the beginning of the word (C-Ret)
     :ensure t)
 #+END_SRC
 ** kubernetes-tramp
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp
   (use-package kubernetes-tramp
     :ensure t)
 #+END_SRC
@@ -1117,7 +1117,7 @@ at the beginning of the word (C-Ret)
 #+END_SRC
 * non-elpa
 Current kubernetes in mode-line
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/non-elpa/emacs-kubectx-mode-line")
 (require 'kubectx)
 (kubectx-mode 1)
