@@ -888,6 +888,7 @@ at the beginning of the word (C-Ret)
 *** smart-mode-line
   #+BEGIN_SRC emacs-lisp
     (use-package smart-mode-line
+      :disabled t
       :ensure t
       :config
       (sml/setup)
@@ -905,7 +906,6 @@ at the beginning of the word (C-Ret)
 *** doom-mode-line
  #+begin_src emacs-lisp
    (use-package doom-modeline
-     :disabled t
      :ensure t
      :defer t
      :hook (after-init . doom-modeline-init))
