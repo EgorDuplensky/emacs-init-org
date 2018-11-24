@@ -144,7 +144,13 @@ in terminal mode. Most likely can be removed.
     (setq bidi-paragraph-direction 'left-to-right))
   (add-hook 'term-mode-hook 'fix-performance-bug)
 #+END_SRC 
-
+** ediff
+Make vertical split by default
+#+BEGIN_SRC emacs-lisp
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-diff-options "-w")
+  (setq ediff-split-window-function 'split-window-horizontally)
+#+END_SRC
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
@@ -742,6 +748,7 @@ at the beginning of the word (C-Ret)
                  ;; (org-set-local 'yas/trigger-key [tab])
                  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
      :hook (org-mode . flyspell-mode)
+     :custom (org-ellipsis "⤵")
      )
  #+END_SRC
 ** org-ref
