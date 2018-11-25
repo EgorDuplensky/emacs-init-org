@@ -1089,6 +1089,11 @@ at the beginning of the word (C-Ret)
   (use-package markdown-preview-eww
     :ensure t)
 #+END_SRC
+** restart-emacs
+#+BEGIN_SRC emacs-lisp
+  (use-package restart-emacs
+    :ensure t)
+#+END_SRC
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
