@@ -1,7 +1,6 @@
 #+STARTIP: My emacs configuration. Synced with Ubuntu through dropbox. =*Edit carefully*=
 #+startup: overview
 #+creator: Egor Duplensky
-
 * common settings
 ** Custom variables
 #+BEGIN_SRC emacs-lisp
@@ -209,7 +208,9 @@ Make vertical split by default
    #+begin_src emacs-lisp
      (use-package smartparens
        :ensure t
-       :config (smartparens-global-mode t))
+       :config (smartparens-global-mode t)
+       :hook (minibuffer-setup . smartparens-mode)
+       )
    #+end_src
 ** iedit
 #+BEGIN_SRC emacs-lisp
