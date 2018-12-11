@@ -116,6 +116,7 @@
                              'ibuffer-mode
                              'magit-status-mode
                              'magit-popup-mode
+                             'package-menu-mode
                              )))
         (linum-mode))))
 
@@ -807,7 +808,6 @@ at the beginning of the word (C-Ret)
   (use-package gnuplot-mode
     :ensure t)
 #+END_SRC
-
 * other minor stuff
 ** pandoc
 #+BEGIN_SRC emacs-lisp
