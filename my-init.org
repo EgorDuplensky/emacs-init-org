@@ -489,8 +489,10 @@ at the beginning of the word (C-Ret)
      )
  #+END_SRC
 ** call-graph
+Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
   (use-package call-graph
+    :disabled t
     :ensure t
     :config (setq cg-path-to-global "/usr/local/bin/"))
 #+END_SRC
@@ -726,6 +728,23 @@ at the beginning of the word (C-Ret)
     (info-initialize)
     (add-to-list 'Info-directory-list
                  "~/.emacs.d/plugins/magit/Documentation/"))
+
+  (use-package magithub
+    :after magit
+    :ensure t
+    :config
+    (magithub-feature-autoinject t)
+    (setq magithub-clone-default-directory "~/github")
+    )
+
+;; Outtdated package. Disabled.
+  (use-package magit-gerrit
+    :after magit
+    :disabled t
+    :ensure t
+    :config
+    (setq-default magit-gerrit-ssh-creds "xegodup@gerrit.ericsson.se")
+    (setq-default magit-gerrit-remote "gerrit"))
 #+END_SRC
 ** gitignore-mode
 #+begin_src emacs-lisp
