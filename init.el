@@ -32,3 +32,5 @@
     (load custom-file))
 ;;(provide 'init)
 ;;; init.el ends here
+(put 'magit-clean 'disabled nil)
+(put 'scroll-left 'disabled nil)
