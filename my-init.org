@@ -1,7 +1,12 @@
+* ORG-HEADER
 #+STARTIP: My emacs configuration. Synced with Ubuntu through dropbox. =*Edit carefully*=
 #+startup: overview
 #+creator: Egor Duplensky
 * common settings
+** Always ask before quit
+#+BEGIN_SRC emacs-lisp
+(setq confirm-kill-emacs 'y-or-n-p)
+#+END_SRC
 ** Custom variables
 #+BEGIN_SRC emacs-lisp
     ;; Save to kill ring before kill
@@ -104,28 +109,9 @@
   (define-key function-key-map [home] 'beginning-of-buffer)
   (define-key function-key-map [end] 'end-of-buffer)
 #+END_SRC
-** linum-mode configuration
+** line numbers configuration
 #+BEGIN_SRC emacs-lisp
-  (setq linum-format "%d ")
-  ;; enable linum-mode for all the buffers except some specific ones
-  (define-global-minor-mode my-global-linum-mode linum-mode
-    (lambda ()
-      (when (not (memq major-mode
-                       (list 'term-mode
-                             'treemacs-mode
-                             'minibuffer-inactive-mode
-                             'ibuffer-mode
-                             'magit-status-mode
-                             'magit-popup-mode
-                             'magit-popup-help-mode
-                             'help-mode
-                             'tooltip-mode
-                             'transient-resume-mode
-                             'package-menu-mode
-                             )))
-        (linum-mode))))
-
-  (my-global-linum-mode 1)
+  ;; (global-display-line-numbers-mode)
 #+END_SRC
 ** comment / comment out
 #+BEGIN_SRC emacs-lisp
@@ -161,6 +147,11 @@ Make vertical split by default
   (add-to-list 'auto-mode-alist '("Makefile\\..+" . makefile-mode))
   (add-to-list 'auto-mode-alist '("Dockerfile.+" . dockerfile-mode))
 #+END_SRC
+** browser
+#+begin_src emacs-lisp
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "google-chrome")
+#+end_src
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
@@ -226,8 +217,19 @@ Make vertical split by default
    #+end_src
 ** iedit
 #+BEGIN_SRC emacs-lisp
+  (defun iedit-current-func-mode()
+    (interactive)
+    (if (bound-and-true-p iedit-mode)
+        (iedit-mode)
+      (iedit-mode-toggle-on-function)
+      )
+    )
+
   (use-package iedit
-    :ensure t)
+    :ensure t
+    :bind ("C-;" . iedit-current-func-mode)
+    )
+
 #+END_SRC
 ** visual-regexp
 #+BEGIN_SRC emacs-lisp
@@ -307,9 +309,11 @@ Make vertical split by default
     :ensure t
     :bind
     (
+    ("C-x C-M-f" . counsel-fzf)
      :map ivy-minibuffer-map
      ("M-y" . ivy-next-line)
      )
+
     :config (counsel-mode 1)
     )
 #+END_SRC
@@ -484,6 +488,23 @@ at the beginning of the word (C-Ret)
   (use-package ace-isearch
     :ensure t)
 #+END_SRC
+** centaur-tabs
+#+begin_src emacs-lisp
+  (use-package centaur-tabs
+    :ensure t
+    :demand
+    :config
+    (centaur-tabs-mode t)
+    (setq centaur-tabs-set-icons t
+          centaur-tabs-set-close-button nil
+          centaur-tabs-set-modified-marker t
+          centaur-tabs-modified-marker "●"
+          centaur-tabs-gray-out-icons 'buffer
+          centaur-tabs-set-bar 'over)
+    :bind
+    ("C-<prior>" . centaur-tabs-backward)
+    ("C-<next>" . centaur-tabs-forward))
+#+end_src
 * code navigation
 ** xcscope
  #+BEGIN_SRC emacs-lisp
@@ -590,7 +611,17 @@ Breaks emacs after update. Disabled for now.
       (add-to-list 'company-backends 'company-irony))
     (use-package company-shell :ensure t
       :init
-      (add-to-list 'company-backends '(company-shell company-shell-env company-fish-shell)))
+      (add-hook 'c-mode-hook
+      '(lambda ()
+      (set (make-local-variable 'company-backends)
+      '((company-irony company-clang)))))
+
+      (add-hook 'sh-mode-hook
+      '(lambda ()
+      (set (make-local-variable 'company-backends)
+      '((company-capf company-shell company-shell-env company-fish-shell)))))
+      )
+
     (use-package company-quickhelp :ensure t
       :config
       (company-quickhelp-mode 1)
@@ -598,8 +629,8 @@ Breaks emacs after update. Disabled for now.
       :bind ("\C-c h" . #'company-quickhelp-manual-begin))
     (use-package company-ansible
       :ensure t)
-    (setq company-idle-delay              0
-          company-minimum-prefix-length   2
+    (setq company-idle-delay              1
+          company-minimum-prefix-length   0
           company-show-numbers            t
           company-tooltip-limit           20
           company-dabbrev-downcase        nil
@@ -684,6 +715,12 @@ Breaks emacs after update. Disabled for now.
     :config
     (setq git-messenger:use-magit-popup t))
 #+END_SRC
+** git-timemachine
+#+BEGIN_SRC emacs-lisp
+  (use-package git-timemachine
+    :ensure t
+    )
+#+END_SRC
 * project/git stuff
 ** projectile
 #+BEGIN_SRC emacs-lisp
@@ -747,15 +784,6 @@ Breaks emacs after update. Disabled for now.
     (info-initialize)
     (add-to-list 'Info-directory-list
                  "~/.emacs.d/plugins/magit/Documentation/"))
-
-  ;; Outtdated package. Disabled.
-  (use-package magit-gerrit
-    :after magit
-    :disabled t
-    :ensure t
-    :config
-    (setq-default magit-gerrit-ssh-creds "xegodup@gerrit.ericsson.se")
-    (setq-default magit-gerrit-remote "gerrit"))
 #+END_SRC
 ** gitignore-mode
 #+begin_src emacs-lisp
@@ -801,12 +829,12 @@ Breaks emacs after update. Disabled for now.
     :ensure t)
 #+END_SRC
 ** ox-reveal
+** org-re-reveal
 #+BEGIN_SRC emacs-lisp
-  ;; for the presentations
-  (use-package ox-reveal
+  (use-package org-re-reveal
     :ensure t
-    :config
-    (setq org-reveal-root "file:///home/xegodup/github/reveal.js"))
+    :config (setq org-re-reveal-root "file:///home/xegodup/github/reveal.js")
+    )
 #+END_SRC
 ** ox-jira
 #+BEGIN_SRC emacs-lisp
@@ -816,8 +844,11 @@ Breaks emacs after update. Disabled for now.
 ** org-jira
 #+BEGIN_SRC emacs-lisp
   (use-package org-jira
-    :disabled t
-    :ensure t)
+    ;; :disabled t
+    :ensure t
+    :init
+    (setq jiralib-url "https://cc-jira.rnd.ki.sw.ericsson.se")
+    )
 #+END_SRC
 ** ejira
 #+BEGIN_SRC emacs-lisp
@@ -825,8 +856,14 @@ Breaks emacs after update. Disabled for now.
     :load-path "/home/xegodup/github/ejira"
     :ensure nil
     :init
-    (setq jiralib2-url "jira.tietoenator.extern.sw.ericsson.se"
-          jiralib2-user-login-name "xxduplee"
+    (setq jiralib2-url "https://cc-jira.rnd.ki.sw.ericsson.se"
+          jiralib2-user-login-name "xegodup"
+          ejira-main-project "ADPPRG"
+          ejira-my-org-directory "/home/xegodup/org/work/jira"
+          ejira-done-states '("Done")
+          ejira-in-progress-states '("In Progress" "Pending")
+          request-log-level 'debug
+          request-message-level 'debug
           )
     )
 #+END_SRC
@@ -839,12 +876,20 @@ Breaks emacs after update. Disabled for now.
 *** org-capture-templates
 #+begin_src emacs-lisp
   (setq org-capture-templates
-        '(("s" "Should try for emacs" entry (file+olp "/home/xegodup/Dropbox/org/orgzly/Emacs.org" "Should try")
+        '(
+        ("s" "Should try with emacs" entry (file+olp "~/org/orgzly/Emacs.org" "Should try")
            "* TODO %?\n  %i\n  %T")
-          ("m" "Modes" entry (file+olp "/home/xegodup/Dropbox/org/orgzly/Emacs.org" "Modes to be checked out")
+           ("m" "Modes to be checked out" entry (file+olp "~/org/orgzly/Emacs.org" "Modes to be checked out")
            "* TODO %?\n  %i\n  %T")
           ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")))
+           "* %?\nEntered on %U\n  %i\n  %a")
+          ("t" "Task which should be created in jira" entry (file+olp+datetree "~/org/tasks.org")
+           "* TODO [#B] %?\nCreated on %U")x
+          ("i" "Ideas related to common workflow" entry (file+olp "~/org/ideas.org" "Work flow")
+           "* %?\nCreated on %U")
+          ("a" "Ideas related to ADP" entry (file+olp "~/org/ideas.org" "ADP" )
+           "* %?\nCreated on %U")
+           ))
 #+end_src
 ** gnuplot
 #+BEGIN_SRC emacs-lisp
@@ -866,6 +911,20 @@ Breaks emacs after update. Disabled for now.
   (use-package org-wiki
     :load-path "~/.emacs.d/non-elpa/org-wiki"
     )
+#+END_SRC
+** wsd-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package wsd-mode
+    :ensure t)
+#+END_SRC
+** org-plantuml
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(;; other Babel languages
+   (plantuml . t)))
+(setq org-plantuml-jar-path
+      (expand-file-name "~/tools/plantuml.jar"))
 #+END_SRC
 * other minor stuff
 ** pandoc
@@ -945,9 +1004,21 @@ Breaks emacs after update. Disabled for now.
     :ensure t)
 #+END_SRC
 *** go-mode
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp
   (use-package go-mode
     :ensure t)
+#+END_SRC
+*** plantuml
+#+BEGIN_SRC emacs-lisp
+  (use-package plantuml-mode
+    :ensure t
+    :config ;;(add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+    (setq plantuml-jar-path "~/tools/plantuml.jar"
+          plantuml-default-exec-mode 'jar
+          plantuml-exec-mode 'jar
+          plantuml-server-url '"http://www.plantuml.com"
+          )
+    )
 #+END_SRC
 ** modelines
 *** smart-mode-line
@@ -1172,6 +1243,18 @@ Dimming the face of non-active buffers
   (use-package restclient
     :ensure t)
 #+END_SRC
+** disable-mouse
+#+BEGIN_SRC emacs-lisp
+  (use-package disable-mouse
+    :ensure t
+    :config (global-disable-mouse-mode)
+    )
+#+END_SRC
+* email
+#+BEGIN_SRC emacs-lisp
+  (use-package excorporate
+    :ensure t)
+#+END_SRC
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
@@ -1182,8 +1265,6 @@ Dimming the face of non-active buffers
   (set-face-background 'show-paren-mismatch "orange red")
   (set-face-foreground 'which-func "#93E0E3")
   (set-face-background 'hl-line "gray5")
-  (set-face-foreground 'highlight nil)
-  (put 'downcase-region 'disabled nil)
 
   ;; hightlight function calls (they have default color otherwise)
   (defvar font-lock-function-call-face
@@ -1191,7 +1272,7 @@ Dimming the face of non-active buffers
     "Face name to use for format specifiers.")
 
   (defface font-lock-function-call-face
-    '((t . (:foreground "orangered" :bold t)))
+    '((t . (:foreground "#DFAF8F" :bold t)))
     "Face to display method calls in.")
 
   (font-lock-add-keywords
@@ -1213,3 +1294,12 @@ Current kubernetes in mode-line
 (require 'kubectx)
 (kubectx-mode 1)
 #+END_SRC
+Gerrit integration for Magit.
+Allows to push, add reviewers, download pathsets, etc.
+The original version has been abandoned. Use a promising fork instead
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/non-elpa/magit-gerrit")
+(require 'magit-gerrit)
+(setq-default magit-gerrit-ssh-creds "xegodup@gerrit.ericsson.se")
+(setq-default magit-gerrit-remote "gerrit")
+#+end_src
