@@ -1,7 +1,9 @@
 * ORG-HEADER
+#+TITLE: Emacs configuration in form of org file
 #+STARTIP: My emacs configuration. Synced with Ubuntu through dropbox. =*Edit carefully*=
 #+startup: overview
 #+creator: Egor Duplensky
+#+OPTIONS: toc:2
 * common settings
 ** gnu-elpa-keyring-update
 #+begin_src emacs-lisp
