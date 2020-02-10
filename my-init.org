@@ -159,6 +159,25 @@ Make vertical split by default
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "google-chrome")
 #+end_src
+** isearch extension
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun isearch-plus-selection (beg end)
+    "search for selected text"
+    (interactive "r")
+    (if (region-active-p)
+        (let (
+              (selection (buffer-substring-no-properties beg end))
+              )
+          (deactivate-mark)
+          (isearch-mode t nil nil nil)
+          (isearch-yank-string selection)
+          )
+      (isearch-forward)
+      )
+    )
+
+  (define-key global-map [remap isearch-forward] 'isearch-plus-selection)
+#+END_SRC
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
