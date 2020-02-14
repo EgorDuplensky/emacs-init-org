@@ -299,6 +299,10 @@ Make vertical split by default
   (use-package ivy
     :ensure t
     :diminish ivy-mode
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("M-x"  . counsel-M-x)
+     ("C-x C-f" . counsel-find-file))
     :custom-face
     (ivy-current-match ((t
                          :background "#000000"
@@ -307,13 +311,20 @@ Make vertical split by default
                          )))
     :config
     (setq ivy-format-function 'ivy-format-function-arrow)
+    (progn
+      (ivy-mode    1)
+      (setq ivy-use-virtual-buffers t)
+      (setq enable-recursive-minibuffers t)
+      (setq ivy-display-style 'fancy)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+      )
     )
 #+END_SRC
 *** ivy-rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
     :ensure t
-    :after (ivy swiper)
+    :after (ivy)
     :init (setq ivy-rich-path-style 'abbrev
                 ivy-virtual-abbreviate 'full)
     :config (setq ivy-rich-parse-remote-buffer nil)
@@ -355,25 +366,6 @@ Use ivy for projectile
 #+BEGIN_SRC emacs-lisp
   (use-package counsel-tramp
     :ensure t)
-#+END_SRC
-** swiper
-#+BEGIN_SRC emacs-lisp
-  (use-package swiper
-    :ensure t
-    :bind
-    (("C-x M-s" . swiper)
-     ("C-c C-r" . ivy-resume)
-     ("M-x"  . counsel-M-x)
-     ("C-x C-f" . counsel-find-file))
-    :config
-    (progn
-      (ivy-mode    1)
-      (setq ivy-use-virtual-buffers t)
-      (setq enable-recursive-minibuffers t)
-      (setq ivy-display-style 'fancy)
-      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
-      )
-    )
 #+END_SRC
 ** ibuffer
 *** ibuffer-vc
@@ -600,21 +592,6 @@ Breaks emacs after update. Disabled for now.
 *** work-settings
 # #+include: "~/.emacs.d/work-specific-settings.el" src emacs-lisp
 # ##+INCLUDE: "~/.emacs.d/work-specific-settings.org"
-** autocomplete
-#+BEGIN_SRC emacs-lisp
-  ;; load POPUP first
-  (use-package popup
-    :ensure t
-    )
-  (use-package auto-complete
-    :disabled t
-    :ensure t
-    :config
-    (ac-config-default)
-    :init
-    (setq ac-modes '(sh-mode emacs-lisp-mode lisp-mode lisp-interaction-mode python-mode))
-    )
-#+END_SRC
 ** company
 #+BEGIN_SRC emacs-lisp
   (use-package company
@@ -765,9 +742,6 @@ Breaks emacs after update. Disabled for now.
     :defer t
     :config
     (progn
-      (use-package treemacs-evil
-        :ensure t
-        :demand t)
       (setq treemacs-follow-after-init          t
             treemacs-width                      35
             treemacs-indentation                2
@@ -1217,12 +1191,6 @@ Dimming the face of non-active buffers
     :ensure t
     :config (global-disable-mouse-mode)
     )
-#+END_SRC
-* email
-#+BEGIN_SRC emacs-lisp
-  (use-package excorporate
-    :disable t
-    :ensure t)
 #+END_SRC
 * theme
 #+BEGIN_SRC emacs-lisp
