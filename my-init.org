@@ -180,6 +180,10 @@ Make vertical split by default
 
   (define-key global-map [remap isearch-forward] 'isearch-plus-selection)
 #+END_SRC
+** autosave bookmarks
+#+begin_src emacs-lisp
+  (setq bookmark-save-flag t)
+#+end_src
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
