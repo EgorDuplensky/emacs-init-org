@@ -1091,7 +1091,7 @@ Popup with correction candidate
    #+begin_src emacs-lisp
      (use-package keyfreq
        :ensure t
-       :disable t
+       :disabled t
        :init
        (keyfreq-mode 1)
        (keyfreq-autosave-mode 1)
@@ -1101,7 +1101,7 @@ Popup with correction candidate
 Dimming the face of non-active buffers
 #+begin_src emacs-lisp
   (use-package dimmer
-    :disable t
+    :disabled t
     :ensure t
     :config
     (setq dimmer-exclusion-regexp "magit-popup-mode")
