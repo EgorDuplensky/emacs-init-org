@@ -38,25 +38,30 @@
 #+END_SRC
 ** Enable/Disable some minor modes
 #+BEGIN_SRC emacs-lisp
-    ;; Mode line config
-    (column-number-mode 1)
-    ;; hide default TOOLBAR
-    (hide-ifdef-mode 1)
-    ;; hightlight brackets
-    (show-paren-mode t)
-    ;; disable toolbar
-    (tool-bar-mode -1)
-    ;; hightlight current line
-    (global-hl-line-mode 1)
-    ;;Displays the current function name in the mode line
-    (which-function-mode 1)
-    (menu-bar-mode 0)
-    (scroll-bar-mode 0)
-    ;; Cursor color
-    ;; (set-cursor-color "red")
-    (blink-cursor-mode 0)
-    ;; Overwrite selected text
-    (delete-selection-mode 1)
+  ;; Mode line config
+  (column-number-mode 1)
+  ;; hide default TOOLBAR
+  (hide-ifdef-mode 1)
+  ;; hightlight brackets
+  (show-paren-mode t)
+  ;; disable toolbar
+  (tool-bar-mode -1)
+  ;; hightlight current line
+  (global-hl-line-mode 1)
+  ;;Displays the current function name in the mode line
+  (which-function-mode 1)
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+  (defun my/disable-scroll-bars (frame)
+    (modify-frame-parameters frame
+                             '((vertical-scroll-bars . nil)
+                               (horizontal-scroll-bars . nil))))
+  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+  ;; Cursor color
+  ;; (set-cursor-color "red")
+  (blink-cursor-mode 0)
+  ;; Overwrite selected text
+  (delete-selection-mode 1)
 #+END_SRC
 ** Scrolling without moving point
  Useful feature but not sure about bindings yet
