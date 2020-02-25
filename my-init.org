@@ -223,17 +223,7 @@ Useful when you need to enter file's location in terminal
 ** aggressive-indent
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
-    :ensure t
-    :init
-    (progn
-      (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-      (add-hook 'css-mode-hook #'aggressive-indent-mode)
-      (add-hook 'c-mode-hook #'aggressive-indent-mode)
-      (add-hook 'c++-mode-hook #'aggressive-indent-mode)
-      (add-hook 'css-mode-hook #'aggressive-indent-mode)
-      (add-hook 'shell-script-mode #'aggressive-indent-mode)
-      )
-    )
+    :ensure t)
 #+END_SRC
 ** expand-region
 #+BEGIN_SRC emacs-lisp
