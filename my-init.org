@@ -576,31 +576,14 @@ Breaks emacs after update. Disabled for now.
     (setq-default flycheck-disabled-checkers '(irony))
     )
 #+END_SRC
-*** flycheck-pos-tip
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck-pos-tip
-    :ensure pos-tip
-    :config
-    (flycheck-pos-tip-mode)
-    )
-#+END_SRC
-*** flycheck-popup-tip
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck-popup-tip
-    :ensure t
-    :config (eval-after-load 'flycheck
-              (if (display-graphic-p)
-                  (flycheck-pos-tip-mode)
-                (flycheck-popup-tip-mode))))
-#+END_SRC
 *** flycheck-posframe
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck-posframe
+  (use-package flycheck-pos-tip
     :ensure t
-    :config (flycheck-posframe-configure-pretty-defaults)
+    :after flycheck
+    :hook (flycheck-mode-hook . flycheck-pos-tip-mode)
     )
 #+END_SRC
-*** work-settings
 # #+include: "~/.emacs.d/work-specific-settings.el" src emacs-lisp
 # ##+INCLUDE: "~/.emacs.d/work-specific-settings.org"
 ** company
