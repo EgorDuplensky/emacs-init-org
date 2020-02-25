@@ -248,6 +248,7 @@ Useful when you need to enter file's location in terminal
      (use-package smartparens
        :ensure t
        :config (smartparens-global-mode t)
+       :custom (sp-escape-quotes-after-insert nil)
        :hook (minibuffer-setup . smartparens-mode)
        )
    #+end_src
