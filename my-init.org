@@ -154,6 +154,9 @@ Make vertical split by default
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("Makefile\\..+" . makefile-mode))
   (add-to-list 'auto-mode-alist '("Dockerfile.+" . dockerfile-mode))
+  (add-to-list 'auto-mode-alist '("\\.*bashrc" . shell-script-mode))
+  (add-to-list 'auto-mode-alist '("\\.profile" . shell-script-mode))
+  (add-to-list 'auto-mode-alist '("\\.xinitrc" . shell-script-mode))
 #+END_SRC
 ** browser
 #+begin_src emacs-lisp
