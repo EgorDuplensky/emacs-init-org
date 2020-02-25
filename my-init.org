@@ -77,11 +77,7 @@
  #+END_SRC
 ** Disable alarm bell for "C-g"
  #+BEGIN_SRC emacs-lisp
-   (setq ring-bell-function 
-         (lambda ()
-           (unless (memq this-command
-                         '(isearch-abort abort-recursive-edit exit-minibuffer keyboard-quit))
-             (ding))))
+   (setq ring-bell-function 'ignore)
  #+END_SRC
 ** y-or-n-p
 #+BEGIN_SRC emacs-lisp
