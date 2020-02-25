@@ -34,3 +34,5 @@
 ;;; init.el ends here
 (put 'magit-clean 'disabled nil)
 (put 'scroll-left 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
