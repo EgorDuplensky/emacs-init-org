@@ -184,6 +184,20 @@ Make vertical split by default
 #+begin_src emacs-lisp
   (setq bookmark-save-flag t)
 #+end_src
+** file path to clipboard
+Useful when you need to enter file's location in terminal
+#+begin_src emacs-lisp
+(defun copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
+
+#+end_src
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
