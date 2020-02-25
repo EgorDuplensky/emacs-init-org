@@ -883,12 +883,6 @@ Breaks emacs after update. Disabled for now.
   (use-package org-mime
     :ensure t)
 #+END_SRC
-** org-wiki
-#+BEGIN_SRC emacs-lisp
-  (use-package org-wiki
-    :load-path "~/.emacs.d/non-elpa/org-wiki"
-    )
-#+END_SRC
 ** wsd-mode
 #+BEGIN_SRC emacs-lisp
   (use-package wsd-mode
