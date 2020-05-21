@@ -626,6 +626,8 @@ Breaks emacs after update. Disabled for now.
       :ensure t)
     (use-package company-emoji
       :ensure t)
+    (use-package company-makefile
+      :ensure t)
     (setq company-idle-delay              3
           company-minimum-prefix-length   0
           company-show-numbers            t
@@ -669,6 +671,11 @@ Breaks emacs after update. Disabled for now.
     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
     )
 #+END_SRC
+** cpp-auto-include
+#+begin_src emacs-lisp
+  (use-package cpp-auto-include
+    :ensure t)
+#+end_src
 ** hide-if-def
 #+BEGIN_SRC emacs-lisp
 (add-hook 'c-mode-hook 'hide-ifdef-mode)
