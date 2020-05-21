@@ -1085,7 +1085,7 @@ Popup with correction candidate
   (use-package google-translate
     :ensure t
     :config
-    (setq google-translate-default-target-language "ru")
+    :custom (google-translate-default-target-language "ru")
     :bind ("C-c t" . google-translate-at-point)
     )
 #+end_src
