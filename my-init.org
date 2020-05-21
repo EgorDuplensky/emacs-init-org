@@ -1149,12 +1149,28 @@ Dimming the face of non-active buffers
     :config (global-disable-mouse-mode)
     )
 #+END_SRC
+** cmake-mode
+#+begin_src emacs-lisp
+  (use-package cmake-mode
+    :ensure t)
+#+end_src
+** systemd
+#+begin_src emacs-lisp
+  (use-package systemd
+    :ensure t)
+#+end_src
+** sudo-edit
+#+begin_src emacs-lisp
+  (use-package sudo-edit
+    :ensure t)
+#+end_src
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
     :ensure t
     :init (load-theme 'zenburn t))
-  (set-frame-font "-xos4-xos4 Terminus-normal-normal-normal-*-14-*-*-*-c-80-iso10646-1")
+  (set-frame-font "-xos4-terminus-medium-r-normal--14-*-72-72-c-80-iso10646-1")
+  (setq default-frame-alist '((font . "-xos4-terminus-medium-r-normal--14-*-72-72-c-80-iso10646-1")))
   (set-face-background 'show-paren-match "sea green")
   (set-face-background 'show-paren-mismatch "orange red")
   (set-face-foreground 'which-func "#93E0E3")
