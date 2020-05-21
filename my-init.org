@@ -584,8 +584,21 @@ Breaks emacs after update. Disabled for now.
     :hook (flycheck-mode-hook . flycheck-pos-tip-mode)
     )
 #+END_SRC
-# #+include: "~/.emacs.d/work-specific-settings.el" src emacs-lisp
-# ##+INCLUDE: "~/.emacs.d/work-specific-settings.org"
+** autocomplete
+#+BEGIN_SRC emacs-lisp
+  ;; load POPUP first
+  (use-package popup
+    :ensure t
+    )
+  (use-package auto-complete
+    :disabled t
+    :ensure t
+    :config
+    (ac-config-default)
+    :init
+    (setq ac-modes '(sh-mode emacs-lisp-mode lisp-mode lisp-interaction-mode python-mode))
+    )
+#+END_SRC
 ** company
 #+BEGIN_SRC emacs-lisp
   (use-package company
