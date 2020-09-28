@@ -740,7 +740,10 @@ Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :ensure t
-    :config (projectile-mode -1))
+    :config
+    (projectile-mode -1)
+    (setq projectile-completion-system 'ivy)
+    )
 #+END_SRC
 ** treemacs
 #+BEGIN_SRC emacs-lisp
