@@ -521,6 +521,12 @@ at the beginning of the word (C-Ret)
     ("C-<prior>" . centaur-tabs-backward)
     ("C-<next>" . centaur-tabs-forward))
 #+end_src
+** rg
+#+begin_src emacs-lisp
+  (use-package rg
+    :ensure t
+    :config (rg-enable-default-bindings))
+#+end_src
 * code navigation
 ** xcscope
  #+BEGIN_SRC emacs-lisp
