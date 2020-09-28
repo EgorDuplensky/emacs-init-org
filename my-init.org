@@ -1211,18 +1211,10 @@ Dimming the face of non-active buffers
   (set-face-attribute 'button nil :foreground "#7F9F7F")
 #+END_SRC
 * non-elpa
-** magit-gerrit
-  Gerrit integration for Magit.
-  Allows to push, add reviewers, download pathsets, etc.
-  The original version has been abandoned. Use a promising fork instead
-  #+begin_src emacs-lisp
-    ;; (add-to-list 'load-path "~/.emacs.d/non-elpa/magit-gerrit")
-    ;; (require 'magit-gerrit)
-    ;; (setq-default magit-gerrit-ssh-creds "xegodup@gerrit.ericsson.se")
-    ;; (setq-default magit-gerrit-remote "gerrit")
-  #+end_src
+* not using for some reason
 ** no-easy-keys
    Force to use right key in emacs (no arrows / Delete / Home / etc)
+   Already made me to not use those keys.
   #+begin_src emacs-lisp
     (add-to-list 'load-path "~/.emacs.d/non-elpa/emacs-no-easy-keys")
     (require 'no-easy-keys)
