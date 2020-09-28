@@ -100,6 +100,7 @@
   (global-set-key "\C-c\C-s" 'kill-compilation)
   (global-set-key "\C-c\M-b" 'emu-backend-find)
   (global-set-key [(shift f1)] 'next-error)
+  (global-set-key (kbd "<return>") 'ignore)
   (define-key global-map [f1] 'next-error)
   (define-key global-map [f2] 'previous-error)
   (define-key global-map [f3] 'previous-error)
