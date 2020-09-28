@@ -960,10 +960,7 @@ Breaks emacs after update. Disabled for now.
               ("\\.markdown\\'" . markdown-mode))
        :init (setq markdown-command "multimarkdown")
        :config
-       (defun my-flymd-browser-function (url)
-         (let ((browse-url-browser-function 'browse-url-firefox))
-           (browse-url url)))
-       (setq flymd-browser-open-function 'my-flymd-browser-function)
+       (setq browse-url-browser-function 'browse-url-chromium)
        )
    #+END_SRC
 **** flymd
@@ -1078,7 +1075,7 @@ Breaks emacs after update. Disabled for now.
                         '(:key "C-x C-x" :description "Go back to the mark.")
                         '(:key "C-u C-SPC" :description "Cycle through the mark ring of the current buffer.")
                         '(:key "C-x C-SPC" :description "Cycle through the global mark ring.")
-                        '(:key "counseal-mark-ring" :description "Interactive cycle through the mark ring of the current buffer."))
+                        '(:key "counsel-mark-ring" :description "Interactive cycle through the mark ring of the current buffer."))
 #+end_src
 ** flyspell-settings
 #+BEGIN_SRC emacs-lisp
