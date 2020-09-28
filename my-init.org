@@ -510,6 +510,7 @@ at the beginning of the word (C-Ret)
     :demand
     :config
     (centaur-tabs-mode t)
+    (centaur-tabs-change-fonts "Terminus" 100)
     (setq centaur-tabs-set-icons t
           centaur-tabs-set-close-button nil
           centaur-tabs-set-modified-marker t
