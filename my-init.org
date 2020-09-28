@@ -162,7 +162,7 @@ Make vertical split by default
 ** browser
 #+begin_src emacs-lisp
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "google-chrome")
+      browse-url-generic-program "chromium")
 #+end_src
 ** autosave bookmarks
 #+begin_src emacs-lisp
