@@ -248,7 +248,9 @@ Useful when you need to enter file's location in terminal
 
   (use-package iedit
     :ensure t
-    :bind ("C-;" . iedit-current-func-mode)
+    :bind
+    ("C-;" . iedit-current-func-mode)
+    ("C-:" . iedit-mode)
     )
 
 #+END_SRC
