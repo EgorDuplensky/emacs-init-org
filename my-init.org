@@ -192,7 +192,6 @@ Useful when you need to enter file's location in terminal
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
-   (setq auto-revert-check-vc-info t)
  #+END_SRC
 * editing stuff
 ** undo-tree
