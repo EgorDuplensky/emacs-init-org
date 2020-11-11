@@ -628,6 +628,12 @@ Breaks emacs after update. Disabled for now.
       (add-hook 'after-init-hook 'global-company-mode)
       )
     :config
+    (setq company-require-match nil)
+    (use-package company-fuzzy
+      :ensure t
+      :config
+      (global-company-fuzzy-mode 1)
+      )
     (use-package company-ctags
       :ensure t)
     (use-package company-irony
