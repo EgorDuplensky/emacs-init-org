@@ -663,8 +663,6 @@ Breaks emacs after update. Disabled for now.
       :ensure t)
     (use-package company-emoji
       :ensure t)
-    (use-package company-makefile
-      :ensure t)
     (setq company-idle-delay              3
           company-minimum-prefix-length   0
           company-show-numbers            t
