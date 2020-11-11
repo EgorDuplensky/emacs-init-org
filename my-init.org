@@ -219,6 +219,7 @@ Useful when you need to enter file's location in terminal
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
     :ensure t
+    :after (org)
     :init
     ;; disable M-q "fill paragraph"
     (defun my-expand-region-bind-hook()
