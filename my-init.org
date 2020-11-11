@@ -672,6 +672,7 @@ Breaks emacs after update. Disabled for now.
 
     :bind ("\C-q" . company-complete-common)
     )
+
 #+END_SRC
 ** yasnippet
   #+BEGIN_SRC emacs-lisp
@@ -811,20 +812,36 @@ Breaks emacs after update. Disabled for now.
   (use-package magit
     :ensure t
     :bind ("C-x g" . magit-status)
+    :config
+    (setq transient-display-buffer-action '(display-buffer-below-selected))
+    (setq magit-ediff-dwim-show-on-hunks t)
+    (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
+    (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
+    (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
+    (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added)
+    (setq ediff-make-buffers-readonly-at-startup t)
     )
 
-  (use-package with-editor
-    :ensure t
-    )
+    (use-package with-editor
+      :ensure t
+      )
 
-  (require 'with-editor)
-  (require 'magit)
+    (require 'with-editor)
+    (require 'magit)
 
-  (with-eval-after-load 'info
-    (info-initialize)
-    (add-to-list 'Info-directory-list
-                 "~/.emacs.d/plugins/magit/Documentation/"))
+    (with-eval-after-load 'info
+      (info-initialize)
+      (add-to-list 'Info-directory-list
+                   "~/.emacs.d/plugins/magit/Documentation/"))
 #+END_SRC
+** smerge
+#+begin_src emacs-lisp :tangle yes
+(use-package smerge-mode
+:ensure t
+:bind (:map smerge-mode-map
+("M-p" . smerge-prev)
+("M-n" . smerge-next)))
+#+end_src
 ** gitignore-mode
 #+begin_src emacs-lisp
 (use-package gitignore-mode
