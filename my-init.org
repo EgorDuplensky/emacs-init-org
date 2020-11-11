@@ -1128,7 +1128,6 @@ Breaks emacs after update. Disabled for now.
 Popup with correction candidate
  #+begin_src emacs-lisp
    (use-package flyspell-correct-popup
-     :bind ("C-M-;" . flyspell-correct-wrapper)
      :init
      (setq flyspell-correct-interface #'flyspell-correct-popup))
  #+end_src
