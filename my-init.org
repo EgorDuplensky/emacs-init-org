@@ -1275,9 +1275,16 @@ Dimming the face of non-active buffers
   #+end_src
 ** no-easy-keys
    Force to use right key in emacs (no arrows / Delete / Home / etc)
-   Already made me to not use those keys.
   #+begin_src emacs-lisp
-    (add-to-list 'load-path "~/.emacs.d/non-elpa/emacs-no-easy-keys")
-    (require 'no-easy-keys)
-    (no-easy-keys 1)
+    (use-package no-easy-keys
+      :ensure nil
+      :load-path "non-elpa/emacs-no-easy-keys"
+      :config (no-easy-keys 1))
   #+end_src
+** company-makefile
+  #+begin_src emacs-lisp
+    (use-package company-makefile
+      :ensure nil
+      :load-path "non-elpa/company-makefile")
+  #+end_src
+
