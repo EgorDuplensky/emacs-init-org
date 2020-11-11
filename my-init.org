@@ -1218,6 +1218,16 @@ Dimming the face of non-active buffers
   (use-package sudo-edit
     :ensure t)
 #+end_src
+** oauth2
+#+begin_src emacs-lisp
+(use-package oauth2
+:ensure t)
+#+end_src
+** simple-httpd
+#+begin_src emacs-lisp
+(use-package simple-httpd
+:ensure t)
+#+end_src
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
@@ -1252,7 +1262,17 @@ Dimming the face of non-active buffers
   (set-face-attribute 'button nil :foreground "#7F9F7F")
 #+END_SRC
 * non-elpa
-* not using for some reason
+** spotify
+  #+begin_src emacs-lisp
+    (use-package spotify
+      :ensure nil
+      :load-path "non-elpa/spotify.el"
+      :config
+      (setq spotify-oauth2-client-secret "7f213c3a75744a019626242facd63330")
+      (setq spotify-oauth2-client-id "d3ecdb988fb44deea00fdfb069cf3753")
+      (setq spotify-transport 'connect)
+      )
+  #+end_src
 ** no-easy-keys
    Force to use right key in emacs (no arrows / Delete / Home / etc)
    Already made me to not use those keys.
