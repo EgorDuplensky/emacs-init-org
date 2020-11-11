@@ -182,6 +182,13 @@ Useful when you need to enter file's location in terminal
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 
 #+end_src
+** kill all buffers except current one
+#+begin_src emacs-lisp
+(defun kill-other-buffers ()
+      "Kill all other buffers."
+      (interactive)
+      (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+#+end_src
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
