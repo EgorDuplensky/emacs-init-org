@@ -591,7 +591,11 @@ Breaks emacs after update. Disabled for now.
       :init
       (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
       )
-    (setq-default temporary-file-directory "~/.emacs-tmp-dir")
+
+    (setq-default temporary-file-directory "~/.cache/emacs")
+    (unless (file-exists-p temporary-file-directory)
+      (make-directory temporary-file-directory))
+
     (setq-default flycheck-disabled-checkers '(irony))
     )
 #+END_SRC
