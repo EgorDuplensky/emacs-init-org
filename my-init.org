@@ -816,7 +816,11 @@ Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :ensure t
-    :bind ("C-x g" . magit-status)
+    :bind (("C-x g" . magit-status)
+           :map magit-file-section-map
+           ("RET" . magit-diff-visit-file-other-window)
+           :map magit-hunk-section-map
+           ("RET" . magit-diff-visit-file-other-window))
     :config
     (setq transient-display-buffer-action '(display-buffer-below-selected))
     (setq magit-ediff-dwim-show-on-hunks t)
