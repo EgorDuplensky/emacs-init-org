@@ -1162,9 +1162,13 @@ Popup with correction candidate
   (use-package google-translate
     :ensure t
     :config
-    :custom (google-translate-default-target-language "ru")
+    :custom
+    (google-translate-default-target-language "ru")
+    (google-translate-default-source-language "en")
+    (google-translate-backend-method 'curl)
     :bind ("C-c t" . google-translate-at-point)
     )
+    (defun google-translate--search-tkk () "Search TKK." (list 430675 2721866130))
 #+end_src
 ** key-frequency
    Shows frequency of emacs commands
