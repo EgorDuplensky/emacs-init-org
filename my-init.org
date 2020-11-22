@@ -336,11 +336,13 @@ Ensure recentf even when emacs daemon is killed ungracefully
     :after (ivy)
     :init (setq ivy-rich-path-style 'abbrev
                 ivy-virtual-abbreviate 'full)
-    :config (setq ivy-rich-parse-remote-buffer nil)
-    :hook (ivy-mode . ivy-rich-mode)
+    :config
+    (ivy-rich-mode 1)
+    :custom
+    (ivy-rich-parse-remote-buffer nil)
     )
 #+END_SRC
-*** COMMENT ivy-posframe
+*** ivy-posframe
 #+begin_src emacs-lisp
   (use-package ivy-posframe
     :after ivy
