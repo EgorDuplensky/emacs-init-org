@@ -481,7 +481,13 @@ Use ivy for projectile
   (use-package smooth-scrolling
     :ensure t
     :config
-    (smooth-scrolling-mode 1))
+    (smooth-scrolling-mode 1)
+    :bind
+    ("C-v". scroll-up-line)
+    ("M-v". scroll-down-line)
+    :custom
+    (smooth-scroll-margin 20)
+    )
 #+end_src
 ** ace-window
 #+BEGIN_SRC emacs-lisp
