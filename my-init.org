@@ -644,6 +644,9 @@ Breaks emacs after update. Disabled for now.
       (add-hook 'term-mode-hook 'company-term-hook)
       (add-hook 'after-init-hook 'global-company-mode)
       )
+    :bind (:map company-active-map
+    ("C-n" . company-select-next)
+    ("C-p" . company-select-previous))
     :config
     (setq company-require-match nil)
     (use-package company-fuzzy
