@@ -1259,8 +1259,8 @@ Dimming the face of non-active buffers
   (use-package zenburn-theme
     :ensure t
     :init (load-theme 'zenburn t))
-  (set-frame-font "-xos4-terminus-medium-r-normal--14-*-72-72-c-80-iso10646-1")
-  (setq default-frame-alist '((font . "-xos4-terminus-medium-r-normal--14-*-72-72-c-80-iso10646-1")))
+  (set-frame-font "-PfEd-Terminus-normal-normal-normal-*-14-*-72-72-c-*-iso10646-1")
+  (setq default-frame-alist '((font . "-PfEd-Terminus-normal-normal-normal-*-14-*-72-72-c-*-iso10646-1")))
   (set-face-background 'show-paren-match "sea green")
   (set-face-background 'show-paren-mismatch "orange red")
   (set-face-foreground 'which-func "#93E0E3")
