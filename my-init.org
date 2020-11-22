@@ -655,14 +655,21 @@ Breaks emacs after update. Disabled for now.
       :ensure t
       :defer t
       :init
-      (add-to-list 'company-backends 'company-irony))
+      (add-to-list 'company-backends 'company-irony)
+      :custom
+      (flycheck-clang-standart-library "libstdc++")
+      (flycheck-clang-language-standard "c++17")
+      )
     (use-package company-shell :ensure t
       :init
       (add-hook 'c-mode-hook
                 '(lambda ()
                    (set (make-local-variable 'company-backends)
                         '((company-irony company-clang)))))
-
+      (add-hook 'c++-mode-hook
+                '(lambda ()
+                   (set (make-local-variable 'company-backends)
+                        '((company-irony company-clang)))))
       (add-hook 'sh-mode-hook
                 '(lambda ()
                    (set (make-local-variable 'company-backends)
