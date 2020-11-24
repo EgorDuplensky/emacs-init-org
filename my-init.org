@@ -844,24 +844,27 @@ Breaks emacs after update. Disabled for now.
     :config
     (setq transient-display-buffer-action '(display-buffer-below-selected))
     (setq magit-ediff-dwim-show-on-hunks t)
-    (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
-    (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
-    (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
-    (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added)
     (setq ediff-make-buffers-readonly-at-startup t)
+    (defun ediff-mode-face-config-hook ()
+      (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
+      (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
+      (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
+      (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added))
+    :hook
+    (ediff-mode . ediff-mode-face-config-hook)
     )
 
-    (use-package with-editor
-      :ensure t
-      )
+  (use-package with-editor
+    :ensure t
+    )
 
-    (require 'with-editor)
-    (require 'magit)
+  (require 'with-editor)
+  (require 'magit)
 
-    (with-eval-after-load 'info
-      (info-initialize)
-      (add-to-list 'Info-directory-list
-                   "~/.emacs.d/plugins/magit/Documentation/"))
+  (with-eval-after-load 'info
+    (info-initialize)
+    (add-to-list 'Info-directory-list
+                 "~/.emacs.d/plugins/magit/Documentation/"))
 #+END_SRC
 ** smerge
 #+begin_src emacs-lisp :tangle yes
