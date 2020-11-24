@@ -541,16 +541,19 @@ at the beginning of the word (C-Ret)
 #+begin_src emacs-lisp
   (use-package centaur-tabs
     :ensure t
-    :demand
-    :config
-    (centaur-tabs-mode t)
+    :init
     (centaur-tabs-change-fonts "Terminus" 100)
     (setq centaur-tabs-set-icons t
           centaur-tabs-set-close-button nil
           centaur-tabs-set-modified-marker t
           centaur-tabs-modified-marker "●"
           centaur-tabs-gray-out-icons 'buffer
-          centaur-tabs-set-bar 'over)
+          centaur-tabs-set-bar 'over
+          centaur-tabs-style "wave")
+    :config
+    (centaur-tabs-mode t)
+    :custom-face
+    (tab-line ((t (:background "#2B2B2B"))))
     :bind
     ("C-<prior>" . centaur-tabs-backward)
     ("C-<next>" . centaur-tabs-forward))
