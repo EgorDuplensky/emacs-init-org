@@ -840,6 +840,8 @@ Breaks emacs after update. Disabled for now.
            ("RET" . magit-diff-visit-file-other-window)
            :map magit-hunk-section-map
            ("RET" . magit-diff-visit-file-other-window))
+    :hook
+    (ediff-mode . ediff-mode-face-config-hook)
     :config
     (setq transient-display-buffer-action '(display-buffer-below-selected))
     (setq magit-ediff-dwim-show-on-hunks t)
@@ -849,9 +851,55 @@ Breaks emacs after update. Disabled for now.
       (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
       (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
       (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added))
-    :hook
-    (ediff-mode . ediff-mode-face-config-hook)
+    (defun counsel-magit-checkout ()
+      "Forward to `describe-function'."
+      (interactive)
+      (ivy-read "Switch to branch: "
+                (magit-list-other-branch-or-commit)
+                :action 'magit-checkout
+                :caller 'counsel-magit-checkout))
+
+    (defun magit-get-current-commit-sha-short (rev)
+      (magit-rev-parse "--short" rev))
+
+    (when (string-match "\\`heads/\\(.+\\)" revision)
+      (setq revision (match-string 1 revision)))
+    (magit-run-git "checkout" revision))
+
+  (define-key magit-mode-map "b" 'counsel-magit-checkout)
+
+  (defun magit-comming-message (rev)
+    (magit-rev-format "%s" rev))
+
+  (defun magit-branch-or-commit-at-point-save ()
+    (let (atpoint (magit-branch-or-commit-at-point))
+      (if atpoint atpoint "")
+      )
     )
+
+  (defun magit-get-upstream-branch-save (rev)
+    (let ((branch (magit-get-upstream-branch rev)))
+      (if branch branch "")
+      ))
+
+  (defun magit-list-other-branch-or-commit ()
+    (let* ((current (magit-get-current-branch))
+           (atpoint (magit-branch-or-commit-at-point))
+           (exclude current)
+           (default (or (and (not (equal atpoint exclude))
+                             (not (and (not current)
+                                       (magit-rev-equal atpoint "HEAD")))
+                             atpoint)
+                        (and (not (equal current exclude)) current)
+                        (magit-get-previous-branch))))
+      (let ((result (delete exclude (magit-list-refnames))))
+        (if atpoint (cons atpoint result) result)
+        )
+      ))
+
+  :hook
+  (ediff-mode . ediff-mode-face-config-hook)
+  )
 
   (use-package with-editor
     :ensure t
