@@ -1156,12 +1156,17 @@ Breaks emacs after update. Disabled for now.
   (add-hook 'text-mode-hook 'flyspell-mode)
 #+END_SRC
 ** flyspell-correct
+   #+begin_src emacs-lisp :tangle yes
+     (use-package flyspell-correct
+       :ensure t
+       :after flyspell)
+   #+end_src
 *** flyspell-correct-popup
 Popup with correction candidate
  #+begin_src emacs-lisp
    (use-package flyspell-correct-popup
-     :init
-     (setq flyspell-correct-interface #'flyspell-correct-popup))
+     :ensure t
+     :after flyspell-correct)
  #+end_src
 ** google-translate
 #+begin_src emacs-lisp
