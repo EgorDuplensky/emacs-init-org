@@ -333,7 +333,7 @@ Ensure recentf even when emacs daemon is killed ungracefully
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
     :ensure t
-    :after (ivy)
+    :after magit
     :init (setq ivy-rich-path-style 'abbrev
                 ivy-virtual-abbreviate 'full)
     :config
@@ -345,7 +345,6 @@ Ensure recentf even when emacs daemon is killed ungracefully
 *** ivy-posframe
 #+begin_src emacs-lisp
   (use-package ivy-posframe
-    :after ivy
     :ensure t
     :custom-face
     (ivy-posframe-border ((t (:background "#e6e1dc"))))
