@@ -542,7 +542,6 @@ at the beginning of the word (C-Ret)
   (use-package centaur-tabs
     :ensure t
     :init
-    (centaur-tabs-change-fonts "Terminus" 100)
     (setq centaur-tabs-set-icons t
           centaur-tabs-set-close-button nil
           centaur-tabs-set-modified-marker t
@@ -552,6 +551,7 @@ at the beginning of the word (C-Ret)
           centaur-tabs-style "wave")
     :config
     (centaur-tabs-mode t)
+    (centaur-tabs-change-fonts "Terminus" 100)
     :custom-face
     (tab-line ((t (:background "#2B2B2B"))))
     :bind
