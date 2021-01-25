@@ -909,8 +909,14 @@ Breaks emacs after update. Disabled for now.
     (add-to-list 'Info-directory-list
                  "~/.emacs.d/plugins/magit/Documentation/"))
 #+END_SRC
+** forge
+   #+begin_src emacs-lisp
+     (use-package forge
+       :after magit
+       :ensure t)
+   #+end_src
 ** smerge
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package smerge-mode
 :ensure t
 :bind (:map smerge-mode-map
