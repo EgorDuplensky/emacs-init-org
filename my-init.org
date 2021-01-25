@@ -935,6 +935,19 @@ Breaks emacs after update. Disabled for now.
              :ensure t
              )
 #+end_src
+** fasd
+   #+begin_src emacs-lisp
+     (use-package fasd
+       :ensure t
+       :config
+       (global-fasd-mode 1)
+       (setq fasd-enable-initial-prompt nil)
+       (setq fasd-completing-read-function #'ivy-completing-read)
+       (add-to-list 'ivy-sort-functions-alist (cons #'fasd-find-file nil))
+
+       :bind ("M-z" . fasd-find-file)
+       )
+   #+end_src
 * org-mode
 ** org
  #+BEGIN_SRC emacs-lisp
