@@ -189,11 +189,6 @@ Useful when you need to enter file's location in terminal
       (interactive)
       (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
 #+end_src
-** daemon
-Ensure recentf even when emacs daemon is killed ungracefully
-#+begin_src emacs-lisp
-  (run-at-time (current-time) (* 5 60) 'recentf-save-list)
-#+end_src
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
