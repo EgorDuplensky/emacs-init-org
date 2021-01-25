@@ -1218,7 +1218,7 @@ Breaks emacs after update. Disabled for now.
   (add-hook 'text-mode-hook 'flyspell-mode)
 #+END_SRC
 ** flyspell-correct
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (use-package flyspell-correct
        :ensure t
        :after flyspell)
