@@ -1001,6 +1001,15 @@ Breaks emacs after update. Disabled for now.
                  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
      :hook (org-mode . flyspell-mode)
      :custom (org-ellipsis "⤵")
+     :config
+     (defun org-table-convert-semicolon ()
+       (interactive)
+       (org-table-create-or-convert-from-region ";")
+       )
+     :custom-face
+     (org-table ((t
+                          :foreground "#FFFFFF"
+                          )))
      )
  #+END_SRC
 ** org-ref
@@ -1371,6 +1380,15 @@ Dimming the face of non-active buffers
 #+begin_src emacs-lisp
 (use-package simple-httpd
 :ensure t)
+#+end_src
+** csv
+#+begin_src emacs-lisp
+  (use-package csv-mode
+    :ensure t
+    :config
+    (setq csv-separators '(";"))
+  )
+
 #+end_src
 * theme
 #+BEGIN_SRC emacs-lisp
