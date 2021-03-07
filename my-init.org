@@ -584,12 +584,48 @@ at the beginning of the word (C-Ret)
     :ensure t
     :config (rg-enable-default-bindings))
 #+end_src
+
 ** transpose-frame
 #+begin_src emacs-lisp :tangle yes
   (use-package transpose-frame
     :ensure t)
 #+end_src
 * code navigation
+** rtags
+#+begin_src emacs-lisp
+  (use-package rtags
+    :ensure t
+    :config
+    (setq rtags-install-path "/local/eduplens/emacs")
+    (setq rtags-completions-enabled t)
+    (defun rtags-find-symbol-generic ()
+      (interactive)
+      (if (or (string-match "[a-zA-Z0-9_]" (string (following-char)))
+              (string-match "[a-zA-Z0-9_]" (string (preceding-char))))
+            (rtags-find-symbol-at-point)
+            (rtags-find-symbol)
+        )
+      )
+    (defun rtags-find-references-generic ()
+      (interactive)
+      (if (or (string-match "[a-zA-Z0-9_]" (string (following-char)))
+              (string-match "[a-zA-Z0-9_]" (string (preceding-char))))
+            (rtags-find-references-at-point)
+            (rtags-find-references)
+        )
+      )
+    :bind
+    ("M-." . rtags-find-symbol-generic)
+    ("M-," . rtags-location-stack-back)
+    ("M-i" . rtags-imenu)
+    ("C-c M-[" . rtags-find-references-generic)
+  )
+  (use-package ivy-rtags
+    :ensure t
+    :config
+    (setq rtags-use-ivy t)
+    )
+#+END_SRC
 ** call-graph
 Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
