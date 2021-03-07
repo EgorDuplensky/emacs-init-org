@@ -643,17 +643,22 @@ Breaks emacs after update. Disabled for now.
     :init
     (add-hook 'after-init-hook #'global-flycheck-mode)
     :config
-    (use-package flycheck-irony
-      :ensure t
-      :init
-      (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
-      )
-
     (setq-default temporary-file-directory "~/.cache/emacs")
     (unless (file-exists-p temporary-file-directory)
       (make-directory temporary-file-directory))
+    )
 
-    (setq-default flycheck-disabled-checkers '(irony))
+  (use-package flycheck-irony
+    :ensure t
+    :init
+    (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
+    )
+
+  (use-package flycheck-google-cpplint
+    :ensure t
+    :config
+    (flycheck-remove-next-checker 'irony
+                               '(warning . c/c++-googlelint))
     )
 #+END_SRC
 *** flycheck-posframe
