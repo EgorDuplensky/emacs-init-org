@@ -349,6 +349,7 @@ Otherwise it can slow down emacs by a lot
                 ivy-virtual-abbreviate 'full)
     :config
     (ivy-rich-mode 1)
+    (ivy-rich-project-root-cache-mode 1)
     :custom
     (ivy-rich-parse-remote-buffer nil)
     )
