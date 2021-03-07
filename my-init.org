@@ -568,10 +568,10 @@ at the beginning of the word (C-Ret)
           centaur-tabs-modified-marker "●"
           centaur-tabs-gray-out-icons 'buffer
           centaur-tabs-set-bar 'over
-          centaur-tabs-style "wave")
+          centaur-tabs-style "alternate")
     :config
     (centaur-tabs-mode t)
-    (centaur-tabs-change-fonts "Terminus" 100)
+    (centaur-tabs-change-fonts "DejaVu Sans" 100)
     :custom-face
     (tab-line ((t (:background "#2B2B2B"))))
     :bind
