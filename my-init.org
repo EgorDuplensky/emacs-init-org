@@ -590,21 +590,6 @@ at the beginning of the word (C-Ret)
     :ensure t)
 #+end_src
 * code navigation
-** xcscope
- #+BEGIN_SRC emacs-lisp
-   (use-package xcscope
-     :ensure t
-     :init
-     (cscope-setup))
- #+END_SRC
-** ggtags
- #+BEGIN_SRC emacs-lisp
-   (use-package ggtags
-     :ensure t
-     :hook ((c-mode c++-mode) . ggtags-mode)
-     :config (setq ggtags-sort-by-nearness t)
-     )
- #+END_SRC
 ** call-graph
 Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
