@@ -30,9 +30,3 @@
 ;; autogenereated configuration (e.g. by use-package)
 (if (file-exists-p custom-file)
     (load custom-file))
-;;(provide 'init)
-;;; init.el ends here
-(put 'magit-clean 'disabled nil)
-(put 'scroll-left 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-(put 'narrow-to-page 'disabled nil)
