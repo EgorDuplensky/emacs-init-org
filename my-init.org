@@ -193,6 +193,11 @@ Useful when you need to enter file's location in terminal
       (interactive)
       (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
 #+end_src
+** always truncate line by default
+Otherwise it can slow down emacs by a lot
+#+begin_src emacs-lisp
+  (set-default 'truncate-lines t)
+#+end_src
 ** Other
  #+BEGIN_SRC emacs-lisp
    (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
