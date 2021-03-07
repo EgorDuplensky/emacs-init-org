@@ -21,6 +21,7 @@
   (package-install 'use-package))
 
 (require 'use-package)
+(setq use-package-always-ensure t)
 ;; always work with real files, not sym links
 (setq vc-follow-symlinks t)
 ;; common configuratiom

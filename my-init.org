@@ -7,8 +7,7 @@
 * common settings
 ** gnu-elpa-keyring-update
 #+begin_src emacs-lisp
-;;  (use-package gnu-elpa-keyring-update
-;;    :ensure t)
+;;  (use-package gnu-elpa-keyring-update)
 #+end_src
 ** Always ask before quit
 #+BEGIN_SRC emacs-lisp
@@ -206,7 +205,6 @@ Otherwise it can slow down emacs by a lot
 ** undo-tree
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
-    :ensure t
     :diminish undo-tree-mode
     :init
     (global-undo-tree-mode)
@@ -215,19 +213,16 @@ Otherwise it can slow down emacs by a lot
 ** hungry-delete
 #+BEGIN_SRC emacs-lisp
   (use-package hungry-delete
-    :ensure t
     :diminish hungry-delete-mode
     :config (global-hungry-delete-mode))
 #+END_SRC
 ** aggressive-indent
 #+BEGIN_SRC emacs-lisp
-  (use-package aggressive-indent
-    :ensure t)
+  (use-package aggressive-indent)
 #+END_SRC
 ** expand-region
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
-    :ensure t
     :after (org)
     :init
     ;; disable M-q "fill paragraph"
@@ -246,7 +241,6 @@ Otherwise it can slow down emacs by a lot
 ** smartparens
    #+begin_src emacs-lisp
      (use-package smartparens
-       :ensure t
        :config (smartparens-global-mode t)
        :custom (sp-escape-quotes-after-insert nil)
        :hook (minibuffer-setup . smartparens-mode)
@@ -263,7 +257,6 @@ Otherwise it can slow down emacs by a lot
     )
 
   (use-package iedit
-    :ensure t
     :bind
     ("C-;" . iedit-current-func-mode)
     ("C-:" . iedit-mode)
@@ -273,7 +266,6 @@ Otherwise it can slow down emacs by a lot
 ** visual-regexp
 #+BEGIN_SRC emacs-lisp
   (use-package visual-regexp
-    :ensure t
     :bind
     (("C-c r" . vr/replace)
      ("C-c q" . vr/query-replace)
@@ -283,20 +275,17 @@ Otherwise it can slow down emacs by a lot
 #+END_SRC
 ** ialign
 #+begin_src emacs-lisp
-  (use-package ialign
-    :ensure t)
+  (use-package ialign)
 #+end_src
 ** wgrep
 #+begin_src emacs-lisp
   (use-package wgrep
-    :ensure t
     :config
     (setq wgrep-enable-key "r"))
 #+end_src
 ** move-text
 #+BEGIN_SRC emacs-lisp
   (use-package move-text
-    :ensure t
     :init
     (move-text-default-bindings)
     )
@@ -304,20 +293,17 @@ Otherwise it can slow down emacs by a lot
 ** all-the-icons-dired
 #+begin_src emacs-lisp
   (use-package all-the-icons-dired
-    :ensure t
     :hook (dired-mode . all-the-icons-dired-mode)
   )
 #+end_src
 * emacs navigation
 ** ag
 #+begin_src emacs-lisp
-  (use-package ag
-    :ensure t)
+  (use-package ag)
 #+end_src
 ** ivy
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
-    :ensure t
     :diminish ivy-mode
     :bind
     (("C-c C-r" . ivy-resume)
@@ -343,7 +329,6 @@ Otherwise it can slow down emacs by a lot
 *** ivy-rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
-    :ensure t
     :after magit
     :init (setq ivy-rich-path-style 'abbrev
                 ivy-virtual-abbreviate 'full)
@@ -357,7 +342,6 @@ Otherwise it can slow down emacs by a lot
 *** ivy-posframe
 #+begin_src emacs-lisp
   (use-package ivy-posframe
-    :ensure t
     :custom-face
     (ivy-posframe-border ((t (:background "#e6e1dc"))))
     :config
@@ -375,7 +359,6 @@ Otherwise it can slow down emacs by a lot
 #+begin_src emacs-lisp
   (use-package ivy-prescient
     :after counsel
-    :ensure t
     :config
     (setq ivy-prescient-retain-classic-highlighting t)
     (ivy-prescient-mode 1))
@@ -384,7 +367,6 @@ Otherwise it can slow down emacs by a lot
   Needed for nicer counsel
 #+BEGIN_SRC emacs-lisp
   (use-package smex
-    :ensure t
     :init
     (smex-initialize)
     )
@@ -392,7 +374,6 @@ Otherwise it can slow down emacs by a lot
 ** counsel
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
-    :ensure t
     :bind
     ("C-x C-M-f" . counsel-fzf)
      (:map ivy-minibuffer-map
@@ -404,20 +385,17 @@ Otherwise it can slow down emacs by a lot
 Use ivy for projectile
 #+BEGIN_SRC emacs-lisp
   (use-package counsel-projectile
-    :ensure t
     :config (counsel-projectile-mode)
     )
 #+END_SRC
 ** counsel-tramp
 #+BEGIN_SRC emacs-lisp
-  (use-package counsel-tramp
-    :ensure t)
+  (use-package counsel-tramp)
 #+END_SRC
 ** ibuffer
 *** ibuffer-vc
 #+BEGIN_SRC emacs-lisp
-  (use-package ibuffer-vc
-    :ensure t)
+  (use-package ibuffer-vc)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defalias 'list-buffers 'ibuffer)	;
@@ -496,13 +474,11 @@ Use ivy for projectile
 #+END_SRC
 *** ibuffer-tramp
 #+BEGIN_SRC emacs-lisp
-  (use-package ibuffer-tramp
-    :ensure t)
+  (use-package ibuffer-tramp)
 #+END_SRC
 ** smooth-scrolling
 #+begin_src emacs-lisp
   (use-package smooth-scrolling
-    :ensure t
     :config
     (setq smooth-scroll-margin 15)
     (smooth-scrolling-mode 1)
@@ -514,7 +490,6 @@ Use ivy for projectile
 ** ace-window
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
-    :ensure t
     :init
     (global-set-key [remap other-window] 'ace-window)
     (setq aw-background nil)
@@ -526,7 +501,6 @@ Use ivy for projectile
 An alternative of counsel-yank-pop
 #+BEGIN_SRC emacs-lisp
   (use-package browse-kill-ring
-    :ensure t
     :init
     (defface my-browse-kill-ring-separator-face
       '((t :foreground "#276E9E"
@@ -554,13 +528,11 @@ at the beginning of the word (C-Ret)
 #+END_SRC
 ** ace-isearch
 #+BEGIN_SRC emacs-lisp
-  (use-package ace-isearch
-    :ensure t)
+  (use-package ace-isearch)
 #+END_SRC
 ** centaur-tabs
 #+begin_src emacs-lisp
   (use-package centaur-tabs
-    :ensure t
     :init
     (setq centaur-tabs-set-icons t
           centaur-tabs-set-close-button nil
@@ -581,20 +553,22 @@ at the beginning of the word (C-Ret)
 ** rg
 #+begin_src emacs-lisp
   (use-package rg
-    :ensure t
     :config (rg-enable-default-bindings))
 #+end_src
 
 ** transpose-frame
 #+begin_src emacs-lisp :tangle yes
-  (use-package transpose-frame
-    :ensure t)
+  (use-package transpose-frame)
 #+end_src
+** perspective
+   #+begin_src emacs-lisp :tangle yes
+     (use-package perspective
+       :config (persp-mode))
+   #+end_src
 * code navigation
 ** rtags
 #+begin_src emacs-lisp
   (use-package rtags
-    :ensure t
     :config
     (setq rtags-install-path "/local/eduplens/emacs")
     (setq rtags-completions-enabled t)
@@ -621,7 +595,6 @@ at the beginning of the word (C-Ret)
     ("C-c M-[" . rtags-find-references-generic)
   )
   (use-package ivy-rtags
-    :ensure t
     :config
     (setq rtags-use-ivy t)
     )
@@ -630,15 +603,13 @@ at the beginning of the word (C-Ret)
 Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
   (use-package call-graph
-    :disabled t
-    :ensure t
-    :config (setq cg-path-to-global "/usr/local/bin/"))
+    :config 
+    (setq cg-path-to-global "/usr/bin/"))
 #+END_SRC
 * coding facilities
 ** flycheck
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
-    :ensure t
     :diminish flycheck-mode
     :init
     (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -649,13 +620,11 @@ Breaks emacs after update. Disabled for now.
     )
 
   (use-package flycheck-irony
-    :ensure t
     :init
     (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
     )
 
   (use-package flycheck-google-cpplint
-    :ensure t
     :config
     (flycheck-remove-next-checker 'irony
                                '(warning . c/c++-googlelint))
@@ -664,7 +633,6 @@ Breaks emacs after update. Disabled for now.
 *** flycheck-posframe
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck-pos-tip
-    :ensure t
     :after flycheck
     :hook (flycheck-mode-hook . flycheck-pos-tip-mode)
     )
@@ -673,7 +641,6 @@ Breaks emacs after update. Disabled for now.
 ** company
 #+BEGIN_SRC emacs-lisp
   (use-package company
-    :ensure t
     :diminish company-mode
     :defer t
     :init
@@ -690,15 +657,13 @@ Breaks emacs after update. Disabled for now.
     :config
     (setq company-require-match nil)
     (use-package company-irony
-      :ensure t
       :defer t
       :init
       (add-to-list 'company-backends 'company-irony)
       :custom
       (flycheck-clang-standart-library "libstdc++")
-      (flycheck-clang-language-standard "c++17")
+      (flycheck-clang-language-standard "c++11")
       )
-    (use-package company-shell :ensure t
       :init
       (add-hook 'c-mode-hook
                 '(lambda ()
@@ -714,15 +679,12 @@ Breaks emacs after update. Disabled for now.
                         '((company-capf company-shell company-shell-env company-fish-shell)))))
       )
 
-    (use-package company-quickhelp :ensure t
       :config
       (company-quickhelp-mode 1)
       (setq company-quickhelp-delay 1)
       :bind ("\C-c h" . #'company-quickhelp-manual-begin))
-    (use-package company-ansible
-      :ensure t)
-    (use-package company-emoji
-      :ensure t)
+    (use-package company-ansible)
+    (use-package company-emoji)
     (setq company-idle-delay              3
           company-minimum-prefix-length   0
           company-show-numbers            t
@@ -737,10 +699,8 @@ Breaks emacs after update. Disabled for now.
 ** yasnippet
   #+BEGIN_SRC emacs-lisp
   (use-package yasnippet-snippets
-    :requires yasnippet
-    :ensure t)
+    :requires yasnippet)
   (use-package yasnippet
-    :ensure t
     :init
     (yas-global-mode 1)
     )
@@ -748,13 +708,11 @@ Breaks emacs after update. Disabled for now.
 *** ivy-yasnippet
   #+BEGIN_SRC emacs-lisp
   (use-package ivy-yasnippet
-    :requires yasnippet
-    :ensure t)
+    :requires yasnippet)
   #+END_SRC
 ** irony
 #+BEGIN_SRC emacs-lisp
   (use-package irony
-    :ensure t
     :init
     :hook ((c++-mode c-mode objc-mode) . irony-mode)
     :config
@@ -767,10 +725,11 @@ Breaks emacs after update. Disabled for now.
     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
     )
 #+END_SRC
+
+#+end_src
 ** cpp-auto-include
 #+begin_src emacs-lisp
-  (use-package cpp-auto-include
-    :ensure t)
+  (use-package cpp-auto-include)
 #+end_src
 ** hide-if-def
 #+BEGIN_SRC emacs-lisp
@@ -779,7 +738,6 @@ Breaks emacs after update. Disabled for now.
 ** hideshow-org
 #+begin_src emacs-lisp
   (use-package hideshow-org
-    :ensure t
     :bind ("C-t" . hs-toggle-hiding))
 #+end_src
 ** tabs and indentations
@@ -800,37 +758,35 @@ Breaks emacs after update. Disabled for now.
 #+END_SRC
 ** diff-hl
 #+BEGIN_SRC emacs-lisp
-(use-package diff-hl
-  :ensure t)
+(use-package diff-hl)
 #+END_SRC
 ** quickrun
 #+begin_src emacs-lisp
-  (use-package quickrun
-    :ensure t)
+  (use-package quickrun)
 #+end_src
 ** git-messenger
 #+BEGIN_SRC emacs-lisp
   (use-package git-messenger
-    :ensure t
     :config
     (setq git-messenger:use-magit-popup t))
 #+END_SRC
 ** git-timemachine
 #+BEGIN_SRC emacs-lisp
-  (use-package git-timemachine
-    :ensure t
-    )
+  (use-package git-timemachine)
 #+END_SRC
 ** clang-format
    #+begin_src emacs-lisp
-     (use-package clang-format
-       :ensure t)
+     (use-package clang-format)
    #+end_src
+** gdb
+#+begin_src emacs-lisp
+(setq gdb-show-changed-values t)
+#+end_src
+
 * project/git stuff
 ** projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :ensure t
     :config
     (projectile-mode 1)
     (setq projectile-completion-system 'ivy)
@@ -842,7 +798,6 @@ Breaks emacs after update. Disabled for now.
 ** treemacs
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs
-    :ensure t
     :defer t
     :config
     (progn
@@ -870,15 +825,12 @@ Breaks emacs after update. Disabled for now.
     )
 
   (use-package treemacs-projectile
-    :defer t
-    :ensure t
     :config
     (setq treemacs-header-function #'treemacs-projectile-create-header))
 #+END_SRC
 ** magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-    :ensure t
     :bind (("C-x g" . magit-status)
            :map magit-file-section-map
            ("RET" . magit-diff-visit-file-other-window)
@@ -941,9 +893,7 @@ Breaks emacs after update. Disabled for now.
     (ediff-mode . ediff-mode-face-config-hook)
     )
 
-  (use-package with-editor
-    :ensure t
-    )
+  (use-package with-editor)
 
   (require 'with-editor)
   (require 'magit)
@@ -956,33 +906,27 @@ Breaks emacs after update. Disabled for now.
 ** forge
    #+begin_src emacs-lisp
      (use-package forge
-       :after magit
-       :ensure t)
+       :after magit)
    #+end_src
 ** smerge
 #+begin_src emacs-lisp
 (use-package smerge-mode
-:ensure t
 :bind (:map smerge-mode-map
 ("M-p" . smerge-prev)
 ("M-n" . smerge-next)))
 #+end_src
 ** gitignore-mode
 #+begin_src emacs-lisp
-(use-package gitignore-mode
-             :ensure t
-             )
+(use-package gitignore-mode)
 #+end_src
 ** gitconfig-mode
 #+begin_src emacs-lisp
 (use-package gitconfig-mode
-             :ensure t
              )
 #+end_src
 ** fasd
    #+begin_src emacs-lisp
      (use-package fasd
-       :ensure t
        :config
        (global-fasd-mode 1)
        (setq fasd-enable-initial-prompt nil)
@@ -996,7 +940,6 @@ Breaks emacs after update. Disabled for now.
 ** org
  #+BEGIN_SRC emacs-lisp
    (use-package org
-     :ensure t
      :init
      (add-hook 'org-mode-hook
                (lambda ()
@@ -1017,81 +960,58 @@ Breaks emacs after update. Disabled for now.
  #+END_SRC
 ** org-ref
 #+BEGIN_SRC emacs-lisp
-  (use-package org-ref
-    :ensure t)
+  (use-package org-ref)
 #+END_SRC
 ** org-bullets
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
-    :ensure t
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
 ** org-gcal
 #+BEGIN_SRC emacs-lisp
-  (use-package org-gcal
-    :ensure t)
+  (use-package org-gcal)
 #+END_SRC
 ** ox-reveal
 ** org-re-reveal
 #+BEGIN_SRC emacs-lisp
   (use-package org-re-reveal
-    :ensure t
     :config (setq org-re-reveal-root "file:///home/xegodup/github/reveal.js")
     )
 #+END_SRC
 ** ox-pandoc
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-pandoc
-    :ensure t)
+  (use-package ox-pandoc)
 #+END_SRC
 ** org-capture
 *** org-capture-templates
 #+begin_src emacs-lisp
   (setq org-capture-templates
         '(
-          ("s" "Should try with emacs" entry (file+olp "~/org/orgzly/Emacs.org" "Should try")
-           "* TODO %?\n  %i\n  %T")
-          ("m" "Modes to be checked out" entry (file+olp "~/org/orgzly/Emacs.org" "Modes to be checked out")
-           "* TODO %?\n  %i\n  %T")
+          ("i" "Ideas" entry (file+olp "~/org/notes.org" "Ideas")
+           "* %?\nCreated on %U")
+          ("n" "Information" entry (file+olp "~/org/notes.org" "Info")
+           "* %?\nCreated on %U")
           ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")
-          ("t" "Task which should be created in jira" entry (file+olp+datetree "~/org/tasks.org")
-           "* TODO [#B] %?\nCreated on %U")
-          ("i" "Ideas related to common workflow" entry (file+olp "~/org/ideas.org" "Work flow")
-           "* %?\nCreated on %U")
-          ("a" "Ideas related to ADP" entry (file+olp "~/org/ideas.org" "ADP" )
-           "* %?\nCreated on %U")
-          ("c" "Create jira case" entry (file "~/org/work/jira/create-case.org")
-           "* TODO %?
-                :PROPERTIES:
-                :type:     Task
-                :labels:   %?
-                :components: SCTP
-              ,** description:
-                %?")
           )
         )
 #+end_src
 ** gnuplot
 #+BEGIN_SRC emacs-lisp
-  (use-package gnuplot
-    :ensure t)
+  (use-package gnuplot)
 #+END_SRC
 ** gnuplot-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package gnuplot-mode
-    :ensure t)
+  (use-package gnuplot-mode)
 #+END_SRC
 ** org-mime
 #+BEGIN_SRC emacs-lisp
-  (use-package org-mime
-    :ensure t)
+  (use-package org-mime)
 #+END_SRC
 ** wsd-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package wsd-mode
-    :ensure t)
+  (use-package wsd-mode)
 #+END_SRC
 ** org-plantuml
 #+BEGIN_SRC emacs-lisp
@@ -1107,23 +1027,19 @@ Breaks emacs after update. Disabled for now.
 * other minor stuff
 ** pandoc
 #+BEGIN_SRC emacs-lisp
-  (use-package pandoc-mode
-    :ensure t)
+  (use-package pandoc-mode)
 #+END_SRC
 ** diminish
 #+begin_src emacs-lisp
-  (use-package diminish
-    :ensure t)
+  (use-package diminish)
 #+end_src
 ** dashboard
 #+begin_src emacs-lisp
   (use-package dashboard
-    :ensure t
     :init
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
     :config
-    (use-package page-break-lines
-      :ensure t)
+    (use-package page-break-lines)
     (setq dashboard-items '((recents  . 5)
                             (bookmarks . 5)
                             (projects . 5)
@@ -1136,13 +1052,11 @@ Breaks emacs after update. Disabled for now.
 *** groovy
  #+BEGIN_SRC emacs-lisp
    (use-package groovy-mode
-     :ensure t
      )
  #+END_SRC
 *** markdown
    #+BEGIN_SRC emacs-lisp
      (use-package markdown-mode
-       :ensure t
        :commands (markdown-mode gfm-mode)
        :mode (("README\\.md\\'" . gfm-mode)
               ("\\.md\\'" . markdown-mode)
@@ -1154,41 +1068,33 @@ Breaks emacs after update. Disabled for now.
    #+END_SRC
 **** flymd
    #+BEGIN_SRC emacs-lisp
-   (use-package flymd
-   :ensure t)
+   (use-package flymd)
    #+END_SRC
 *** yaml
  #+BEGIN_SRC emacs-lisp
-   (use-package yaml-mode
-                :ensure t
-                )
+   (use-package yaml-mode)
  #+END_SRC
 *** dockerfile
 #+BEGIN_SRC emacs-lisp
-  (use-package dockerfile-mode
-    :ensure t)
+  (use-package dockerfile-mode)
 #+END_SRC
 *** ansible
 #+BEGIN_SRC emacs-lisp
-  (use-package ansible
-    :ensure t)
+  (use-package ansible)
 #+END_SRC
 *** asciidoc
 #+BEGIN_SRC emacs-lisp
-  (use-package adoc-mode
-    :ensure t)
+  (use-package adoc-mode)
 #+END_SRC
 *** go-mode
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
-    :ensure t
     :mode "\\.tpl$"
     )
 #+END_SRC
 *** plantuml
 #+BEGIN_SRC emacs-lisp
   (use-package plantuml-mode
-    :ensure t
     :config ;;(add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
     (setq plantuml-jar-path "~/tools/plantuml.jar"
           plantuml-default-exec-mode 'jar
@@ -1200,19 +1106,16 @@ Breaks emacs after update. Disabled for now.
 ** modelines
 *** doom-mode-line
   #+begin_src emacs-lisp
-    (use-package all-the-icons
-      :ensure t)
+    (use-package all-the-icons)
   #+end_src
   #+begin_src emacs-lisp
     (use-package doom-modeline
-      :ensure t
       :defer t
       :hook (after-init . doom-modeline-init))
   #+end_src
 ** which-key
  #+BEGIN_SRC emacs-lisp
    (use-package which-key
-     :ensure t
      :diminish which-key-mode)
  #+END_SRC
 ** midnight
@@ -1223,39 +1126,32 @@ Breaks emacs after update. Disabled for now.
  #+END_SRC
 ** htmlize
  #+BEGIN_SRC emacs-lisp
-   (use-package htmlize
-     :ensure t
-     )
+   (use-package htmlize)
  #+END_SRC
 ** disaster
  #+BEGIN_SRC emacs-lisp
    (use-package disaster
-     :ensure t
      :bind ("C-c d" . disaster)
      )
  #+END_SRC
 ** dired-rainbow
  #+BEGIN_SRC emacs-lisp
    (use-package dired-rainbow
-     :ensure t
      :hook (help-mode . rainbow-mode))
  #+END_SRC
 ** rainbow-mode
  #+BEGIN_SRC emacs-lisp
-   (use-package rainbow-mode
-     :ensure t)
+   (use-package rainbow-mode)
  #+END_SRC
 ** command-log-mode
  #+BEGIN_SRC emacs-lisp
    (use-package command-log-mode
-     :ensure t
      :init
      (setq command-log-mode-auto-show t))
  #+END_SRC
 ** cheat-sheet
  #+begin_src emacs-lisp
-   (use-package cheatsheet
-     :ensure t)
+   (use-package cheatsheet)
  #+end_src
 *** marking
 #+begin_src emacs-lisp
@@ -1273,20 +1169,17 @@ Breaks emacs after update. Disabled for now.
 ** flyspell-correct
    #+begin_src emacs-lisp
      (use-package flyspell-correct
-       :ensure t
        :after flyspell)
    #+end_src
 *** flyspell-correct-popup
 Popup with correction candidate
  #+begin_src emacs-lisp
    (use-package flyspell-correct-popup
-     :ensure t
      :after flyspell-correct)
  #+end_src
 ** google-translate
 #+begin_src emacs-lisp
   (use-package google-translate
-    :ensure t
     :config
     :custom
     (google-translate-default-target-language "ru")
@@ -1300,7 +1193,6 @@ Popup with correction candidate
    Shows frequency of emacs commands
    #+begin_src emacs-lisp
      (use-package keyfreq
-       :ensure t
        :disabled t
        :init
        (keyfreq-mode 1)
@@ -1312,82 +1204,67 @@ Dimming the face of non-active buffers
 #+begin_src emacs-lisp
   (use-package dimmer
     :disabled t
-    :ensure t
     :config
     (setq dimmer-exclusion-regexp "magit-popup-mode")
     )
 #+end_src
 ** kubernetes
 #+BEGIN_SRC emacs-lisp
-  (use-package kubernetes
-    :ensure t)
+  (use-package kubernetes)
 #+END_SRC
 ** kubernetes-tramp
 #+BEGIN_SRC emacs-lisp
-  (use-package kubernetes-tramp
-    :ensure t)
+  (use-package kubernetes-tramp)
 #+END_SRC
 ** docker
 #+BEGIN_SRC emacs-lisp
-  (use-package docker
-    :ensure t)
+  (use-package docker)
 #+END_SRC
 ** markdown-preview-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package markdown-preview-mode
-    :ensure t)
+  (use-package markdown-preview-mode)
 #+END_SRC
 ** restart-emacs
 #+BEGIN_SRC emacs-lisp
-  (use-package restart-emacs
-    :ensure t)
+  (use-package restart-emacs)
 #+END_SRC
 ** language-detection
 #+BEGIN_SRC emacs-lisp
-  (use-package language-detection
-    :ensure t)
+  (use-package language-detection)
 #+END_SRC
 ** restclient
 #+BEGIN_SRC emacs-lisp
-  (use-package restclient
-    :ensure t)
+  (use-package restclient)
 #+END_SRC
 ** disable-mouse
 #+BEGIN_SRC emacs-lisp
   (use-package disable-mouse
-    :ensure t
     :config (global-disable-mouse-mode)
     )
 #+END_SRC
 ** cmake-mode
 #+begin_src emacs-lisp
-  (use-package cmake-mode
-    :ensure t)
+  (use-package cmake-mode)
 #+end_src
 ** systemd
 #+begin_src emacs-lisp
-  (use-package systemd
-    :ensure t)
+  (use-package systemd)
 #+end_src
 ** sudo-edit
 #+begin_src emacs-lisp
-  (use-package sudo-edit
-    :ensure t)
+  (use-package sudo-edit)
 #+end_src
 ** oauth2
 #+begin_src emacs-lisp
-(use-package oauth2
-:ensure t)
+(use-package oauth2)
 #+end_src
 ** simple-httpd
 #+begin_src emacs-lisp
-(use-package simple-httpd
-:ensure t)
+(use-package simple-httpd)
 #+end_src
 ** csv
 #+begin_src emacs-lisp
   (use-package csv-mode
-    :ensure t
     :config
     (setq csv-separators '(";"))
   )
@@ -1396,7 +1273,6 @@ Dimming the face of non-active buffers
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
-    :ensure t
     :init (load-theme 'zenburn t))
   (set-frame-font "-PfEd-Terminus-normal-normal-normal-*-14-*-72-72-c-*-iso10646-1")
   (setq default-frame-alist '((font . "-PfEd-Terminus-normal-normal-normal-*-14-*-72-72-c-*-iso10646-1")))
