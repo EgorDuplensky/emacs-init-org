@@ -583,6 +583,11 @@ at the beginning of the word (C-Ret)
     :ensure t
     :config (rg-enable-default-bindings))
 #+end_src
+** transpose-frame
+#+begin_src emacs-lisp :tangle yes
+  (use-package transpose-frame
+    :ensure t)
+#+end_src
 * code navigation
 ** xcscope
  #+BEGIN_SRC emacs-lisp
