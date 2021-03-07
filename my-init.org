@@ -362,7 +362,11 @@ Otherwise it can slow down emacs by a lot
     :config
     (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
     (setq ivy-posframe-border-width 1)
-    (setq ivy-posframe-parameters '((alpha . 85)))
+    (setq ivy-posframe-height 10)
+    (setq ivy-posframe-min-height 10)
+    (setq ivy-posframe-width 200)
+    (setq ivy-posframe-min-width 200)
+    (setq ivy-posframe-parameters '((alpha . 85) (left-fringe 8)))
     (ivy-posframe-mode 1)
     )
 #+end_src
