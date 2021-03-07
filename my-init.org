@@ -69,12 +69,15 @@
  #+BEGIN_SRC emacs-lisp
    (defun gcm-scroll-down ()
      (interactive)
-     (scroll-up 1))
+     (scroll-up 1)
+     (next-line)
+   )
    (defun gcm-scroll-up ()
      (interactive)
-     (scroll-down 1))
-   ;; (global-set-key (kbd "M-p") 'gcm-scroll-up)
-   ;; (global-set-key (kbd "M-n") 'gcm-scroll-down)
+     (scroll-down 1)
+     (previous-line))
+   (global-set-key (kbd "M-p") 'gcm-scroll-up)
+   (global-set-key (kbd "M-n") 'gcm-scroll-down)
  #+END_SRC
 ** Disable alarm bell for "C-g"
  #+BEGIN_SRC emacs-lisp
