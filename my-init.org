@@ -370,6 +370,15 @@ Otherwise it can slow down emacs by a lot
     (ivy-posframe-mode 1)
     )
 #+end_src
+*** ivy-prescient
+#+begin_src emacs-lisp
+  (use-package ivy-prescient
+    :after counsel
+    :ensure t
+    :config
+    (setq ivy-prescient-retain-classic-highlighting t)
+    (ivy-prescient-mode 1))
+#+end_src
 ** smex
   Needed for nicer counsel
 #+BEGIN_SRC emacs-lisp
