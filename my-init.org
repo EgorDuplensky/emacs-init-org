@@ -325,9 +325,9 @@ Otherwise it can slow down emacs by a lot
      ("C-x C-f" . counsel-find-file))
     :custom-face
     (ivy-current-match ((t
-                         :background "#000000"
+                         :background "#111111"
                          :underline nil
-                         :foreground "#FFFFFF"
+                         :foreground nil
                          )))
     :config
     (setq ivy-format-function 'ivy-format-function-arrow)
