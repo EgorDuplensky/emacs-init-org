@@ -365,7 +365,7 @@ Otherwise it can slow down emacs by a lot
     (setq ivy-posframe-height 10)
     (setq ivy-posframe-min-height 10)
     (setq ivy-posframe-width 200)
-    (setq ivy-posframe-min-width 200)
+    (setq ivy-posframe-min-width 100)
     (setq ivy-posframe-parameters '((alpha . 85) (left-fringe 8)))
     (ivy-posframe-mode 1)
     )
@@ -393,12 +393,9 @@ Otherwise it can slow down emacs by a lot
   (use-package counsel
     :ensure t
     :bind
-    (
     ("C-x C-M-f" . counsel-fzf)
-     :map ivy-minibuffer-map
-     ("M-y" . ivy-next-line)
-     )
-
+     (:map ivy-minibuffer-map
+     ("M-y" . ivy-next-line))
     :config (counsel-mode 1)
     )
 #+END_SRC
@@ -506,12 +503,11 @@ Use ivy for projectile
   (use-package smooth-scrolling
     :ensure t
     :config
+    (setq smooth-scroll-margin 15)
     (smooth-scrolling-mode 1)
     :bind
     ("C-v". scroll-up-line)
     ("M-v". scroll-down-line)
-    :custom
-    (smooth-scroll-margin 20)
     )
 #+end_src
 ** ace-window
