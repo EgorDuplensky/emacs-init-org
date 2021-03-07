@@ -9,6 +9,7 @@
       '(("melpa" . "https://melpa.org/packages/")
         ("gnu" . "https://elpa.gnu.org/packages/")
         ("org" . "http://orgmode.org/elpa/")))
+(setq package-native-compile t)
 
 (package-initialize)
 
