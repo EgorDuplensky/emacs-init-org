@@ -669,20 +669,6 @@ Breaks emacs after update. Disabled for now.
     :hook (flycheck-mode-hook . flycheck-pos-tip-mode)
     )
 #+END_SRC
-** autocomplete
-#+BEGIN_SRC emacs-lisp
-  ;; load POPUP first
-  (use-package popup
-    :ensure t
-    )
-  (use-package auto-complete
-    :disabled t
-    :ensure t
-    :config
-    (ac-config-default)
-    :init
-    (setq ac-modes '(sh-mode emacs-lisp-mode lisp-mode lisp-interaction-mode python-mode))
-    )
 #+END_SRC
 ** company
 #+BEGIN_SRC emacs-lisp
@@ -702,9 +688,7 @@ Breaks emacs after update. Disabled for now.
     ("C-n" . company-select-next)
     ("C-p" . company-select-previous))
     :config
-    (setq company-require-match t)
-    (use-package company-ctags
-      :ensure t)
+    (setq company-require-match nil)
     (use-package company-irony
       :ensure t
       :defer t
