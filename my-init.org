@@ -62,6 +62,7 @@
   (blink-cursor-mode 0)
   ;; Overwrite selected text
   (delete-selection-mode 1)
+  (set-fringe-mode '(8 . 0))
 #+END_SRC
 ** Scrolling without moving point
  Useful feature but not sure about bindings yet
