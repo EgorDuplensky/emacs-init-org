@@ -7,7 +7,7 @@
 * common settings
 ** gnu-elpa-keyring-update
 #+begin_src emacs-lisp
-;;  (use-package gnu-elpa-keyring-update)
+ ;; (use-package gnu-elpa-keyring-update)
 #+end_src
 ** Always ask before quit
 #+BEGIN_SRC emacs-lisp
@@ -37,31 +37,41 @@
 #+END_SRC
 ** Enable/Disable some minor modes
 #+BEGIN_SRC emacs-lisp
-  ;; Mode line config
-  (column-number-mode 1)
-  ;; hide default TOOLBAR
-  (hide-ifdef-mode 1)
-  ;; hightlight brackets
-  (show-paren-mode t)
-  ;; disable toolbar
-  (tool-bar-mode -1)
-  ;; hightlight current line
-  (global-hl-line-mode 1)
-  ;;Displays the current function name in the mode line
-  (which-function-mode 1)
-  (menu-bar-mode 0)
-  (scroll-bar-mode 0)
-  (defun my/disable-scroll-bars (frame)
-    (modify-frame-parameters frame
-                             '((vertical-scroll-bars . nil)
-                               (horizontal-scroll-bars . nil))))
-  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
-  ;; Cursor color
-  ;; (set-cursor-color "red")
-  (blink-cursor-mode 0)
-  ;; Overwrite selected text
-  (delete-selection-mode 1)
-  (set-fringe-mode '(8 . 0))
+    ;; Mode line config
+    (column-number-mode 1)
+    ;; Hide default TOOLBAR
+    (hide-ifdef-mode 1)
+    ;; Hightlight brackets
+    (show-paren-mode t)
+    ;; Hightlight current line
+    (global-hl-line-mode 1)
+    ;; Display the current function name in the mode line
+    (which-function-mode 1)
+    ;; Disable toolbar
+    (tool-bar-mode 0)
+    ;; Disable menubar
+    (menu-bar-mode 0)
+    ;; Disable scrollbar
+    (scroll-bar-mode 0)
+
+    (defun my/disable-scroll-bars (frame)
+      (modify-frame-parameters frame
+                               '((vertical-scroll-bars . nil)
+                                 (horizontal-scroll-bars . nil))))
+    (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+    ;; Cursor color
+    ;; (set-cursor-color "red")
+    (blink-cursor-mode 0)
+    ;; Overwrite selected text
+    (delete-selection-mode 1)
+    ;; little bit transparency
+    (set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+    (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
+  ;; fullscreen
+    (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+    (add-to-list 'default-frame-alist '(fullscreen . maximized))
+    ;; left fringe for indicators, right fringe for long lines
+    (set-fringe-mode '(8 . 8))
 #+END_SRC
 ** Scrolling without moving point
  Useful feature but not sure about bindings yet
@@ -81,6 +91,7 @@
 ** Disable alarm bell for "C-g"
  #+BEGIN_SRC emacs-lisp
    (setq ring-bell-function 'ignore)
+   (setq visible-bell t)
  #+END_SRC
 ** y-or-n-p
 #+BEGIN_SRC emacs-lisp
@@ -118,12 +129,25 @@
   (define-key global-map [f35]'scroll-up)
   (global-unset-key [home])
   (global-unset-key [end])
+  (global-unset-key (kbd "C-z"))
+  (global-unset-key (kbd "C-x C-z"))
   (define-key function-key-map [home] 'beginning-of-buffer)
   (define-key function-key-map [end] 'end-of-buffer)
 #+END_SRC
 ** line numbers configuration
 #+BEGIN_SRC emacs-lisp
-  ;; (global-display-line-numbers-mode)
+  (dolist (mode '(text-mode-hook
+                  prog-mode-hook
+                  conf-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 1))))
+
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                  treemacs-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
 #+END_SRC
 ** comment / comment out
 #+BEGIN_SRC emacs-lisp
@@ -138,6 +162,9 @@
       (comment-or-uncomment-region beg end)
       (next-line)))
   (global-set-key (kbd "C-c C-v") 'comment-or-uncomment-region-or-line)
+
+  (add-hook 'c++-mode-hook (lambda () (setq comment-start "/* "
+                                            comment-end   " */")))
 #+END_SRC
 ** ansi-term
 Some old settings related to running emacs
@@ -146,7 +173,7 @@ in terminal mode. Most likely can be removed.
   (defun fix-performance-bug ()
     (setq bidi-paragraph-direction 'left-to-right))
   (add-hook 'term-mode-hook 'fix-performance-bug)
-#+END_SRC 
+#+END_SRC
 ** ediff
 Make vertical split by default
 #+BEGIN_SRC emacs-lisp
@@ -165,7 +192,7 @@ Make vertical split by default
 ** browser
 #+begin_src emacs-lisp
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "chromium")
+      browse-url-generic-program "google-chrome")
 #+end_src
 ** autosave bookmarks
 #+begin_src emacs-lisp
@@ -197,10 +224,16 @@ Otherwise it can slow down emacs by a lot
 #+begin_src emacs-lisp
   (set-default 'truncate-lines t)
 #+end_src
-** Other
- #+BEGIN_SRC emacs-lisp
-   (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
- #+END_SRC
+** set temp directory used by some packages
+   #+begin_src emacs-lisp
+   (setq-default temporary-file-directory "~/.cache/emacs")
+     (unless (file-exists-p temporary-file-directory)
+           (make-directory temporary-file-directory))
+   #+end_src
+** buffer revert automatically
+   #+begin_src emacs-lisp
+   ;; (setq global-auto-revert-mode t)
+   #+end_src
 * editing stuff
 ** undo-tree
 #+BEGIN_SRC emacs-lisp
@@ -290,6 +323,21 @@ Otherwise it can slow down emacs by a lot
     (move-text-default-bindings)
     )
 #+END_SRC
+** dired
+Hide extra information by default
+#+begin_src emacs-lisp
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (interactive)
+              (dired-omit-mode 1)
+              (dired-hide-details-mode 1)
+              ))
+#+end_src
+** peep-dired
+Show file at point in other window
+#+begin_src emacs-lisp
+  (use-package peep-dired)
+#+end_src
 ** all-the-icons-dired
 #+begin_src emacs-lisp
   (use-package all-the-icons-dired
@@ -329,11 +377,14 @@ Otherwise it can slow down emacs by a lot
 *** ivy-rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
-    :after magit
+    ;; :after magit
+    :ensure nil
+    :load-path "/home/egor/git/ivy-rich"
     :init (setq ivy-rich-path-style 'abbrev
                 ivy-virtual-abbreviate 'full)
     :config
     (ivy-rich-mode 1)
+    (ivy-rich-magit-mode 1)
     (ivy-rich-project-root-cache-mode 1)
     :custom
     (ivy-rich-parse-remote-buffer nil)
@@ -342,6 +393,7 @@ Otherwise it can slow down emacs by a lot
 *** ivy-posframe
 #+begin_src emacs-lisp
   (use-package ivy-posframe
+    :disabled t ;; when ivy appears on the center it often overlaps important content
     :custom-face
     (ivy-posframe-border ((t (:background "#e6e1dc"))))
     :config
@@ -350,18 +402,25 @@ Otherwise it can slow down emacs by a lot
     (setq ivy-posframe-height 10)
     (setq ivy-posframe-min-height 10)
     (setq ivy-posframe-width 200)
-    (setq ivy-posframe-min-width 100)
+    (setq ivy-posframe-min-width 200)
     (setq ivy-posframe-parameters '((alpha . 85) (left-fringe 8)))
-    (ivy-posframe-mode 1)
+    (ivy-posframe-mode 0)
     )
 #+end_src
 *** ivy-prescient
 #+begin_src emacs-lisp
-  (use-package ivy-prescient
-    :after counsel
-    :config
-    (setq ivy-prescient-retain-classic-highlighting t)
-    (ivy-prescient-mode 1))
+    (use-package ivy-prescient
+      :after counsel
+      :config
+      (setq ivy-prescient-retain-classic-highlighting t)
+      (setq ivy-prescient-sort-commands '(:not swiper
+                                          swiper-isearch
+                                          counsel-imenu
+                                          lsp-ivy-workspace-symbol
+                                          lsp-ivy-global-workspace-symbol
+                                          counsel-switch-buffer
+                                          ivy-switch-buffer))
+      (ivy-prescient-mode 1))
 #+end_src
 ** smex
   Needed for nicer counsel
@@ -378,6 +437,8 @@ Otherwise it can slow down emacs by a lot
     ("C-x C-M-f" . counsel-fzf)
      (:map ivy-minibuffer-map
      ("M-y" . ivy-next-line))
+    :custom
+    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-pretty)
     :config (counsel-mode 1)
     )
 #+END_SRC
@@ -482,9 +543,6 @@ Use ivy for projectile
     :config
     (setq smooth-scroll-margin 15)
     (smooth-scrolling-mode 1)
-    :bind
-    ("C-v". scroll-up-line)
-    ("M-v". scroll-down-line)
     )
 #+end_src
 ** ace-window
@@ -557,48 +615,138 @@ at the beginning of the word (C-Ret)
 #+end_src
 
 ** transpose-frame
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
   (use-package transpose-frame)
 #+end_src
 ** perspective
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (use-package perspective
        :config (persp-mode))
    #+end_src
+** goto-line-preview
+   #+begin_src emacs-lisp
+     (use-package goto-line-preview
+       :config
+       (global-set-key [remap goto-line] 'goto-line-preview))
+   #+end_src
+** beacon
+   #+begin_src emacs-lisp
+     (use-package beacon
+       :config
+       (setq beacon-color 0.5)
+       (beacon-mode 1)
+       :bind ("M-]" . beacon-blink)
+      )
+   #+end_src
 * code navigation
-** rtags
+** lsp-mode
 #+begin_src emacs-lisp
-  (use-package rtags
+  (use-package lsp-mode
+    :commands (lsp lsp-deffered)
+    :init
+    (setq lsp-clients-clangd-executable "clangd")
+    (setq lsp-clients-clangd-args '("--clang-tidy"
+                                    "--completion-style=detailed"
+                                    "--background-index"
+                                    ))
+    (setq lsp-auto-guess-root t)
+    (setq lsp-signature-render-documentation t)
+    (setq lsp-signature-auto-activate nil)
+    (setq lsp-eldoc-enable-hover nil)
+    (setq lsp-enable-on-type-formatting nil)
+    (setq lsp-headerline-breadcrumb-segments '(symbols))
+    (setq lsp-headerline-breadcrumb-icons-enable t)
+    (setq lsp-symbol-highlighting-skip-current t)
+    (setq lsp-keymap-prefix "C-c l")
+    (setq lsp-imenu-sort-methods '(position))
     :config
-    (setq rtags-install-path "/local/eduplens/emacs")
-    (setq rtags-completions-enabled t)
-    (defun rtags-find-symbol-generic ()
-      (interactive)
-      (if (or (string-match "[a-zA-Z0-9_]" (string (following-char)))
-              (string-match "[a-zA-Z0-9_]" (string (preceding-char))))
-            (rtags-find-symbol-at-point)
-            (rtags-find-symbol)
-        )
-      )
-    (defun rtags-find-references-generic ()
-      (interactive)
-      (if (or (string-match "[a-zA-Z0-9_]" (string (following-char)))
-              (string-match "[a-zA-Z0-9_]" (string (preceding-char))))
-            (rtags-find-references-at-point)
-            (rtags-find-references)
-        )
-      )
+    (lsp-enable-which-key-integration t)
+    (eldoc-mode nil)
+    :hook ((c++-mode c-mode) . lsp)
     :bind
-    ("M-." . rtags-find-symbol-generic)
-    ("M-," . rtags-location-stack-back)
-    ("M-i" . rtags-imenu)
-    ("C-c M-[" . rtags-find-references-generic)
-  )
-  (use-package ivy-rtags
-    :config
-    (setq rtags-use-ivy t)
+    ("M-." . xref-find-definitions)
+    ("M-?" . xref-find-references)
+    ("M-," . xref-pop-marker-stack)
+    ("M-i" . imenu)
     )
-#+END_SRC
+  (use-package lsp-ivy
+    :commands lsp-ivy-workspace-symbol
+    :bind
+    ("C-c C-g" . lsp-ivy-workspace-symbol))
+  (use-package lsp-ui
+    :commands lsp-ui-mode
+    :custom-face
+    (lsp-ui-doc-background ((t (:background "#4F4F4F"))))
+    (lsp-headerline-breadcrumb-path-face ((t :inherit treemacs-directory-face)))
+    (lsp-face-highlight-textual ((t :background "#7F9F7F" :foreground "#FFFFFD" :weight normal)))
+    :init
+    (setq lsp-ui-doc-enable t)
+    (setq lsp-ui-doc-show-with-mouse nil)
+    (setq lsp-ui-doc-show-with-cursor t)
+    (setq lsp-ui-doc-border "#F6F3E8")
+    (setq lsp-ui-doc-position 'top)
+    (setq lsp-ui-doc-use-childframe t)
+    (setq lsp-ui-imenu-auto-refresh t)
+    (setq lsp-ui-doc-frame-parameters '((left . -1)
+                                        (no-focus-on-map . t)
+                                        (min-width . 0)
+                                        (width . 0)
+                                        (min-height . 0)
+                                        (height . 0)
+                                        (internal-border-width . 1)
+                                        (border-width . 1)
+                                        (border-color . "#FFFFFD")
+                                        (vertical-scroll-bars)
+                                        (horizontal-scroll-bars)
+                                        (right-fringe . 1)
+                                        (menu-bar-lines . 0)
+                                        (tool-bar-lines . 0)
+                                        (line-spacing . 0)
+                                        (unsplittable . t)
+                                        (undecorated . t)
+                                        (top . -1)
+                                        (visibility)
+                                        (mouse-wheel-frame)
+                                        (no-other-frame . t)
+                                        (inhibit-double-buffering . t)
+                                        (drag-internal-border . t)
+                                        (no-special-glyphs . t)
+                                        (desktop-dont-save . t)
+                                        ;;(font . "-PfEd-Terminus (TTF)-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+                                        ))
+    )
+  (use-package lsp-treemacs
+    :commands (lsp-treemacs-errors-list lsp-treemacs-symbols)
+    :after (treemacs)
+    :config
+    (setq lsp-treemacs-symbols-position-params '((side . right)
+                                                 (slot . 2)
+                                                 (window-width . 60)))
+    (setq lsp-treemacs-theme "Default")
+    (lsp-treemacs-sync-mode 1)
+    )
+  (use-package dap-mode
+    :config
+    (require 'dap-lldb)
+    (require 'dap-cpptools)
+    (setq dap-lldb-debug-program '("/usr/bin/lldb-vscode-12"))
+    (defun my/debug ()
+      (interactive)
+      (dap-debug
+       (list :name "Debug cpuFuncTests"
+        :type "lldb-vscode"
+        :request "launch"
+        :program (read-file-name "Path to binary: ")
+        :args (split-string (read-from-minibuffer "Command line rguments: "))
+        ;;:program "${workspaceFolder}/bin/intel64/Debug/benchmark_app"
+        ;;:args ["-niter", "1", "-nstreams", "1", "-m", "/mnt/icv_bench_cache/DL_benchmarking_models/mobilenet-v2/caffe/caffe/FP32/1/dldt/mobilenet-v2.xml"],
+        :stopOnEntry t
+        :cwd "${workspaceFolder}"
+        :env []
+        :externalConsole: nil)))
+    ;; (setq dap-lldb-debugged-program-function )
+    )
+#+end_src
 ** call-graph
 Breaks emacs after update. Disabled for now.
 #+BEGIN_SRC emacs-lisp
@@ -613,28 +761,19 @@ Breaks emacs after update. Disabled for now.
     :diminish flycheck-mode
     :init
     (add-hook 'after-init-hook #'global-flycheck-mode)
-    :config
-    (setq-default temporary-file-directory "~/.cache/emacs")
-    (unless (file-exists-p temporary-file-directory)
-      (make-directory temporary-file-directory))
-    )
-
-  (use-package flycheck-irony
-    :init
-    (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
     )
 
   (use-package flycheck-google-cpplint
     :config
-    (flycheck-remove-next-checker 'irony
-                               '(warning . c/c++-googlelint))
+    ;;(flycheck-remove-next-checker 'irony
+    ;;                           '(warning . c/c++-googlelint))
     )
 #+END_SRC
 *** flycheck-posframe
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck-pos-tip
     :after flycheck
-    :hook (flycheck-mode-hook . flycheck-pos-tip-mode)
+    :hook (flycheck-mode . flycheck-pos-tip-mode)
     )
 #+END_SRC
 #+END_SRC
@@ -652,47 +791,30 @@ Breaks emacs after update. Disabled for now.
       (add-hook 'after-init-hook 'global-company-mode)
       )
     :bind (:map company-active-map
-    ("C-n" . company-select-next)
-    ("C-p" . company-select-previous))
+                ("C-n" . company-select-next)
+                ("C-p" . company-select-previous))
     :config
     (setq company-require-match nil)
-    (use-package company-irony
-      :defer t
-      :init
-      (add-to-list 'company-backends 'company-irony)
-      :custom
-      (flycheck-clang-standart-library "libstdc++")
-      (flycheck-clang-language-standard "c++11")
-      )
-      :init
-      (add-hook 'c-mode-hook
-                '(lambda ()
-                   (set (make-local-variable 'company-backends)
-                        '((company-irony company-clang)))))
-      (add-hook 'c++-mode-hook
-                '(lambda ()
-                   (set (make-local-variable 'company-backends)
-                        '((company-irony company-clang)))))
-      (add-hook 'sh-mode-hook
-                '(lambda ()
-                   (set (make-local-variable 'company-backends)
-                        '((company-capf company-shell company-shell-env company-fish-shell)))))
-      )
-
+    :init
+    (add-hook 'sh-mode-hook
+              '(lambda ()
+                 (set (make-local-variable 'company-backends)
+                      '((company-capf company-shell company-shell-env company-fish-shell)))))
+    (use-package company-quickhelp
       :config
       (company-quickhelp-mode 1)
       (setq company-quickhelp-delay 1)
       :bind ("\C-c h" . #'company-quickhelp-manual-begin))
     (use-package company-ansible)
     (use-package company-emoji)
-    (setq company-idle-delay              3
+    (setq company-idle-delay              0.5
           company-minimum-prefix-length   0
           company-show-numbers            t
           company-tooltip-limit           20
           company-dabbrev-downcase        nil
           )
 
-    :bind ("\C-q" . company-complete-common)
+    :bind ("\C-q" . company-complete-tooltip-row)
     )
 
 #+END_SRC
@@ -710,23 +832,6 @@ Breaks emacs after update. Disabled for now.
   (use-package ivy-yasnippet
     :requires yasnippet)
   #+END_SRC
-** irony
-#+BEGIN_SRC emacs-lisp
-  (use-package irony
-    :init
-    :hook ((c++-mode c-mode objc-mode) . irony-mode)
-    :config
-    (defun my-irony-mode-hook ()
-      (define-key irony-mode-map [remap completion-at-point]
-        'irony-completion-at-point-async)
-      (define-key irony-mode-map [remap complete-symbol]
-        'irony-completion-at-point-async))
-    (add-hook 'irony-mode-hook 'my-irony-mode-hook)
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-    )
-#+END_SRC
-
-#+end_src
 ** cpp-auto-include
 #+begin_src emacs-lisp
   (use-package cpp-auto-include)
@@ -781,8 +886,15 @@ Breaks emacs after update. Disabled for now.
 ** gdb
 #+begin_src emacs-lisp
 (setq gdb-show-changed-values t)
+(setq gdb-restore-window-configuration-after-quit t)
+(add-hook 'kill-buffer-hook 'comint-write-input-ring)
 #+end_src
 
+** ws-butler
+   #+begin_src emacs-lisp
+     (use-package ws-butler
+       :hook (prog-mode . ws-butler-mode))
+   #+end_src
 * project/git stuff
 ** projectile
 #+BEGIN_SRC emacs-lisp
@@ -800,9 +912,8 @@ Breaks emacs after update. Disabled for now.
   (use-package treemacs
     :defer t
     :config
-    (progn
       (setq treemacs-follow-after-init          t
-            treemacs-width                      35
+            treemacs-width                      60
             treemacs-indentation                2
             treemacs-git-integration            t
             treemacs-collapse-dirs              3
@@ -812,17 +923,30 @@ Breaks emacs after update. Disabled for now.
             treemacs-show-hidden-files          t
             treemacs-never-persist              nil
             treemacs-is-never-other-window      nil
-            treemacs-goto-tag-strategy          'refetch-index)
+            treemacs-goto-tag-strategy          'refetch-index
+            treemacs-position                   'left)
 
       (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t))
+      (treemacs-filewatch-mode nil)
+      (setq treemacs-no-png-images nil)
     :bind
     (:map global-map
           ([f8]         . treemacs)
           ("M-0"        . treemacs-select-window)
           ("C-c 1"      . treemacs-delete-other-windows)
           )
+     :custom-face
+     (treemacs-root-face ((t
+                          :Weight 'bold
+                          :height 1.4
+                          )))
+                          )
+  (use-package treemacs-all-the-icons
+    :config
+    (treemacs-load-theme "all-the-icons")
     )
+
+  (use-package treemacs-magit)
 
   (use-package treemacs-projectile
     :config
@@ -836,9 +960,17 @@ Breaks emacs after update. Disabled for now.
            ("RET" . magit-diff-visit-file-other-window)
            :map magit-hunk-section-map
            ("RET" . magit-diff-visit-file-other-window))
-    :hook
-    (ediff-mode . ediff-mode-face-config-hook)
-    :config
+    :custom-face
+    ;; revert diff faces which was changed to more bright version
+    (magit-diff-added ((t (:background "#2F4F2F"))))
+    (magit-diff-added-highlight ((t (:background "#3F5F3F"))))
+    (magit-diff-removed ((t (:backgorund "#6C3333"))))
+    (magit-diff-removed-highlight ((t (:background "#7C4343"))))
+    ;; use yellow for magit 'in progress' command at mode-line
+    (magit-mode-line-process ((t :inherit 'mode-line-buffer-id )))
+
+  :config
+    (setq magit-diff-refine-hunk t)
     (setq transient-display-buffer-action '(display-buffer-below-selected))
     (setq magit-ediff-dwim-show-on-hunks t)
     (setq ediff-make-buffers-readonly-at-startup t)
@@ -847,51 +979,9 @@ Breaks emacs after update. Disabled for now.
       (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
       (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
       (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added))
-    ;; (defun counsel-magit-checkout ()
-    ;;   "Forward to `describe-function'."
-    ;;   (interactive)
-    ;;   (ivy-read "Switch to branch: "
-    ;;             (magit-list-other-branch-or-commit)
-    ;;             :action 'magit-checkout
-    ;;             :caller 'counsel-magit-checkout))
-
-    ;; (defun magit-get-current-commit-sha-short (rev)
-    ;;   (magit-rev-parse "--short" rev))
-
-    ;; (define-key magit-mode-map "b" 'counsel-magit-checkout)
-
-    ;; (defun magit-comming-message (rev)
-    ;;   (magit-rev-format "%s" rev))
-
-    ;; (defun magit-branch-or-commit-at-point-save ()
-    ;;   (let (atpoint (magit-branch-or-commit-at-point))
-    ;;     (if atpoint atpoint "")
-    ;;     )
-    ;;   )
-
-    ;; (defun magit-get-upstream-branch-save (rev)
-    ;;   (let ((branch (magit-get-upstream-branch rev)))
-    ;;     (if branch branch "")
-    ;;     ))
-
-    ;; (defun magit-list-other-branch-or-commit ()
-    ;;   (let* ((current (magit-get-current-branch))
-    ;;          (atpoint (magit-branch-or-commit-at-point))
-    ;;          (exclude current)
-    ;;          (default (or (and (not (equal atpoint exclude))
-    ;;                            (not (and (not current)
-    ;;                                      (magit-rev-equal atpoint "HEAD")))
-    ;;                            atpoint)
-    ;;                       (and (not (equal current exclude)) current)
-    ;;                       (magit-get-previous-branch))))
-    ;;     (let ((result (delete exclude (magit-list-refnames))))
-    ;;       (if atpoint (cons atpoint result) result)
-    ;;       )
-    ;;     ))
-
-    :hook
-    (ediff-mode . ediff-mode-face-config-hook)
-    )
+  :hook
+  (ediff-mode . ediff-mode-face-config-hook)
+  )
 
   (use-package with-editor)
 
@@ -906,7 +996,14 @@ Breaks emacs after update. Disabled for now.
 ** forge
    #+begin_src emacs-lisp
      (use-package forge
-       :after magit)
+       :after magit
+     )
+   #+end_src
+** code-review
+   #+begin_src emacs-lisp
+     (use-package code-review
+       :after magit
+     )
    #+end_src
 ** smerge
 #+begin_src emacs-lisp
@@ -915,14 +1012,9 @@ Breaks emacs after update. Disabled for now.
 ("M-p" . smerge-prev)
 ("M-n" . smerge-next)))
 #+end_src
-** gitignore-mode
+** git-modes
 #+begin_src emacs-lisp
-(use-package gitignore-mode)
-#+end_src
-** gitconfig-mode
-#+begin_src emacs-lisp
-(use-package gitconfig-mode
-             )
+(use-package git-modes)
 #+end_src
 ** fasd
    #+begin_src emacs-lisp
@@ -936,6 +1028,56 @@ Breaks emacs after update. Disabled for now.
        :bind ("M-z" . fasd-find-file)
        )
    #+end_src
+* email
+** mu4e
+#+begin_src emacs-lisp
+  (use-package mu4e
+    :ensure nil
+    :load-path "/usr/local/share/emacs/site-lisp/mu4e"
+    ;; :defer 20 ; Wait until 20 seconds after startup
+    :config
+    (require 'mu4e-org)
+
+    ;; This is set to 't' to avoid mail syncing issues when using mbsync
+    (setq mu4e-change-filenames-when-moving t)
+
+    ;; Refresh mail using isync every 10 minutes
+    (setq mu4e-update-interval (* 10 60))
+    (setq mu4e-get-mail-command "mbsync -a")
+    (setq mu4e-maildir "~/mail")
+
+    (setq mu4e-contexts
+          (list
+           ;; Work account
+           (make-mu4e-context
+            :name "Main"
+            :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/gmail/egor-duplensky" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address . "egor.duplensky@gmail.com")
+                    (user-full-name    . "Egor Duplensky")
+                    (mu4e-drafts-folder  . "/gmail/egor-duplensky/[Gmail]/Drafts")
+                    (mu4e-sent-folder  . "/gmail/egor-duplensky/[Gmail]/Sent Mail")
+                    (mu4e-refile-folder  . "/gmail/egor-duplensky/[Gmail]/All Mail")
+                    (mu4e-trash-folder  . "/gmail/egor-duplensky/[Gmail]/Trash")))))
+
+    (setq mu4e-maildir-shortcuts
+          '(("/gmail/egor-duplensky/Inbox"          . ?i)
+            ("/gmail/egor-duplensky/[Gmail]/Sent Mail"   . ?s)
+            ("/gmail/egor-duplensky/[Gmail]/Trash"  . ?t)
+            ("/gmail/egor-duplensky/[Gmail]/Drafts" . ?d)
+            ("/gmail/egor-duplensky/[Gmail]/All Mail"    . ?a))))
+#+end_src
+** mu4e-alert
+#+begin_src emacs-lisp
+  (use-package mu4e-alert
+    :init
+    (mu4e-alert-enable-notifications)
+    :config
+    (mu4e-alert-enable-mode-line-display)
+    (setq doom-modeline-mu4e nil))
+#+end_src
 * org-mode
 ** org
  #+BEGIN_SRC emacs-lisp
@@ -943,7 +1085,6 @@ Breaks emacs after update. Disabled for now.
      :init
      (add-hook 'org-mode-hook
                (lambda ()
-                 ;; (org-set-local 'yas/trigger-key [tab])
                  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
      :hook (org-mode . flyspell-mode)
      :custom (org-ellipsis "⤵")
@@ -952,10 +1093,12 @@ Breaks emacs after update. Disabled for now.
        (interactive)
        (org-table-create-or-convert-from-region ";")
        )
+     (require 'org-tempo)
+     (add-to-list 'org-structure-template-alist '("el". "src emacs-lisp"))
      :custom-face
      (org-table ((t
-                          :foreground "#FFFFFF"
-                          )))
+                  :foreground "#FFFFFF"
+                  )))
      )
  #+END_SRC
 ** org-ref
@@ -976,7 +1119,7 @@ Breaks emacs after update. Disabled for now.
 ** org-re-reveal
 #+BEGIN_SRC emacs-lisp
   (use-package org-re-reveal
-    :config (setq org-re-reveal-root "file:///home/xegodup/github/reveal.js")
+    :config (setq org-re-reveal-root "file:///home/egor/git/reveal.js")
     )
 #+END_SRC
 ** ox-pandoc
@@ -994,6 +1137,8 @@ Breaks emacs after update. Disabled for now.
            "* %?\nCreated on %U")
           ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")
+          ("w" "Work to be done" entry (file+olp "~/org/work.org" "To be done")
+           "* %?\nCreated on %U")
           )
         )
 #+end_src
@@ -1036,8 +1181,8 @@ Breaks emacs after update. Disabled for now.
 ** dashboard
 #+begin_src emacs-lisp
   (use-package dashboard
-    :init
-    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+    ;; :init
+    ;; (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
     :config
     (use-package page-break-lines)
     (setq dashboard-items '((recents  . 5)
@@ -1045,10 +1190,23 @@ Breaks emacs after update. Disabled for now.
                             (projects . 5)
                             (agenda . 5)
                             (registers . 5)))
-    (setq dashboard-startup-banner "~/.emacs.d/misc/images/emacs_icon.png")
     (dashboard-setup-startup-hook))
 #+end_src
 ** languages modes
+*** python
+    #+begin_src emacs-lisp
+      (use-package jedi)
+      (use-package lsp-jedi
+        :config
+        (with-eval-after-load "lsp-mode"
+          (setq lsp-disabled-clients '(jedi))
+          (setq lsp-enabled-clients '(pylsp pyls jedi clangd))
+          )
+        :hook
+        (python-mode . lsp)
+        )
+      (use-package cython-mode)
+    #+end_src
 *** groovy
  #+BEGIN_SRC emacs-lisp
    (use-package groovy-mode
@@ -1063,7 +1221,7 @@ Breaks emacs after update. Disabled for now.
               ("\\.markdown\\'" . markdown-mode))
        :init (setq markdown-command "multimarkdown")
        :config
-       (setq browse-url-browser-function 'browse-url-chromium)
+       (setq browse-url-browser-function 'browse-url-chrome)
        )
    #+END_SRC
 **** flymd
@@ -1073,6 +1231,9 @@ Breaks emacs after update. Disabled for now.
 *** yaml
  #+BEGIN_SRC emacs-lisp
    (use-package yaml-mode)
+ #+END_SRC
+ #+BEGIN_SRC emacs-lisp
+   (use-package yaml-imenu)
  #+END_SRC
 *** dockerfile
 #+BEGIN_SRC emacs-lisp
@@ -1106,12 +1267,20 @@ Breaks emacs after update. Disabled for now.
 ** modelines
 *** doom-mode-line
   #+begin_src emacs-lisp
-    (use-package all-the-icons)
+    (use-package all-the-icons
+      :config
+      ;; Make sure the icon fonts are good to go
+      (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'append)
+      (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'append))
   #+end_src
   #+begin_src emacs-lisp
     (use-package doom-modeline
       :defer t
-      :hook (after-init . doom-modeline-init))
+      :hook (after-init . doom-modeline-init)
+      :init
+      (setq doom-modeline-icon t)
+      (setq doom-modeline-height 35)
+      (setq doom-modeline-major-mode-color-icon nil))
   #+end_src
 ** which-key
  #+BEGIN_SRC emacs-lisp
@@ -1120,9 +1289,10 @@ Breaks emacs after update. Disabled for now.
  #+END_SRC
 ** midnight
  #+BEGIN_SRC emacs-lisp
- ;; All the buffers that haven’t been visited in 3 days will be killed
- (require 'midnight)
- (midnight-delay-set 'midnight-delay "4:30am")
+   ;; All the buffers that haven’t been visited in 7 days will be killed
+   ;; (require 'midnight)
+   ;; (setq clean-buffer-list-delay-general 7) ;; week
+   ;; (midnight-delay-set 'midnight-delay "4:30am")
  #+END_SRC
 ** htmlize
  #+BEGIN_SRC emacs-lisp
@@ -1134,6 +1304,15 @@ Breaks emacs after update. Disabled for now.
      :bind ("C-c d" . disaster)
      )
  #+END_SRC
+** rmsbolt
+#+begin_src emacs-lisp :tangle yes
+  (use-package rmsbolt
+    :custom-face
+    (rmsbolt-current-line-face ((t
+                                 :inherit hl-line
+                                 )))
+    )
+#+end_src
 ** dired-rainbow
  #+BEGIN_SRC emacs-lisp
    (use-package dired-rainbow
@@ -1270,16 +1449,54 @@ Dimming the face of non-active buffers
   )
 
 #+end_src
+** helpful
+#+begin_src emacs-lisp
+  (use-package helpful
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap descrive-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key)
+  )
+#+end_src
+** selectric-mode
+#+begin_src emacs-lisp
+  (use-package selectric-mode)
+#+end_src
+** visual-fill-column
+   #+begin_src emacs-lisp
+     (use-package visual-fill-column
+       :config
+       (setq visual-fill-column-center-text t)
+       (setq visual-fill-column-width 160))
+   #+end_src
+** stripe-buffer
+   #+begin_src emacs-lisp
+     (use-package stripe-buffer
+       :custom-face
+       (stripe-highlight ((t
+                         :background "#333333"
+                         )))
+       )
+   #+end_src
+** bash-completion
+   #+begin_src emacs-lisp
+     (use-package bash-completion
+       :config
+       (bash-completion-setup)
+       )
+   #+end_src
 * theme
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
     :init (load-theme 'zenburn t))
-  (set-frame-font "-PfEd-Terminus-normal-normal-normal-*-14-*-72-72-c-*-iso10646-1")
-  (setq default-frame-alist '((font . "-PfEd-Terminus-normal-normal-normal-*-14-*-72-72-c-*-iso10646-1")))
   (set-face-background 'show-paren-match "sea green")
   (set-face-background 'show-paren-mismatch "orange red")
   (set-face-foreground 'which-func "#93E0E3")
-  (set-face-background 'hl-line "gray5")
+  (set-face-background 'hl-line "#111111")
 
   ;; hightlight function calls (they have default color otherwise)
   (defvar font-lock-function-call-face
@@ -1301,31 +1518,16 @@ Dimming the face of non-active buffers
   (set-face-attribute 'region nil :foreground "#FFFFFF")
   ;; also highlight underlying entities in documentation
   (set-face-attribute 'button nil :foreground "#7F9F7F")
-#+END_SRC
+  ;; Font settings really depends on host / monitor / remote desktop / etc
+  ;; (set-frame-font "-Xos4-Terminus-normal-normal-normal-*-18-*-*-*-m-*-iso10646-1")
+  ;; (setq default-frame-alist '((font . "-Xos4-Terminus-normal-normal-normal-*-18-*-*-*-m-*-iso10646-1")))
+  ;; (set-face-attribute 'fixed-pitch nil :family "Terminus (TTF)")
+  (set-frame-font "-GOOG-Noto Sans Mono-normal-normal-normal-*-16-*-*-*-*-0-iso10646-1")
+  (setq default-frame-alist '((font . "-GOOG-Noto Sans Mono-normal-normal-normal-*-16-*-*-*-*-0-iso10646-1")))
+  #+END_SRC
 * non-elpa
-** spotify
-  #+begin_src emacs-lisp
-    (use-package spotify
-      :ensure nil
-      :load-path "non-elpa/spotify.el"
-      :config
-      (setq spotify-oauth2-client-secret "7f213c3a75744a019626242facd63330")
-      (setq spotify-oauth2-client-id "d3ecdb988fb44deea00fdfb069cf3753")
-      (setq spotify-transport 'connect)
-      )
-  #+end_src
-** no-easy-keys
-   Force to use right key in emacs (no arrows / Delete / Home / etc)
-  #+begin_src emacs-lisp
-    (use-package no-easy-keys
-      :ensure nil
-      :load-path "non-elpa/emacs-no-easy-keys"
-      :config (no-easy-keys 1))
-  #+end_src
-** company-makefile
-  #+begin_src emacs-lisp
-    (use-package company-makefile
-      :ensure nil
-      :load-path "non-elpa/company-makefile")
-  #+end_src
 
+* tmp
+  #+begin_src emacs-lisp
+    (setenv "_FASD_DATA" (concat (getenv "HOME") "/.cache/fasd/.fasd"))
+  #+end_src
