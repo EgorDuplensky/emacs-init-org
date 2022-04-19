@@ -738,13 +738,10 @@ at the beginning of the word (C-Ret)
         :request "launch"
         :program (read-file-name "Path to binary: ")
         :args (split-string (read-from-minibuffer "Command line rguments: "))
-        ;;:program "${workspaceFolder}/bin/intel64/Debug/benchmark_app"
-        ;;:args ["-niter", "1", "-nstreams", "1", "-m", "/mnt/icv_bench_cache/DL_benchmarking_models/mobilenet-v2/caffe/caffe/FP32/1/dldt/mobilenet-v2.xml"],
         :stopOnEntry t
         :cwd "${workspaceFolder}"
         :env []
         :externalConsole: nil)))
-    ;; (setq dap-lldb-debugged-program-function )
     )
 #+end_src
 ** call-graph
@@ -775,7 +772,6 @@ Breaks emacs after update. Disabled for now.
     :after flycheck
     :hook (flycheck-mode . flycheck-pos-tip-mode)
     )
-#+END_SRC
 #+END_SRC
 ** company
 #+BEGIN_SRC emacs-lisp
@@ -1181,8 +1177,6 @@ Breaks emacs after update. Disabled for now.
 ** dashboard
 #+begin_src emacs-lisp
   (use-package dashboard
-    ;; :init
-    ;; (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
     :config
     (use-package page-break-lines)
     (setq dashboard-items '((recents  . 5)

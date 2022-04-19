@@ -31,7 +31,7 @@
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 ;; common configuratiom
-(org-babel-load-file (expand-file-name "~/.emacs.d/my-init.org"))
+(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
 ;; autogenereated configuration (e.g. by use-package)
 (if (file-exists-p custom-file)
     (load custom-file))
