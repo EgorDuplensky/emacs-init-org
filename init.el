@@ -3,14 +3,6 @@
 ;;; Lisp modules goes here -- load some buffers
 ;;; Code:
 ;;; Set up package
-(require 'package)
-
-(setq package-archives
-      '(("melpa" . "https://melpa.org/packages/")
-        ("gnu" . "https://elpa.gnu.org/packages/")
-        ("org" . "http://orgmode.org/elpa/")))
-(setq package-native-compile t)
-
 ;; always work with real files, not sym links
 (setq vc-follow-symlinks t)
 
@@ -18,24 +10,34 @@
 (if (file-exists-p "~/.emacs.d/host-specific-init.org")
     (org-babel-load-file (expand-file-name "~/.emacs.d/host-specific-init.org")))
 
-(package-initialize)
+(setq native-comp-async-report-warnings-errors nil)
 
-;;; Bootstrap use-package
-;; Install use-package if it's not already installed.
-;; use-package is used to configure the rest of the packages.
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
+(straight-use-package 'use-package)
 (require 'use-package)
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
-;; common configuratiom
+;;(setq use-package-verbose t)
+;;(setq use-package-always-ensure t)
+(setq straight-use-package-by-default t)
+;; common configuration
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+;; work specific settings
+(if (file-exists-p (expand-file-name "~/.emacs.d/work.org"))
+    (org-babel-load-file "~/.emacs.d/work.org"))
 ;; autogenereated configuration (e.g. by use-package)
 (if (file-exists-p custom-file)
     (load custom-file))
-(put 'narrow-to-region 'disabled nil)
 
 (provide 'init)
 ;;; init.el ends here
