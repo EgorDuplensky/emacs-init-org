@@ -22,33 +22,48 @@
 #+END_SRC
 ** Enable/Disable some minor modes
 #+BEGIN_SRC emacs-lisp
-    ;; Mode line config
-    (column-number-mode 1)
-    ;; Hide default TOOLBAR
-    (hide-ifdef-mode 1)
-    ;; Hightlight brackets
-    (show-paren-mode t)
-    ;; Hightlight current line
-    (global-hl-line-mode 1)
-    ;; Display the current function name in the mode line
-    (which-function-mode 1)
-    ;; Disable toolbar
-    (tool-bar-mode 0)
-    ;; Disable menubar
-    (menu-bar-mode 0)
-    ;; Disable scrollbar
-    (scroll-bar-mode 0)
+  ;; Mode line config
+  (column-number-mode 1)
+  ;; Hide default TOOLBAR
+  (hide-ifdef-mode 1)
+  ;; Hightlight brackets
+  (show-paren-mode t)
+  ;; Hightlight current line
+  (global-hl-line-mode 1)
+  ;; Display the current function name in the mode line
+  (which-function-mode 1)
+  ;; Disable toolbar
+  (tool-bar-mode 0)
+  ;; Disable menubar
+  (menu-bar-mode 0)
+  ;; Disable scrollbar
+  (scroll-bar-mode 0)
 
-    (defun my/disable-scroll-bars (frame)
-      (modify-frame-parameters frame
-                               '((vertical-scroll-bars . nil)
-                                 (horizontal-scroll-bars . nil))))
-    (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
-    (blink-cursor-mode 0)
-    ;; Overwrite selected text
-    (delete-selection-mode 1)
-    ;; left fringe for indicators, right fringe for long lines
-    ;;(set-fringe-mode '(8 . 8))
+  (defun my/disable-scroll-bars (frame)
+    (modify-frame-parameters frame
+                             '((vertical-scroll-bars . nil)
+                               (horizontal-scroll-bars . nil))))
+  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+  (blink-cursor-mode 0)
+  ;; Overwrite selected text
+  (delete-selection-mode 1)
+  ;; left fringe for indicators, right fringe for long lines
+  ;;(set-fringe-mode '(8 . 8))
+  (defun ide-mode ()
+    (interactive)
+    (menu-bar-mode 1)
+    (tool-bar-mode 1)
+    (centaur-tabs-mode 1)
+    (treemacs)
+    )
+
+  (defun ide-mode-exit ()
+    (interactive)
+    (menu-bar-mode -1)
+    (tool-bar-mode -1)
+    (centaur-tabs-mode -1)
+    (treemacs)
+    )
 #+END_SRC
 ** Scrolling without moving point
  Useful feature but not sure about bindings yet
@@ -591,7 +606,7 @@ Use ivy for projectile
     (avy-lead-face ((t :background "#276E9E" :foreground "#FFFFFF" )))
     :commands (avy-goto-word-1 avy-goto-char-2 avy-goto-char-timer)
     :config
-    (setq avy-timeout-seconds 0.20)
+    (setq avy-timeout-seconds 0.40)
     (setq avy-keys '(?a ?s ?d ?f ?g ?j ?l ?o
                         ?v ?b ?n ?, ?/ ?u ?p ?e ?.
                         ?c ?q ?2 ?3 ?' ?\;))
@@ -866,7 +881,7 @@ Isearch other window
     :after vertico
     :init (marginalia-mode)
     :config
-    (setq marginalia-align 'left)
+    (setq marginalia-align 'center)
     :custom-face
     (marginalia-documentation ((t :inherit font-lock-comment-face)))
     :bind (:map minibuffer-local-map
@@ -976,6 +991,7 @@ Isearch other window
     (setq lsp-symbol-highlighting-skip-current t)
     (setq lsp-imenu-sort-methods '(position))
     (setq lsp-completion-provider :none)
+    (setq lsp-idle-delay 0.1)
     :config
     (lsp-enable-which-key-integration t)
     (eldoc-mode nil)
@@ -984,6 +1000,7 @@ Isearch other window
     (lsp-completion-mode . my/lsp-mode-setup-completion)
     :bind
     (:map lsp-command-map ("r e" . lsp-iedit-highlights))
+    (:map lsp-command-map ("e" . consult-lsp-diagnostics))
     ("M-." . xref-find-definitions)
     ("M-?" . xref-find-references)
     ("M-," . xref-pop-marker-stack)
@@ -1218,8 +1235,11 @@ Disable namespace indentation with TAB
     (setq projectile-completion-system 'auto)
     (setq projectile-enable-caching t)
     (setq compilation-scroll-output t)
-    :bind (:map projectile-mode-map
-    ("C-c p" . projectile-command-map))
+    :bind
+    (:map projectile-mode-map
+          ("C-c p" . projectile-command-map))
+    (:map projectile-command-map
+          ("s r" . consult-ripgrep))
     )
 #+END_SRC
 ** treemacs
@@ -1358,7 +1378,32 @@ Disable namespace indentation with TAB
 #+begin_src emacs-lisp
   (use-package eshell
     :straight (:type built-in)
+    ;; to use some magit faces
+    :after magit
     :init
+    (defun eshell-find-in-history (prefix &optional query)
+      "Use fasd to open a file, or a directory with dired.
+       If PREFIX is positive consider only directories.
+       If PREFIX is -1 consider only files.
+       If PREFIX is nil consider files and directories.
+       QUERY can be passed optionally to avoid the prompt."
+      (interactive "P")
+      (unless query (setq query (if fasd-enable-initial-prompt
+                                    (read-from-minibuffer "Fasd query: ")
+                                  "")))
+      (let* ((prompt "Fasd query: ")
+             (results
+              (split-string
+               ;;(insert-file-contents "/home/eduplens/.emacs.d/eshell/history" nil 0 500)
+               (f-read-text "/home/eduplens/.emacs.d/eshell/history")
+               "\n" t))
+             (command (when results
+                        ;; set `this-command' to `fasd-find-file' is required because
+                        ;; `read-from-minibuffer' modifies its value, while `ivy-completing-read'
+                        (completing-read prompt results nil t)))
+             (insert command)
+             )
+        ))
     (defun corfu-send-shell (&rest _)
       "Send completion candidate when inside comint/eshell."
       (cond
@@ -1394,6 +1439,8 @@ Disable namespace indentation with TAB
     :bind (("C-`"   . popper-toggle-latest)
            ("M-`"   . popper-cycle)
            ("C-M-`" . popper-toggle-type))
+    :custom
+    (popper-group-function #'popper-group-by-directory)
     :init
     (setq popper-reference-buffers
           '("\\*Messages\\*"
