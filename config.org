@@ -100,7 +100,7 @@
   (global-set-key (kbd "C-<right>") 'forward-word)
   (global-set-key (kbd "C-<left>") 'backward-word)
   (global-set-key (kbd "C-S-<down>") 'term-send-raw)
-  (global-set-key "\M-g" 'goto-line)
+  (global-set-key "\M-g\M-g" 'goto-line)
   (global-set-key "\C-c\C-c" 'compile)
   (global-set-key "\C-c\C-k" 'indent-for-comment)
   (global-set-key "\C-c\C-l" 'indent-new-comment-line)
@@ -597,9 +597,16 @@ Use ivy for projectile
 ** avy
 #+begin_src emacs-lisp
   (use-package avy
+    :init
+    (defun avy-goto-line-smart()
+      (interactive)
+      (avy-goto-line)
+      (smarter-move-beginning-of-line 1)
+      )
     :bind
     ("M-o" . avy-pop-mark)
     ("M-j" . avy-goto-char-timer)
+    ("M-l" . avy-goto-line-smart)
     (:map isearch-mode-map ("M-j" . avy-isearch))
     :custom-face
     (avy-goto-char-timer-face ((t :background "#111111")))
@@ -609,7 +616,7 @@ Use ivy for projectile
     (setq avy-timeout-seconds 0.40)
     (setq avy-keys '(?a ?s ?d ?f ?g ?j ?l ?o
                         ?v ?b ?n ?, ?/ ?u ?p ?e ?.
-                        ?c ?q ?2 ?3 ?' ?\;))
+                        ?c ?q ?\;))
     (setq avy-single-candidate-jump nil)
     (setq avy-dispatch-alist '((?m . avy-action-mark)
                                (?i . avy-action-ispell)
