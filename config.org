@@ -1226,19 +1226,6 @@ Isearch other window
     :config
     (require 'dap-lldb)
     (require 'dap-cpptools)
-    (setq dap-lldb-debug-program '("/usr/bin/lldb-vscode-14"))
-    (defun my/debug ()
-      (interactive)
-      (dap-debug
-       (list :name "Debug cpuFuncTests"
-    :type "lldb-vscode"
-    :request "launch"
-    :program (read-file-name "Path to binary: ")
-    :args (split-string (read-from-minibuffer "Command line rguments: "))
-    :stopOnEntry t
-    :cwd "${workspaceFolder}"
-    :env []
-    :externalConsole: nil)))
     )
 #+end_src
 ** flycheck
