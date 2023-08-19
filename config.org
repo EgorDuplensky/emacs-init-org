@@ -1,4 +1,12 @@
 * common settings
+** Increase gc threshold
+#+begin_src elisp
+(setq gc-cons-threshold 100000000)
+#+end_src
+** Increase amount data emacs read from process
+#+begin_src elisp
+(setq read-process-output-max (* 1024 1024))
+#+end_src
 ** Always ask before quit
 #+BEGIN_SRC emacs-lisp
   (setq confirm-kill-emacs 'y-or-n-p)
@@ -107,7 +115,6 @@
   (global-set-key "\C-c\C-s" 'kill-compilation)
   (global-set-key "\C-c\M-b" 'emu-backend-find)
   (global-set-key [(shift f1)] 'next-error)
-  (global-set-key (kbd "<return>") 'ignore)
   (define-key global-map [f1] 'next-error)
   (define-key global-map [f2] 'previous-error)
   (define-key global-map [f3] 'previous-error)
@@ -364,6 +371,38 @@ Otherwise it can slow down emacs by a lot
     (move-text-default-bindings)
     )
 #+END_SRC
+** tree-sitter
+#+begin_src emacs-lisp
+  (use-package tree-sitter
+    :ensure nil
+    :straight nil
+    :init
+    (setq treesit-language-source-alist
+          '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+            (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+            (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+            (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+            (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+            (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+            (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+            (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+            (markdown . ("https://github.com/ikatyang/tree-sitter-markdown"))
+            (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+            (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+            (make . ("https://github.com/alemuller/tree-sitter-make"))
+            (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
+            (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+            (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+            (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+            (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+            (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+            (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+            (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+            (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+            (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
+    )
+#+end_src
+
 ** dired
 Hide extra information by default
 #+begin_src emacs-lisp
@@ -586,6 +625,10 @@ Use ivy for projectile
 #+BEGIN_SRC emacs-lisp
   (use-package ibuffer-tramp)
 #+END_SRC
+** bufler
+#+begin_src emacs-lisp
+  (use-package bufler)
+#+end_src
 ** smooth-scrolling
 #+begin_src emacs-lisp
   (use-package smooth-scrolling
@@ -754,6 +797,8 @@ Use ivy for projectile
     :init
     (global-set-key [remap other-window] 'ace-window)
     (setq aw-background nil)
+    :custom
+    (aw-scope 'frame)
     :custom-face
     ;;(aw-leading-char-face ((t :inherit ace-jump-face-foreground :height 3.0)))
     (aw-leading-char-face ((t :foreground "#FFFFFF" :background "#276E9E" :height 3.0)))
@@ -939,12 +984,102 @@ Isearch other window
     ;; Manual preview key for `affe-grep'
     (consult-customize affe-grep :preview-key "M-."))
 #+end_src
+** meow
+#+begin_src emacs-lisp
+  (use-package meow
+    :init
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-colemak-dh)
+      (meow-motion-overwrite-define-key
+       ;; Use e to move up, n to move down.
+       ;; Since special modes usually use n to move down, we only overwrite e here.
+       '("e" . meow-prev)
+       '("<escape>" . ignore))
+      (meow-leader-define-key
+       '("?" . meow-cheatsheet)
+       ;; To execute the originally e in MOTION state, use SPC e.
+       '("e" . "H-e")
+       '("1" . meow-digit-argument)
+       '("2" . meow-digit-argument)
+       '("3" . meow-digit-argument)
+       '("4" . meow-digit-argument)
+       '("5" . meow-digit-argument)
+       '("6" . meow-digit-argument)
+       '("7" . meow-digit-argument)
+       '("8" . meow-digit-argument)
+       '("9" . meow-digit-argument)
+       '("0" . meow-digit-argument))
+      (meow-normal-define-key
+       '("0" . meow-expand-0)
+       '("1" . meow-expand-1)
+       '("2" . meow-expand-2)
+       '("3" . meow-expand-3)
+       '("4" . meow-expand-4)
+       '("5" . meow-expand-5)
+       '("6" . meow-expand-6)
+       '("7" . meow-expand-7)
+       '("8" . meow-expand-8)
+       '("9" . meow-expand-9)
+       '("-" . negative-argument)
+       '(";" . meow-reverse)
+       '("," . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("[" . meow-beginning-of-thing)
+       '("]" . meow-end-of-thing)
+       '("/" . meow-visit)
+       '("a" . meow-append)
+       '("A" . meow-open-below)
+       '("b" . meow-back-word)
+       '("B" . meow-back-symbol)
+       '("c" . meow-change)
+       '("d" . meow-delete)
+       '("e" . meow-prev)
+       '("E" . meow-prev-expand)
+       '("f" . meow-find)
+       '("g" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("h" . meow-left)
+       '("H" . meow-left-expand)
+       '("i" . meow-right)
+       '("I" . meow-right-expand)
+       '("j" . meow-join)
+       '("k" . meow-kill)
+       '("l" . meow-line)
+       '("L" . meow-goto-line)
+       '("m" . meow-mark-word)
+       '("M" . meow-mark-symbol)
+       '("n" . meow-next)
+       '("N" . meow-next-expand)
+       '("o" . meow-block)
+       '("O" . meow-to-block)
+       '("p" . meow-yank)
+       '("q" . meow-quit)
+       '("r" . meow-replace)
+       '("s" . meow-insert)
+       '("S" . meow-open-above)
+       '("t" . meow-till)
+       '("u" . meow-undo)
+       '("U" . meow-undo-in-selection)
+       '("v" . meow-search)
+       '("w" . meow-next-word)
+       '("W" . meow-next-symbol)
+       '("x" . meow-delete)
+       '("X" . meow-backward-delete)
+       '("y" . meow-save)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+       '("<escape>" . ignore)))
+    :config
+    (meow-setup)
+    (meow-global-mode 1)
+    )
+#+end_src
 ** god-mode
 #+begin_src emacs-lisp
   (use-package god-mode
+    :disabled t ;;trying meow
     :init
     (defun my-god-mode-update-cursor-type ()
-    (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
       (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
     :bind
     ("<escape>" . god-mode-all)
@@ -963,6 +1098,8 @@ Isearch other window
           ("[" . backward-paragraph)
           ("]" . forward-paragraph)
           )
+    :config
+    (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
     )
 #+end_src
 ** bicycle
@@ -1016,7 +1153,7 @@ Isearch other window
     (lsp-enable-which-key-integration t)
     (eldoc-mode nil)
     :hook
-    ((c++-mode c-mode) . lsp)
+    ((c++-mode c-mode c++-ts-mode c-ts-mode bash-ts-mode python-ts-mode) . lsp)
     (lsp-completion-mode . my/lsp-mode-setup-completion)
     :bind
     (:map lsp-command-map ("r e" . lsp-iedit-highlights))
@@ -1073,7 +1210,7 @@ Isearch other window
             (font . "-PfEd-Terminus (TTF)-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1")
             ))
     :config
-    (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
+    ;; (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
     )
   (use-package lsp-treemacs
     :commands (lsp-treemacs-errors-list lsp-treemacs-symbols)
@@ -1132,7 +1269,7 @@ Isearch other window
     (corfu-cycle t)
     (corfu-auto t)
     (corfu-auto-delay 0.0)
-    (corfu-auto-prefix 2)
+    (corfu-auto-prefix 0)
     :init
     (global-corfu-mode)
     :custom-face
@@ -1451,6 +1588,12 @@ Disable namespace indentation with TAB
              )))
     )
   (use-package pcmpl-args)
+#+end_src
+** vterm
+#+begin_src emacs-lisp
+  (use-package vterm
+    :custom
+    (vterm-buffer-name-string "vterm %s"))
 #+end_src
 ** popper
 #+begin_src emacs-lisp
@@ -1896,7 +2039,7 @@ Dimming the face of non-active buffers
      t)
 
     ;; change 'select region' faces
-    (set-face-attribute 'region nil :background "#276E9E" :foreground "#FFFFFF")
+    ;; (set-face-attribute 'region nil :background "#276E9E" :foreground "#FFFFFF")
     ;; also highlight underlying entities in documentation
     (set-face-attribute 'button nil :foreground "#7F9F7F")
     ;; Font settings really depends on host / monitor / remote desktop / etc
