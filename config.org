@@ -974,7 +974,8 @@ Isearch other window
     ("C-h B" . embark-bindings)
     :init
     (setq prefix-help-command #'embark-prefix-help-command)
-    (setq embark-indicators nil)
+    (setq embark-indicators '(embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+    (setq embark-mixed-indicator-delay 2)
     )
   (use-package embark-consult
     :after (embark consult))
@@ -984,6 +985,10 @@ Isearch other window
     ;; Manual preview key for `affe-grep'
     (consult-customize affe-grep :preview-key "M-."))
 #+end_src
+
+#+RESULTS:
+: t
+
 ** meow
 #+begin_src emacs-lisp
   (use-package meow

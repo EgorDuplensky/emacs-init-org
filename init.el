@@ -6,10 +6,6 @@
 ;; always work with real files, not sym links
 (setq vc-follow-symlinks t)
 
-;; for example host specific proxy settings
-(if (file-exists-p "~/.emacs.d/host-specific-init.org")
-    (org-babel-load-file (expand-file-name "~/.emacs.d/host-specific-init.org")))
-
 (setq native-comp-async-report-warnings-errors nil)
 
 (defvar bootstrap-version)
@@ -32,9 +28,9 @@
 (setq straight-use-package-by-default t)
 ;; common configuration
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
-;; work specific settings
-(if (file-exists-p (expand-file-name "~/.emacs.d/work.org"))
-    (org-babel-load-file "~/.emacs.d/work.org"))
+;; load host specific settings, for example host specific proxy settings
+(if (file-exists-p "~/.emacs.d/host_config.org")
+    (org-babel-load-file (expand-file-name "~/.emacs.d/host_config.org")))
 ;; autogenereated configuration (e.g. by use-package)
 (if (file-exists-p custom-file)
     (load custom-file))
