@@ -1,4 +1,15 @@
 * common settings
+** font
+#+begin_src emacs-lisp
+  (setq my/font-name
+        (if (eq system-type 'windows-nt)
+            "-outline-Cascadia Code-regular-normal-normal-mono-*-*-*-*-c-*-iso10646-1"
+          "-PfEd-Terminus (TTF)-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"))
+  (setq my/font-family
+        (if (eq system-type 'windows-nt)
+            "Cascadia Code"
+          "Terminus"))
+#+end_src
 ** Increase gc threshold
 #+begin_src emacs-lisp
   (setq gc-cons-threshold 100000000)
@@ -193,8 +204,17 @@ Make vertical split by default
 #+end_src
 ** browser
 #+begin_src emacs-lisp
-  (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "microsoft-edge")
+  (defun browse-url-edge (url &optional new-window)
+    (shell-command
+     (concat "start microsoft-edge:" url)
+     ;;(concat "start google-chrome:" " " url)
+     ))
+
+  (if (eq system-type 'windows-nt)
+      (setq browse-url-browser-function 'browse-url-edge)
+    (setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "microsoft-edge")
+  )
 #+end_src
 ** autosave bookmarks
 #+begin_src emacs-lisp
@@ -288,31 +308,13 @@ Otherwise it can slow down emacs by a lot
     (set-face-background 'show-paren-mismatch "orange red")
     (set-face-foreground 'which-func "#93E0E3")
     (set-face-background 'hl-line "#111111")
-
-    ;; hightlight function calls (they have default color otherwise)
-    (defvar font-lock-function-call-face
-      'font-lock-function-call-face
-      "Face name to use for format specifiers.")
-
-    (defface font-lock-function-call-face
-      '((t . (:foreground "#DFAF8F" :bold t)))
-      "Face to display method calls in.")
-
-    (font-lock-add-keywords
-     'c-mode
-     '(("\\(\\w+\\)\\s-*\("
-        (1 font-lock-function-call-face)))
-     t)
-
-    ;; change 'select region' faces
-    ;; (set-face-attribute 'region nil :background "#276E9E" :foreground "#FFFFFF")
     ;; also highlight underlying entities in documentation
     (set-face-attribute 'button nil :foreground "#7F9F7F")
     ;; Font settings really depends on host / monitor / remote desktop / etc
     ;; possible alternative -CTDB-Fira Code-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1
-    (set-frame-font "-Xos4-Terminus-normal-normal-normal-*-18-*-*-*-m-*-iso10646-1")
-    (setq default-frame-alist '((font . "-Xos4-Terminus-normal-normal-normal-*-18-*-*-*-m-*-iso10646-1")))
-    (set-face-font 'fixed-pitch "-Xos4-Terminus-normal-normal-normal-*-18-*-*-*-m-*-iso10646-1")
+    (set-frame-font my/font-name)
+    (setq default-frame-alist '((font . my/font-name)));;
+    (set-face-attribute 'fixed-pitch nil :family my/font-family)
     ;; little bit transparency
     (set-frame-parameter (selected-frame) 'alpha '(95 . 95))
     (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
@@ -321,16 +323,16 @@ Otherwise it can slow down emacs by a lot
     (add-to-list 'default-frame-alist '(fullscreen . maximized))
     )
 
-    (defvar ligatures-FiraCode
+  (defvar ligatures-FiraCode
     '("--" "---" "==" "===" "!=" "!==" "=!=" "=:=" "=/=" "<=" ">=" "&&" "&&&" "&=" "++" "+++"
-     "***" ";;" "!!" "??" "?:" "?." "?=" "<:" ":<" ":>" ">:" "<>" "<<<" ">>>" "<<" ">>" "||" "-|"
-     "_|_" "|-" "||-" "|=" "||=" "##" "###" "####" "#{" "#[" "]#" "#(" "#?" "#_" "#_(" "#:"
-     "#!" "#=" "^=" "<$>" "<$" "$>" "<+>" "<+ +>" "<*>" "<* *>" "</" "</>" "/>" "<!--"
-     "<#--" "-->" "->" "->>" "<<-" "<-" "<=<" "=<<" "<<=" "<==" "<=>" "<==>" "==>" "=>"
-     "=>>" ">=>" ">>=" ">>-" ">-" ">--" "-<" "-<<" ">->" "<-<" "<-|" "<=|" "|=>" "|->" "<-"
-     "<~~" "<~" "<~>" "~~" "~~>" "~>" "~-" "-~" "~@" "[||]" "|]" "[|" "|}" "{|" "[<" ">]"
-     "|>" "<|" "||>" "<||" "|||>" "|||>" "<|>" "..." ".." ".=" ".-" "..<" ".?" "::" ":::"
-     ":=" "::=" ":?" ":?>" "//" "///" "/*" "*/" "/=" "//=" "/==" "@_" "__"))
+      "***" ";;" "!!" "??" "?:" "?." "?=" "<:" ":<" ":>" ">:" "<>" "<<<" ">>>" "<<" ">>" "||" "-|"
+      "_|_" "|-" "||-" "|=" "||=" "##" "###" "####" "#{" "#[" "]#" "#(" "#?" "#_" "#_(" "#:"
+      "#!" "#=" "^=" "<$>" "<$" "$>" "<+>" "<+ +>" "<*>" "<* *>" "</" "</>" "/>" "<!--"
+      "<#--" "-->" "->" "->>" "<<-" "<-" "<=<" "=<<" "<<=" "<==" "<=>" "<==>" "==>" "=>"
+      "=>>" ">=>" ">>=" ">>-" ">-" ">--" "-<" "-<<" ">->" "<-<" "<-|" "<=|" "|=>" "|->" "<-"
+      "<~~" "<~" "<~>" "~~" "~~>" "~>" "~-" "-~" "~@" "[||]" "|]" "[|" "|}" "{|" "[<" ">]"
+      "|>" "<|" "||>" "<||" "|||>" "|||>" "<|>" "..." ".." ".=" ".-" "..<" ".?" "::" ":::"
+      ":=" "::=" ":?" ":?>" "//" "///" "/*" "*/" "/=" "//=" "/==" "@_" "__"))
 
   (use-package ligature
     ;; git repo [https://github.com/mickeynp/ligature.el.git]
@@ -986,6 +988,9 @@ Isearch other window
   (use-package vertico
     :init (vertico-mode) (auto-save-mode)
     :config
+    (setq read-file-name-completion-ignore-case t
+          read-buffer-completion-ignore-case t
+          completion-ignore-case t)
     (savehist-mode 1)
     (recentf-mode)
     (setq vertico-multiform-commands
@@ -1486,7 +1491,8 @@ Disable namespace indentation with TAB
 #+end_src
 ** magit
 #+begin_src emacs-lisp
-  (use-package sqlite3)
+  (use-package sqlite3
+    :if (not (eq system-type 'windows-nt)))
   (use-package magit
     :bind
     (("C-x g" . magit-status)
@@ -1632,6 +1638,7 @@ Disable namespace indentation with TAB
 ** vterm
 #+begin_src emacs-lisp
   (use-package vterm
+    :if (not (eq system-type 'windows-nt))
     :custom
     (vterm-buffer-name-string "vterm %s")
     (vterm-max-scrollback 50000))
@@ -1981,6 +1988,7 @@ Dimming the face of non-active buffers
 ** cmake-mode
 #+begin_src emacs-lisp
   (use-package cmake-mode
+    :if (not (eq system-type 'windows-nt))
     :config (setq cmake-tab-width 4)
     )
 #+end_src
