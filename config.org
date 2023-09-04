@@ -4,7 +4,7 @@
   (setq my/font-name
         (if (eq system-type 'windows-nt)
             "-outline-Cascadia Code-regular-normal-normal-mono-*-*-*-*-c-*-iso10646-1"
-          "-PfEd-Terminus (TTF)-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"))
+          "-xos4-Terminus-regular-normal-normal-*-18-*-*-*-c-100-iso10646-1"))
   (setq my/font-family
         (if (eq system-type 'windows-nt)
             "Cascadia Code"
@@ -303,7 +303,7 @@ Otherwise it can slow down emacs by a lot
     (setq zenburn-scale-org-headlines t)
     (load-theme 'zenburn t)
     :custom-face
-    (vertico-current ((t :inherit hl-line :extend t :background "#111111" :foreground nil :underline nil)))
+    (vertico-current ((t :inherit hl-line :extend t :background "#111111" :foreground unspecified :underline nil)))
     :config
     (set-face-background 'show-paren-mismatch "orange red")
     (set-face-foreground 'which-func "#93E0E3")
@@ -444,9 +444,7 @@ Otherwise it can slow down emacs by a lot
 #+end_src
 ** tree-sitter
 #+begin_src emacs-lisp
-  (use-package tree-sitter
-    :ensure nil
-    :straight nil
+  (use-package tree-sitter-langs
     :init
     (setq treesit-language-source-alist
           '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
@@ -488,6 +486,7 @@ Hide extra information by default
                                ))
     :config
     (setq dired-listing-switches "-agho --group-directories-first")
+    (setq dired-dwim-target t)
     )
   (use-package dired-hide-dotfiles
     :hook (dired-mode . dired-hide-dotfiles-mode)
@@ -699,6 +698,15 @@ Use ivy for projectile
 ** bufler
 #+begin_src emacs-lisp
   (use-package bufler)
+#+end_src
+** midnight
+Automatically close the buffers that have not been visited in 3 days.
+#+begin_src emacs-lisp
+  (use-package midnight
+    :ensure nil   ;; native emacs package
+    :straight nil ;; native emacs package
+    :config
+    (midnight-delay-set 'midnight-delay "4:30am"))
 #+end_src
 ** smooth-scrolling
 #+begin_src emacs-lisp
@@ -1728,9 +1736,10 @@ Disable namespace indentation with TAB
           )
         )
 #+end_src
-** COMMENT org-roam
+** org-roam
 #+begin_src emacs-lisp
   (use-package org-roam
+    :disabled t
     :custom
     (org-roam-directory "~/org/roam-notes")
     :bind
@@ -1738,7 +1747,7 @@ Disable namespace indentation with TAB
     ("C-c n f" . org-roam-node-find)
     ("C-c n i" . org-roam-node-insert)
     :config
-    (org-roam-setup)
+    (org-roam-db-autosync-mode)
     )
 #+end_src
 ** gnuplot
@@ -2059,6 +2068,10 @@ Dimming the face of non-active buffers
     #+begin_src emacs-lisp
       (use-package latex-preview-pane)
     #+end_src
+** pdf-tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools)
+#+end_src
 ** keykast
 #+begin_src emacs-lisp
   (use-package keycast
