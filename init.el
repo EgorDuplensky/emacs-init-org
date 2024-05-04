@@ -35,5 +35,6 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
+(put 'narrow-to-region 'disabled nil)
 (provide 'init)
 ;;; init.el ends here
