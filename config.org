@@ -1,3 +1,4 @@
+#+PROPERTY: header-args    :results silent
 * common settings
 ** font
 #+begin_src emacs-lisp
@@ -88,16 +89,21 @@ Useful feature but not sure about bindings yet
   (setq scroll-preserve-screen-position t)
   (defun gcm-scroll-down ()
     (interactive)
-    (scroll-up 1)
-    (next-line)
+    (forward-paragraph)
+    (recenter nil nil)
     )
   (defun gcm-scroll-up ()
     (interactive)
-    (scroll-down 1)
-    (previous-line))
+    (backward-paragraph)
+    (recenter nil nil)
+    )
   (global-set-key (kbd "M-p") 'gcm-scroll-up)
   (global-set-key (kbd "M-n") 'gcm-scroll-down)
 #+end_src
+
+#+RESULTS:
+: gcm-scroll-down
+
 ** Disable alarm bell for "C-g"
 #+begin_src emacs-lisp
   (setq ring-bell-function 'ignore)
@@ -399,6 +405,9 @@ Otherwise it can slow down emacs by a lot
     ("C-c i u" . sp-unwrap-sexp)
     ("C-c i k" . sp-kill-sexp)
     ("C-c i r" . sp-rewrap-sexp)
+    ("C-c i {" . sp-wrap-curly)
+    ("C-c i [" . sp-wrap-square)
+    ("C-c i (" . sp-wrap-round)
     )
 #+end_src
 ** iedit
@@ -738,18 +747,11 @@ Automatically close the buffers that have not been visited in 3 days.
     :bind
     ("M-o" . avy-pop-mark)
     ("M-j" . avy-goto-word-2)
-    ;;("M-j" . avy-goto-char-2-below)
-    ;;("M-k" . avy-goto-char-2-above)
+    ("C-j" . avy-goto-word-2)
     ("M-l" . avy-goto-line-smart)
     (:map isearch-mode-map ("M-j" . avy-isearch))
-    :custom-face
-    ;;(avy-goto-char-timer-face ((t (:inherit highlight))))
-    (avy-goto-char-timer-face ((t :background "#111111")))
-    ;;(avy-lead-face ((t :background "#276E9E" :foreground "#FFFFFF" )))
-    (avy-lead-face ((t (:foreground "white" :background "#e52b50"))))
-    :commands (avy-goto-word-1 avy-goto-char-2 avy-goto-char-timer)
+    :commands (avy-goto-word-1 avy-goto-word-2 avy-goto-char-2 avy-goto-char-timer)
     :config
-    (setq avy-timeout-seconds 0.40)
     (setq avy-keys '(?a ?s ?d ?f ?g ?j ?l ?o
                         ?v ?b ?n ?, ?/ ?u ?p ?e ?.
                         ?c ?q ?\;))
@@ -764,6 +766,7 @@ Automatically close the buffers that have not been visited in 3 days.
                                (?x . avy-action-exchange)
 
                                (11 . avy-action-kill-line)
+                               (23 . avy-action-copy-wrapped)
                                (25 . avy-action-yank-line)
 
                                (?w . my-avy-action-copy)
@@ -778,15 +781,34 @@ Automatically close the buffers that have not been visited in 3 days.
                                (?T . avy-action-teleport-whole-line)))
     (setq avy-background t)
 
-    (defun my-select-text-inside-delimiters ()
+    (defun my-select-wrapped (pt)
       "Select the text inside the next set of delimiters."
       (interactive)
-      (let ((beg (point)))
+      (goto-char pt)
+      (let ((beg pt))
         (backward-char 1)
         (sp-forward-sexp)
         (backward-char 1)
         (set-mark beg)))
-  
+
+    (defun avy-action-copy-wrapped (pt)
+      (save-excursion
+        (let (str)
+          (goto-char pt)
+          (backward-char 1)
+          (sp-forward-sexp)
+          (backward-char 1)
+          (setq str (buffer-substring pt (point)))
+          (kill-new str)
+          (message "Copied: %s" str)))
+      ;; (my-select-wrapped pt)
+      ;; (kill-ring-save)
+      (let ((dat (ring-ref avy-ring 0)))
+        (select-frame-set-input-focus
+         (window-frame (cdr dat)))
+        (select-window (cdr dat))
+        (goto-char (car dat))))
+
     (defun avy-action-easy-copy (pt)
       (unless (require 'easy-kill nil t)
         (user-error "Easy Kill not found, please install."))
@@ -893,20 +915,18 @@ Automatically close the buffers that have not been visited in 3 days.
     (defun avy-action-mark-to-char (pt)
       (activate-mark)
       (goto-char pt))
-    )
-
-  (defun my-avy-action-copy (pt)
-    (avy-action-copy pt)
-    (if vterm-copy-mode
-        (progn (vterm-copy-mode -1)
-               (let ((current-prefix-arg 4))
-                 (vterm-yank))
-               )
+    
+    (defun my-avy-action-copy (pt)
+      (avy-action-copy pt)
+      (if vterm-copy-mode
+          (progn (vterm-copy-mode -1)
+                 (let ((current-prefix-arg 4))
+                   (vterm-yank))
+                 )
+        )
       )
+    )
 #+end_src
-
-#+RESULTS:
-: avy-action-copy-vterm
 
 ** ace-window
 #+begin_src emacs-lisp
@@ -1040,7 +1060,10 @@ Isearch other window
     :init (vertico-mode) (auto-save-mode)
     :bind
     (:map vertico-map
-          ("M-j" .  vertico-quick-exit))
+          ("M-j" .  vertico-quick-exit)
+          ("DEL" . vertico-directory-delete-char)
+          ("M-DEL" . vertico-directory-delete-word)
+          )
     :config
     (setq read-file-name-completion-ignore-case t
           read-buffer-completion-ignore-case t
@@ -1060,6 +1083,8 @@ Isearch other window
     :custom
     (vertico-quick1 "asdfjkl;gh")
     :straight nil)
+  (use-package vertico-directory
+    :straight nil)
 
   (use-package vertico-posframe)
 
@@ -1069,16 +1094,20 @@ Isearch other window
 
 ** marginalia
 #+begin_src emacs-lisp
+  (use-package all-the-icons-completion)
+
   (use-package marginalia
-    :after vertico
-    :init (marginalia-mode)
-    :config
-    (setq marginalia-align 'center)
-    :custom-face
-    (marginalia-documentation ((t :inherit font-lock-comment-face)))
-    :bind (:map minibuffer-local-map
-                ("M-A" . marginalia-cycle))
-    )
+      :after vertico
+      :init (marginalia-mode)
+      :config
+      (setq marginalia-align 'center)
+      (all-the-icons-completion-mode 1)
+      (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
+      :custom-face
+      (marginalia-documentation ((t :inherit font-lock-comment-face)))
+      :bind (:map minibuffer-local-map
+                  ("M-A" . marginalia-cycle))
+      )
 #+end_src
 
 ** orderless
@@ -1186,6 +1215,7 @@ Isearch other window
 ** meow
 #+begin_src emacs-lisp
   (use-package meow
+    :disabled t
     :init
     (defun meow-setup ()
       (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
@@ -1280,7 +1310,7 @@ Isearch other window
 ** god-mode
 #+begin_src emacs-lisp
   (use-package god-mode
-    :disabled t ;;trying meow
+    ;;:disabled t ;;trying meow
     :init
     (defun my-god-mode-update-cursor-type ()
       (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
@@ -1374,6 +1404,7 @@ Isearch other window
     (:map lsp-command-map ("r e" . lsp-iedit-highlights))
     (:map lsp-command-map ("e" . consult-lsp-diagnostics))
     (:map lsp-command-map ("f" . lsp-format-buffer))
+    (:map lsp-command-map ("o" . lsp-clangd-find-other-file))
     ("M-." . xref-find-definitions)
     ("M-?" . xref-find-references)
     ("M-," . xref-pop-marker-stack)
@@ -1711,9 +1742,9 @@ Disable namespace indentation with TAB
 ** forge
 #+begin_src emacs-lisp
   (use-package forge
-    :after magit
+    :after (magit tree-sitter-langs)
     :config
-    ;; forst-post-mode inherits from markdown mode
+    ;; forge-post-mode inherits from markdown mode
     (push '(forge-post-mode . markdown) tree-sitter-major-mode-language-alist)
     )
 #+end_src
@@ -1864,6 +1895,10 @@ Disable namespace indentation with TAB
     :custom-face
     (org-table ((t :foreground "#FFFFFF" )))
     (org-ellipsis ((t :underline nil )))
+    :bind
+    (:map org-mode-map
+          ("C-j" . nil) ;; using it for avy + god mode
+          )
     )
 #+end_src
 ** org-ref
@@ -2081,7 +2116,12 @@ Disable namespace indentation with TAB
 ** which-key
 #+begin_src emacs-lisp
   (use-package which-key
-    :diminish which-key-mode)
+    :custom
+    (which-key-idle-delay 2.0)
+    :config
+    (which-key-enable-god-mode-support 1)
+    (which-key-mode 1)
+    )
 #+end_src
 ** htmlize
 #+begin_src emacs-lisp
@@ -2282,11 +2322,8 @@ Dimming the face of non-active buffers
         (add-hook 'pre-command-hook 'keycast--update t)
         (message "Keycast ON"))))
 #+end_src
-** chatgpt
+** chatgpt-shell
 #+begin_src emacs-lisp
-  (use-package chatgpt
-    :straight (:host github :repo "joshcho/ChatGPT.el" :files ("dist" "*.el"))
-    :bind ("C-c q" . chatgpt-query))
   (use-package chatgpt-shell
     :custom
     ((chatgpt-shell-openai-key
