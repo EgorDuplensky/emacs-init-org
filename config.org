@@ -31,46 +31,45 @@
 #+end_src
 ** Enable/Disable some minor modes
 #+begin_src emacs-lisp
-  ;; Mode line config
-  (column-number-mode 1)
-  ;; Hide default TOOLBAR
-  (hide-ifdef-mode 1)
-  ;; Hightlight brackets
-  (show-paren-mode t)
-  ;; Display the current function name in the mode line
-  (which-function-mode -1)
-  ;; Disable toolbar
-  (tool-bar-mode 0)
-  ;; Disable menubar
-  (menu-bar-mode 0)
-  ;; Disable scrollbar
-  (scroll-bar-mode 0)
+    ;; Mode line config
+    (column-number-mode 1)
+    ;; Hide default TOOLBAR
+    (hide-ifdef-mode 1)
+    ;; Hightlight brackets
+    (show-paren-mode t)
+    ;; Display the current function name in the mode line
+    (which-function-mode -1)
+    ;; Disable menu-bar, tool-bal and scroll-bar
+    (if (not (eq system-type 'android))
+        (progn (tool-bar-mode 0)
+               (menu-bar-mode 0)
+               (scroll-bar-mode 0)))
 
-  (defun my/disable-scroll-bars (frame)
-    (modify-frame-parameters frame
-                             '((vertical-scroll-bars . nil)
-                               (horizontal-scroll-bars . nil))))
-  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
-  (blink-cursor-mode 0)
-  ;; Overwrite selected text
-  (delete-selection-mode 1)
-  ;; left fringe for indicators, right fringe for long lines
-  ;;(set-fringe-mode '(8 . 8))
-  (defun ide-mode ()
-    (interactive)
-    (menu-bar-mode 1)
-    (tool-bar-mode 1)
-    (centaur-tabs-mode 1)
-    (treemacs)
-    )
+    (defun my/disable-scroll-bars (frame)
+      (modify-frame-parameters frame
+                               '((vertical-scroll-bars . nil)
+                                 (horizontal-scroll-bars . nil))))
+    (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+    (blink-cursor-mode 0)
+    ;; Overwrite selected text
+    (delete-selection-mode 1)
+    ;; left fringe for indicators, right fringe for long lines
+    ;;(set-fringe-mode '(8 . 8))
+    (defun ide-mode ()
+      (interactive)
+      (menu-bar-mode 1)
+      (tool-bar-mode 1)
+      (centaur-tabs-mode 1)
+      (treemacs)
+      )
 
-  (defun ide-mode-exit ()
-    (interactive)
-    (menu-bar-mode -1)
-    (tool-bar-mode -1)
-    (centaur-tabs-mode -1)
-    (treemacs)
-    )
+    (defun ide-mode-exit ()
+      (interactive)
+      (menu-bar-mode -1)
+      (tool-bar-mode -1)
+      (centaur-tabs-mode -1)
+      (treemacs)
+      )
 #+end_src
 ** Scrolling without moving point
 Useful feature but not sure about bindings yet
@@ -107,31 +106,6 @@ Useful feature but not sure about bindings yet
   (setq make-backup-files nil) ; stop creating backup~ files
   (setq auto-save-default nil) ; stop creating #autosave# file
 #+end_src
-** Keybindings
-#+begin_src emacs-lisp
-  (global-set-key "\C-c\C-c" 'compile)
-  (global-set-key "\C-c\C-k" 'indent-for-comment)
-  (global-set-key "\C-c\C-l" 'indent-new-comment-line)
-  (global-set-key "\C-c\C-s" 'kill-compilation)
-  (global-set-key "\C-c\M-b" 'emu-backend-find)
-  (global-set-key (kbd "C-<f2>") 'previous-error)
-  (global-set-key (kbd "C-<f3>") 'next-error)
-  (define-key global-map [f4] 'revert-buffer)
-  (define-key global-map [f5] 'previous-buffer)
-  (define-key global-map [f6] 'next-buffer)
-  (define-key global-map [f7] 'pop-to-mark-command)
-  (define-key global-map [f8] 'goto-last-change-reverse)
-  (define-key global-map [f9] 'goto-last-change)
-  (define-key global-map [f11] 'kmacro-start-macro)
-  (define-key global-map [f12] 'kmacro-end-or-call-macro)
-  (global-unset-key (kbd "C-z"))
-  (global-unset-key (kbd "C-x C-z"))
-  (global-unset-key (kbd "C-x C-c")) ;; save-buffers-kill-terminal
-  (global-unset-key [home])
-  (global-unset-key [end])
-  (define-key function-key-map [home] 'beginning-of-buffer)
-  (define-key function-key-map [end] 'end-of-buffer)
-#+end_src
 ** line numbers configuration
 #+begin_src emacs-lisp
   (dolist (mode '(text-mode-hook
@@ -148,7 +122,7 @@ Useful feature but not sure about bindings yet
                   rst-mode-hook
                   ))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
+  (setq display-line-numbers-width 3)
 #+end_src
 ** comment / comment out
 #+begin_src emacs-lisp
@@ -197,11 +171,10 @@ Make vertical split by default
      ;;(concat "start google-chrome:" " " url)
      ))
 
-  (if (eq system-type 'windows-nt)
-      (setq browse-url-browser-function 'browse-url-edge)
-    (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "microsoft-edge")
-    )
+
+  (setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program "microsoft-edge")
+
 #+end_src
 ** autosave bookmarks
 #+begin_src emacs-lisp
@@ -236,12 +209,13 @@ Otherwise it can slow down emacs by a lot
 ** set temp directory used by some packages
 #+begin_src emacs-lisp
   (setq-default temporary-file-directory "~/.cache/emacs")
+  (setq-default trash-directory "~/trash")
   (unless (file-exists-p temporary-file-directory)
     (make-directory temporary-file-directory))
+  (setq delete-by-moving-to-trash t)
 #+end_src
 ** buffer revert automatically
 #+begin_src emacs-lisp
-  (global-auto-revert-mode 1)
   (setq global-auto-revert-non-file-buffers t)
 #+end_src
 ** undo
@@ -289,6 +263,39 @@ Otherwise it can slow down emacs by a lot
   (global-set-key "\C-\M-y" 'yank-and-indent)
 #+end_src
 
+** always select popped up help windows
+#+begin_src emacs-lisp
+  (setq help-window-select t)
+#+end_src
+** avoid duplicates in kill buffer
+#+begin_src emacs-lisp
+  (setq kill-do-not-save-duplicates t)
+#+end_src
+** Keybindings
+#+begin_src emacs-lisp
+  (global-set-key "\C-c\C-c" 'compile)
+  (global-set-key "\C-c\C-k" 'indent-for-comment)
+  (global-set-key "\C-c\C-l" 'indent-new-comment-line)
+  (global-set-key "\C-c\C-s" 'kill-compilation)
+  (global-set-key "\C-c\M-b" 'emu-backend-find)
+  (global-set-key (kbd "C-<f2>") 'previous-error)
+  (global-set-key (kbd "C-<f3>") 'next-error)
+  (define-key global-map [f4] 'revert-buffer)
+  (define-key global-map [f5] 'previous-buffer)
+  (define-key global-map [f6] 'next-buffer)
+  (define-key global-map [f7] 'pop-to-mark-command)
+  (define-key global-map [f8] 'goto-last-change-reverse)
+  (define-key global-map [f9] 'goto-last-change)
+  (define-key global-map [f11] 'kmacro-start-macro)
+  (define-key global-map [f12] 'kmacro-end-or-call-macro)
+  (global-unset-key (kbd "C-z"))
+  (global-unset-key (kbd "C-x C-z"))
+  (global-unset-key (kbd "C-x C-c")) ;; save-buffers-kill-terminal
+  (global-unset-key [home])
+  (global-unset-key [end])
+  (define-key function-key-map [home] 'beginning-of-buffer)
+  (define-key function-key-map [end] 'end-of-buffer)
+#+end_src
 * theme
 #+begin_src emacs-lisp
   (use-package zenburn-theme
@@ -302,18 +309,23 @@ Otherwise it can slow down emacs by a lot
     ;; also highlight underlying entities in documentation
     (set-face-attribute 'button nil :foreground "#7F9F7F")
 
+    ;; (defvar my/font-name
+    ;;   (if (eq system-type 'windows-nt)
+    ;;       "Inconsolata Nerd Font Mono"
+    ;;     "Inconsolata Nerd Font Mono"))
+
     (defvar my/font-name
       (if (eq system-type 'windows-nt)
-          "Inconsolata Nerd Font Mono"
-        "Inconsolata Nerd Font Mono"))
-
+          "Iosevka Nerd Font Mono"
+        "Iosevka Nerd Font Mono"))
+    
     (set-frame-font my/font-name)
     (add-to-list 'default-frame-alist `(font . ,my/font-name))
     (set-face-font 'fixed-pitch my/font-name)
     (set-face-attribute 'default nil
                         :font my/font-name
                         :weight 'normal
-                        :height 140)
+                        :height 110)
 
     ;; Set the fixed pitch face
     (set-face-attribute 'fixed-pitch nil
@@ -323,7 +335,7 @@ Otherwise it can slow down emacs by a lot
 
     ;; Set the variable pitch face
     (set-face-attribute 'variable-pitch nil
-                        :font "Inconsolata Nerd Font"
+                        :font "Iosevka Nerd Font"
                         :weight 'normal
                         :height 100)
     ;; little bit transparency
@@ -331,6 +343,14 @@ Otherwise it can slow down emacs by a lot
     (add-to-list 'default-frame-alist '(alpha-background . 90))
     (set-frame-parameter (selected-frame) 'alpha '(100 . 100))
     (add-to-list 'default-frame-alist '(alpha . (100 . 100)))
+
+    ;; ensure terminal mode is also transparent
+    (defun on-after-init ()
+      (unless (display-graphic-p (selected-frame))
+        (set-face-background 'default "unspecified-bg" (selected-frame))))
+
+    (add-hook 'window-setup-hook 'on-after-init)
+    
     ;; fullscreen
     (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
     (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -357,7 +377,330 @@ Otherwise it can slow down emacs by a lot
 
   (use-package gruvbox-theme)
 #+end_src
+* project/git stuff
+** magit
+#+begin_src emacs-lisp
+  (use-package transient)
+  (use-package sqlite3
+    :if (not (eq system-type 'windows-nt)))
+  (use-package magit
+    :bind
+    (("C-x g" . magit-status)
+     ("C-c g f" . magit-find-file)
+     ("C-c g F" . magit-find-file-other-window)
+     ("C-c g t" . git-timemachine)
+     :map magit-file-section-map
+     ("RET" . magit-diff-visit-file-other-window)
+     :map magit-hunk-section-map
+     ("RET" . magit-diff-visit-file-other-window))
+    :custom-face
+    ;; revert diff faces which was changed to more bright version
+    (magit-diff-added ((t (:background "#2F4F2F"))))
+    (magit-diff-added-highlight ((t (:background "#3F5F3F"))))
+    (magit-diff-removed ((t (:backgorund "#6C3333"))))
+    (magit-diff-removed-highlight ((t (:background "#7C4343"))))
+    ;; use yellow for magit 'in progress' command at mode-line
+    (magit-mode-line-process ((t :inherit 'mode-line-buffer-id )))
+
+    :config
+    (setq magit-diff-refine-hunk t)
+    (setq transient-display-buffer-action '(display-buffer-below-selected))
+    (setq magit-ediff-dwim-show-on-hunks t)
+    (transient-define-suffix magit-submodule-update-all ()
+      "Update all submodules"
+      :description "Update All (git submodule update --init --recursive)"
+      (interactive)
+      (magit-with-toplevel
+        (magit-run-git-async "submodule" "update" "--init" "--recursive")))
+
+    (transient-append-suffix 'magit-submodule "u"
+      '("U" magit-submodule-update-all))
+
+    (setq ediff-make-buffers-readonly-at-startup t)
+    (defun ediff-mode-face-config-hook ()
+      (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
+      (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
+      (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
+      (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added))
+    (add-hook 'ediff-mode 'ediff-mode-face-config-hook)
+    :hook
+    (ediff-mode . ediff-mode-face-config-hook)
+    )
+
+  (use-package with-editor)
+
+  (with-eval-after-load 'info
+    (info-initialize)
+    (add-to-list 'Info-directory-list
+                 "~/.emacs.d/plugins/magit/Documentation/"))
+#+end_src
+** forge
+#+begin_src emacs-lisp
+  (use-package forge
+    ;;:after (magit tree-sitter-langs)
+    ;; :config
+    ;; forge-post-mode inherits from markdown mode
+    ;; (push '(forge-post-mode . markdown) tree-sitter-major-mode-language-alist)
+    )
+#+end_src
+** projectile
+#+begin_src emacs-lisp
+  (use-package projectile
+    :config
+    (projectile-mode 1)
+    (setq projectile-completion-system 'auto)
+    (setq projectile-enable-caching t)
+    (setq compilation-scroll-output t)
+    :bind
+    (:map projectile-mode-map
+          ("C-c p" . projectile-command-map))
+    (:map projectile-command-map
+          ("s r" . consult-ripgrep))
+    )
+
+#+end_src
+** treemacs
+#+begin_src emacs-lisp
+  (use-package treemacs
+    :defer t
+    :config
+    (setq treemacs-follow-after-init          t
+          treemacs-width                      60
+          treemacs-indentation                2
+          treemacs-git-integration            t
+          treemacs-collapse-dirs              3
+          treemacs-silent-refresh             nil
+          treemacs-change-root-without-asking nil
+          treemacs-sorting                    'alphabetic-desc
+          treemacs-show-hidden-files          t
+          treemacs-never-persist              nil
+          treemacs-is-never-other-window      nil
+          treemacs-goto-tag-strategy          'refetch-index
+          treemacs-position                   'right)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode nil)
+    (setq treemacs-no-png-images nil)
+    :bind
+    (:map global-map
+          ("M-0"        . treemacs-select-window)
+          ("C-c 1"      . treemacs-delete-other-windows)
+          )
+    :custom-face
+    (treemacs-root-face ((t
+                          :Weight 'bold
+                          :height 1.4
+                          )))
+    )
+  (use-package treemacs-all-the-icons
+    :config
+    (treemacs-load-theme "all-the-icons")
+    )
+
+  (use-package treemacs-magit
+    :after magit)
+
+  (use-package treemacs-projectile
+    :config
+    (setq treemacs-header-function #'treemacs-projectile-create-header))
+#+end_src
+** code-review
+#+begin_src emacs-lisp
+  (use-package code-review
+    :disabled t
+    :after magit
+    )
+#+end_src
+** smerge
+#+begin_src emacs-lisp
+  (use-package smerge-mode
+    :bind (:map smerge-mode-map
+                ("M-p" . smerge-prev)
+                ("M-n" . smerge-next)))
+#+end_src
+** git-modes
+#+begin_src emacs-lisp
+  (use-package git-modes)
+#+end_src
+** fasd
+#+begin_src emacs-lisp
+  (use-package fasd
+    :config
+    (setenv "_FASD_DATA" (concat (getenv "HOME") "/.cache/fasd/.fasd"))
+    (global-fasd-mode 1)
+    (setq fasd-enable-initial-prompt nil)
+    :bind ("M-z" . fasd-find-file)
+    )
+#+end_src
+** eshell
+#+begin_src emacs-lisp
+  (use-package eshell-prompt-extras)
+  (use-package eshell
+    :straight (:type built-in)
+    :after (
+     virtualenvwrapper
+     )
+    :init
+    (defun eshell-find-in-history (prefix &optional query)
+      "Use fasd to open a file, or a directory with dired.
+       If PREFIX is positive consider only directories.
+       If PREFIX is -1 consider only files.
+       If PREFIX is nil consider files and directories.
+       QUERY can be passed optionally to avoid the prompt."
+      (interactive "P")
+      (unless query (setq query (if fasd-enable-initial-prompt
+                                    (read-from-minibuffer "Fasd query: ")
+                                  "")))
+      (let* ((prompt "Fasd query: ")
+             (results
+              (split-string
+               ;;(insert-file-contents "/home/eduplens/.emacs.d/eshell/history" nil 0 500)
+               (f-read-text "/home/eduplens/.emacs.d/eshell/history")
+               "\n" t))
+             (command (when results
+                        ;; set `this-command' to `fasd-find-file' is required because
+                        ;; `read-from-minibuffer' modifies its value, while `ivy-completing-read'
+                        (completing-read prompt results nil t)))
+             (insert command)
+             )
+        ))
+    (defun corfu-send-shell (&rest _)
+      "Send completion candidate when inside comint/eshell."
+      (cond
+       ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
+        (eshell-send-input))
+       ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
+        (comint-send-input))))
+    :config
+    (advice-add #'corfu-insert :after #'corfu-send-shell)
+    ;; disable corfu-auto for eshell
+    (add-hook 'eshell-mode-hook
+              (lambda ()
+                (setq-local corfu-auto nil)
+                (corfu-mode)))
+    (with-eval-after-load "esh-opt"
+      (require 'virtualenvwrapper)
+      (venv-initialize-eshell)
+      (autoload 'epe-theme-lambda "eshell-prompt-extras")
+      (setq eshell-highlight-prompt nil
+            eshell-prompt-function 'epe-theme-lambda))
+    )
+  (use-package eshell-vterm
+    :demand t
+    :after eshell
+    :config
+    (eshell-vterm-mode))
+  (use-package capf-autosuggest
+    :hook
+    ((comint-mode eshell-mode) . capf-autosuggest-mode))
+  (use-package pcmpl-args)
+
+#+end_src
+** virualenvwrapper
+#+begin_src emacs-lisp
+  (use-package virtualenvwrapper
+    :config
+    (venv-initialize-eshell))
+#+end_src
+** vterm
+#+begin_src emacs-lisp
+  (use-package vterm
+    :if (not (eq system-type 'windows-nt))
+    :config
+    (defun vterm-avy ()
+      (interactive)
+      (vterm-copy-mode +1)
+      (call-interactively 'avy-goto-word-2)
+      )
+
+    (defun my-flash-region (start end)
+      "Temporarily highlight region from START to END."
+      (let ((overlay (make-overlay start end)))
+        (overlay-put overlay 'face 'secondary-selection)
+        (overlay-put overlay 'priority 100)
+        (run-with-timer 0.1 nil 'delete-overlay overlay)))
+    
+    (defun vterm-yank-current-command ()
+      "Yank the current command from vterm to the kill ring."
+      (interactive)
+      (message "point: %s" (point))
+      (vterm-copy-mode 1)
+      (execute-kbd-macro (kbd "C-a"))
+      (message "point: %s" (point))
+      (vterm-copy-mode 1)
+      (set-mark (point))
+      (vterm-end-of-line)
+      (vterm-copy-mode-done t)
+      ;; (let ((beg (point)))
+      ;;   (message "beg: %s" beg)
+      ;;   (message "point: %s" (point))
+      ;;   (vterm-end-of-line)
+      ;;   (my-flash-region beg (point))
+      ;;   (kill-ring-save beg (point))
+      ;;   (vterm-copy-mode -1))
+      ;; (message "Command yanked to kill ring!")
+      )
+
+    (add-hook 'vterm-mode-hook  'with-editor-export-editor)
+    :bind
+    (:map vterm-mode-map
+          ("M-j" . vterm-avy)
+          ("M-'" . vterm-toggle)
+          ("M-i" . vterm-copy-mode)
+          ("C-q" . vterm-send-next-key)
+          ("C-c w" . vterm-yank-current-command)
+          ("<f5>" . previous-buffer)
+          ("<f6>" . next-buffer)
+          )
+    :bind
+    (:map vterm-copy-mode-map
+          ("M-i" . vterm-copy-mode)
+          )
+    :custom
+    (vterm-buffer-name-string "vterm %s")
+    (vterm-max-scrollback 50000)
+    )
+
+  (use-package multi-vterm)
+  (use-package vterm-toggle
+    :bind ("M-'" . vterm-toggle)
+    :custom
+    (vterm-toggle-scope 'project)
+    (vterm-toggle-fullscreen-p t)
+    )
+#+end_src
+
+** popper
+#+begin_src emacs-lisp
+  (use-package popper
+    :ensure t ; or :straight t
+    :bind (("C-`"   . popper-toggle-latest)
+           ("M-`"   . popper-cycle)
+           ("C-M-`" . popper-toggle-type))
+    :bind
+    (:map prog-mode-map
+          ("C-'" . popper-toggle-latest))
+    (:map popper-mode-map
+          ("C-'" . popper-toggle-latest))
+    :custom
+    (popper-group-function #'popper-group-by-directory)
+    :init
+    (setq popper-reference-buffers
+          '("\\*Messages\\*"
+            "Output\\*$"
+            "\\*Async Shell Command\\*"
+            help-mode
+            compilation-mode))
+    (popper-mode +1)
+    (popper-echo-mode +1))
+#+end_src
 * editing stuff
+** goto-change
+#+begin_src emacs-lisp
+  (use-package goto-chg
+      :ensure t
+      )
+#+end_src
 ** undo-tree
 #+begin_src emacs-lisp
   (use-package undo-tree
@@ -436,6 +779,7 @@ Otherwise it can slow down emacs by a lot
      ("C-:" . iedit-mode)
      :map iedit-mode-keymap
      ("<tab>" . iedit-next-occurrence)
+     ("C-<tab>" . iedit-prev-occurrence)
      ("<backtab>" . iedit-prev-occurrence)))
 #+end_src
 ** visual-regexp
@@ -471,14 +815,15 @@ Otherwise it can slow down emacs by a lot
     (tree-sitter-langs-install-latest-grammar t)
     (setq c-ts-mode-indent-offset 4)
     (global-tree-sitter-mode)
-    ;; (add-to-list 'tree-sitter-major-mode-language-alist '(c++-ts-mode . cpp))
+    ;;(add-to-list 'tree-sitter-major-mode-language-alist '(python-ts-mode . python))
     ;; (add-to-list 'tree-sitter-major-mode-language-alist '(c-ts-mode . c))
+    (push '(forge-post-mode . markdown) tree-sitter-major-mode-language-alist)
     :hook
     ((c++-mode c++-ts-mode) . tree-sitter-hl-mode)
     (c-mode . tree-sitter-hl-mode)
     ;; markdown crashes with tree-sitter-hl-mode
     (markdown-mode . tree-sitter-hl-mode)
-    (python-mode . tree-sitter-hl-mode)
+    ((python-mode python-ts-mode) . tree-sitter-hl-mode)
     (json-mode . tree-sitter-hl-mode)
     (cmake-mode . tree-sitter-hl-mode)
     (plantuml-mode . tree-sitter-hl-mode)
@@ -709,7 +1054,6 @@ Show file at point in other window
 ** bufferlo
 #+begin_src emacs-lisp
   (use-package bufferlo
-    :ensure t
     :config
     (defvar my-consult--source-buffer
       `(:name "All Buffers"
@@ -1026,17 +1370,17 @@ Automatically close the buffers that have not been visited in 3 days.
 ** ace-window
 #+begin_src emacs-lisp
   (use-package ace-window
-    :after posframe
     :config
     (global-set-key [remap other-window] 'ace-window)
     (setq aw-background nil)
-    (ace-window-posframe-mode)
+    (if window-system
+        (ace-window-posframe-mode))
     :custom
     (aw-scope 'frame)
     (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
     :custom-face
     ;;(aw-leading-char-face ((t :inherit ace-jump-face-foreground :height 3.0)))
-    (aw-leading-char-face ((t :foreground "#FFFFFF" :background nil :height 4.0)))
+    (aw-leading-char-face ((t :foreground "#FFFFFF" :background unspecified :height 4.0)))
     )
 #+end_src
 ** browse-kill-ring
@@ -1068,15 +1412,21 @@ at the beginning of the word (C-Ret)
       (interactive)
       (isearch-exit)
       (goto-char isearch-other-end))
+    (defun my/isearch-to-consult-line ()
+      "Switch from `isearch` to `consult-line` using the current search string."
+      (interactive)
+      (when (and (bound-and-true-p isearch-mode) isearch-string)
+        (let ((search-string isearch-string))
+          (isearch-exit) ;; Exit isearch mode
+          (consult-line search-string))))
     :bind
     (:map isearch-mode-map
           ("C-m" . #'isearch-exit-other-end)
           ("C-f" . isearch-yank-char)
           ("C-b" . isearch-del-char)
           ("C-z" . isearch-yank-until-char)
+          ("C-'" . my/isearch-to-consult-line)
           )
-    ;; (define-key isearch-mode-map (kbd "C-m")
-    ;;             #'isearch-exit-other-end)
     )
 
 #+end_src
@@ -1107,7 +1457,8 @@ Isearch other window
 #+end_src
 ** ace-isearch
 #+begin_src emacs-lisp
-  (use-package ace-isearch)
+  (use-package ace-isearch
+    :after consult)
 #+end_src
 ** centaur-tabs
 #+begin_src emacs-lisp
@@ -1159,6 +1510,8 @@ Isearch other window
           ("DEL" . vertico-directory-delete-char)
           ("M-DEL" . vertico-directory-delete-word)
           )
+    :custom
+    (vertico-count-format nil)
     :config
     (setq read-file-name-completion-ignore-case t
           read-buffer-completion-ignore-case t
@@ -1187,7 +1540,7 @@ Isearch other window
 
   (use-package vertico-posframe
     ;; :if android
-    :after posframe
+    ;; :after posframe
     :config
     (vertico-posframe-mode)
     (setq vertico-posframe-max-width 9999)
@@ -1204,7 +1557,8 @@ Isearch other window
     (vertico-posframe-width 140)
     (vertico-posframe-parameters
          '(
-           (internal-border-width . 10)
+           (internal-border-width . 2)
+           (internal-border-color . "#7F9F7F")
            (left-fringe . 5)
            (right-fringe . 5)
            )
@@ -1274,6 +1628,8 @@ Isearch other window
     ;; M-s bindings in `search-map'
     ("M-s f" . consult-fd)
     ("M-s l" . consult-line)
+    ;; extra binding for convenience
+    ("M-l"   . consult-line)
     ("M-s b" . consult-bookmark)
     ("M-s y" . consult-yasnippet)
     ("M-s e" . consult-isearch-history)
@@ -1287,9 +1643,11 @@ Isearch other window
     ("M-g m" . consult-mark)
     ("M-g M" . consult-global-mark)
     ("<f1>" .  consult-ripgrep)
-    (:map minibuffer-local-map
-          ("M-r" . consult-history))
-    ;;(:map eshell-hist-mode-map
+    ;; (:map minibuffer-local-map
+    ;;       ("M-r" . consult-history))
+    ;; (:map eshell-mode-map
+    ;;       ("M-r" . consult-history))
+    ;; (:map eshell-hist-mode-map
     ;;      ("M-r" . consult-history))
     )
   (use-package consult-flycheck)
@@ -1309,9 +1667,6 @@ Isearch other window
       (interactive)
       (setq current-prefix-arg '(4)) ; C-u
       (call-interactively 'consult-lsp-file-symbols))
-    :bind
-    (:map lsp-mode-map ("M-i" . consult-lsp-file-symbols-with-prefix-arg))
-    (:map lsp-mode-map ("M-i" . consult-lsp-file-symbols-with-prefix-arg))
     :custom
     (consult-lsp-symbols-narrow
      '(
@@ -1555,6 +1910,7 @@ Try out to be always centered
 ** bicycle
 #+begin_src emacs-lisp
   (use-package bicycle
+    :disabled t
     :after outline
     :bind (:map outline-minor-mode-map
                 ([C-tab] . bicycle-cycle)
@@ -1562,6 +1918,8 @@ Try out to be always centered
 
   (use-package prog-mode
     :straight (:type built-in)
+    :init
+    (unbind-key "M-q" prog-mode-map) ;; conflicts with expand-region
     :hook
     (prog-mode . hs-minor-mode)
     (prog-mode . outline-minor-mode)
@@ -1581,14 +1939,14 @@ Try out to be always centered
             '(orderless))) ;; Configure flex
     (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
     (setq lsp-keymap-prefix "C-c l")
-    (setq lsp-clients-clangd-executable "clangd-17")
+    (setq lsp-clients-clangd-executable "clangd-18")
     (setq lsp-clients-clangd-args '(
                                     "--clang-tidy"
                                     "--completion-style=detailed"
                                     "--background-index"
                                     "--enable-config"
                                     ))
-    (setq clang-format-executable "clang-format-17")
+    (setq clang-format-executable "clang-format-15")
     (setq lsp-auto-guess-root t)
     (setq lsp-signature-render-documentation t)
     (setq lsp-signature-auto-activate nil)
@@ -1601,20 +1959,23 @@ Try out to be always centered
     (setq lsp-imenu-sort-methods '(position))
     (setq lsp-completion-provider :none)
     (setq lsp-idle-delay 0.01)
+    (setq lsp-inlay-hint-enable nil)
     :config
     (lsp-enable-which-key-integration t)
     (eldoc-mode nil)
     :hook
-    ((c++-mode c-mode c++-ts-mode c-ts-mode bash-ts-mode python-ts-mode) . lsp)
+    ((c++-mode c-mode c++-ts-mode c-ts-mode bash-ts-mode python-ts-mode cmake-mode cmake-ts-mode) . lsp)
     (lsp-completion-mode . my/lsp-mode-setup-completion)
     :bind
     (:map lsp-command-map ("r e" . lsp-iedit-highlights))
     (:map lsp-command-map ("e" . consult-lsp-diagnostics))
     (:map lsp-command-map ("f" . lsp-format-buffer))
     (:map lsp-command-map ("o" . lsp-clangd-find-other-file))
+    (:map lsp-command-map ("i" . lsp-inlay-hints-mode))
     ("M-." . xref-find-definitions)
     ("M-?" . xref-find-references)
     ("M-," . xref-pop-marker-stack)
+    (:map lsp-mode-map ("M-i" . consult-lsp-file-symbols-with-prefix-arg))
     :custom-face
     (lsp-face-semhl-default-library ((t (:inherit unspecified ))))
     (lsp-face-semhl-interface ((t (:inherit unspecified ))))
@@ -1639,16 +2000,17 @@ Try out to be always centered
     (lsp-ui-peek-header ((t (:background "#2B2B2B" :foreground unspecified :inherit doom-modeline-buffer-file ))))
     (lsp-ui-peek-footer ((t (:background "#2B2B2B" ))))
     :config
-    (setq lsp-ui-doc-enable nil)
+    (setq lsp-ui-doc-enable t)
     (setq lsp-ui-doc-header nil)
     (setq lsp-ui-doc-show-with-mouse nil)
     (setq lsp-ui-doc-show-with-cursor t)
     (setq lsp-ui-doc-position 'top)
-    (setq lsp-ui-doc-position 'at-point)
     (setq lsp-ui-doc-use-childframe t)
     (setq lsp-ui-doc-use-webkit nil)
     (setq lsp-ui-imenu-auto-refresh nil)
     (setq lsp-ui-peek-list-width 80)
+    (setq lsp-ui-sideline-show-code-actions nil)
+    (setq lsp-ui-sideline-actions-icon nil)
     (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
     )
   (use-package lsp-treemacs
@@ -1709,8 +2071,9 @@ Try out to be always centered
     (corfu-auto t)
     (corfu-auto-delay 0.0)
     (corfu-auto-prefix 1)
-    :init
+    (corfu-history-mode t)
     :custom-face
+
     (corfu-default ((t (:background "#4F4F4F" ;; :foreground
                                     ))))
     (completions-common-part ((t (:foreground "#93E0E3"))))
@@ -1722,7 +2085,22 @@ Try out to be always centered
                     multiple-cursors-mode-hook
                     gud-mode-hook))
       (add-hook mode (lambda () (corfu-mode 0))))
-    (global-corfu-mode)
+    (defun my-trigger-hook ()
+      (interactive)
+      (message "Hook of corfu-mode")
+      (message "corfu-mode is %s" (if corfu-mode "enabled" "disabled"))
+      )
+    (defun my-test-hook ()
+      (interactive)
+      (message "Enabling corfu-mode")
+      (message "corfu-mode is %s" (if corfu-mode "enabled" "disabled"))
+      (corfu-mode 1)
+      (message "corfu-mode is %s" (if corfu-mode "enabled" "disabled"))
+      )
+    :hook ((prog-mode . corfu-mode)
+           (shell-mode . corfu-mode)
+           (eshell-mode . corfu-mode)
+           )
     )
   (use-package corfu-quick
     :after (corfu)
@@ -1733,7 +2111,9 @@ Try out to be always centered
   (use-package corfu-popupinfo
     :after (corfu)
     :straight nil
-    :config (setq corfu-popupinfo-delay '(1.0 . 0.2))
+    :config
+    (setq corfu-popupinfo-delay '(1.0 . 0.2))
+    (corfu-popupinfo-mode)
     )
   (use-package kind-icon
     :after corfu
@@ -1745,7 +2125,10 @@ Try out to be always centered
     :after corfu
     :config
     (unless (display-graphic-p)
-      (corfu-terminal-mode +1)))
+      (corfu-terminal-mode +1))
+    ;;:hook
+    ;;(corfu-terminal-mode . corfu-mode)
+    )
 #+end_src
 ** yasnippet
 #+begin_src emacs-lisp
@@ -1830,293 +2213,30 @@ Disable namespace indentation with TAB
     (c-set-offset 'innamespace [0]))
   (add-hook 'c++-mode-hook 'my-c-setup)
 #+end_src
-* project/git stuff
-** projectile
+** copilot
 #+begin_src emacs-lisp
-  (use-package projectile
-    :config
-    (projectile-mode 1)
-    (setq projectile-completion-system 'auto)
-    (setq projectile-enable-caching t)
-    (setq compilation-scroll-output t)
-    :bind
-    (:map projectile-mode-map
-          ("C-c p" . projectile-command-map))
-    (:map projectile-command-map
-          ("s r" . consult-ripgrep))
-    )
-
-#+end_src
-** treemacs
-#+begin_src emacs-lisp
-  (use-package treemacs
-    :defer t
-    :config
-    (setq treemacs-follow-after-init          t
-          treemacs-width                      60
-          treemacs-indentation                2
-          treemacs-git-integration            t
-          treemacs-collapse-dirs              3
-          treemacs-silent-refresh             nil
-          treemacs-change-root-without-asking nil
-          treemacs-sorting                    'alphabetic-desc
-          treemacs-show-hidden-files          t
-          treemacs-never-persist              nil
-          treemacs-is-never-other-window      nil
-          treemacs-goto-tag-strategy          'refetch-index
-          treemacs-position                   'left)
-
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode nil)
-    (setq treemacs-no-png-images nil)
-    :bind
-    (:map global-map
-          ([f8]         . treemacs)
-          ("M-0"        . treemacs-select-window)
-          ("C-c 1"      . treemacs-delete-other-windows)
-          )
-    :custom-face
-    (treemacs-root-face ((t
-                          :Weight 'bold
-                          :height 1.4
-                          )))
-    )
-  (use-package treemacs-all-the-icons
-    :config
-    (treemacs-load-theme "all-the-icons")
-    )
-
-  (use-package treemacs-magit
-    :after magit)
-
-  (use-package treemacs-projectile
-    :config
-    (setq treemacs-header-function #'treemacs-projectile-create-header))
-#+end_src
-** magit
-#+begin_src emacs-lisp
-  (use-package sqlite3
-    :if (not (eq system-type 'windows-nt)))
-  (use-package magit
-    :bind
-    (("C-x g" . magit-status)
-     ("C-c g f" . magit-find-file)
-     ("C-c g F" . magit-find-file-other-window)
-     ("C-c g t" . git-timemachine)
-     :map magit-file-section-map
-     ("RET" . magit-diff-visit-file-other-window)
-     :map magit-hunk-section-map
-     ("RET" . magit-diff-visit-file-other-window))
-    :custom-face
-    ;; revert diff faces which was changed to more bright version
-    (magit-diff-added ((t (:background "#2F4F2F"))))
-    (magit-diff-added-highlight ((t (:background "#3F5F3F"))))
-    (magit-diff-removed ((t (:backgorund "#6C3333"))))
-    (magit-diff-removed-highlight ((t (:background "#7C4343"))))
-    ;; use yellow for magit 'in progress' command at mode-line
-    (magit-mode-line-process ((t :inherit 'mode-line-buffer-id )))
-
-    :config
-    (setq magit-diff-refine-hunk t)
-    (setq transient-display-buffer-action '(display-buffer-below-selected))
-    (setq magit-ediff-dwim-show-on-hunks t)
-    (transient-define-suffix magit-submodule-update-all ()
-      "Update all submodules"
-      :description "Update All (git submodule update --init --recursive)"
-      (interactive)
-      (magit-with-toplevel
-        (magit-run-git-async "submodule" "update" "--init" "--recursive")))
-
-    (transient-append-suffix 'magit-submodule "u"
-      '("U" magit-submodule-update-all))
-
-    (setq ediff-make-buffers-readonly-at-startup t)
-    (defun ediff-mode-face-config-hook ()
-      (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
-      (set-face-attribute 'ediff-even-diff-B nil :inherit 'magit-diff-added)
-      (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
-      (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added))
-    (add-hook 'ediff-mode 'ediff-mode-face-config-hook)
-    :hook
-    (ediff-mode . ediff-mode-face-config-hook)
-    )
-
-  (use-package with-editor)
-
-  (with-eval-after-load 'info
-    (info-initialize)
-    (add-to-list 'Info-directory-list
-                 "~/.emacs.d/plugins/magit/Documentation/"))
-#+end_src
-** forge
-#+begin_src emacs-lisp
-  (use-package forge
-    :after (magit tree-sitter-langs)
-    :config
-    ;; forge-post-mode inherits from markdown mode
-    (push '(forge-post-mode . markdown) tree-sitter-major-mode-language-alist)
-    )
-#+end_src
-** code-review
-#+begin_src emacs-lisp
-  (use-package code-review
-    :disabled t
-    :after magit
-    )
-#+end_src
-** smerge
-#+begin_src emacs-lisp
-  (use-package smerge-mode
-    :bind (:map smerge-mode-map
-                ("M-p" . smerge-prev)
-                ("M-n" . smerge-next)))
-#+end_src
-** git-modes
-#+begin_src emacs-lisp
-  (use-package git-modes)
-#+end_src
-** fasd
-#+begin_src emacs-lisp
-  (use-package fasd
-    :config
-    (setenv "_FASD_DATA" (concat (getenv "HOME") "/.cache/fasd/.fasd"))
-    (global-fasd-mode 1)
-    (setq fasd-enable-initial-prompt nil)
-    :bind ("M-z" . fasd-find-file)
-    )
-#+end_src
-** eshell
-#+begin_src emacs-lisp
-  (use-package eshell-prompt-extras)
-  (use-package eshell
-    :straight (:type built-in)
-    ;; to use some magit faces
-    :after magit
-    :init
-    (defun eshell-find-in-history (prefix &optional query)
-      "Use fasd to open a file, or a directory with dired.
-       If PREFIX is positive consider only directories.
-       If PREFIX is -1 consider only files.
-       If PREFIX is nil consider files and directories.
-       QUERY can be passed optionally to avoid the prompt."
-      (interactive "P")
-      (unless query (setq query (if fasd-enable-initial-prompt
-                                    (read-from-minibuffer "Fasd query: ")
-                                  "")))
-      (let* ((prompt "Fasd query: ")
-             (results
-              (split-string
-               ;;(insert-file-contents "/home/eduplens/.emacs.d/eshell/history" nil 0 500)
-               (f-read-text "/home/eduplens/.emacs.d/eshell/history")
-               "\n" t))
-             (command (when results
-                        ;; set `this-command' to `fasd-find-file' is required because
-                        ;; `read-from-minibuffer' modifies its value, while `ivy-completing-read'
-                        (completing-read prompt results nil t)))
-             (insert command)
-             )
-        ))
-    (defun corfu-send-shell (&rest _)
-      "Send completion candidate when inside comint/eshell."
-      (cond
-       ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
-        (eshell-send-input))
-       ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
-        (comint-send-input))))
-    :config
-    (advice-add #'corfu-insert :after #'corfu-send-shell)
-    ;; disable corfu-auto for eshell
-    (add-hook 'eshell-mode-hook
-              (lambda ()
-                (setq-local corfu-auto nil)
-                (corfu-mode)))
-    (with-eval-after-load "esh-opt"
-      (require 'virtualenvwrapper)
-      (venv-initialize-eshell)
-      (autoload 'epe-theme-lambda "eshell-prompt-extras")
-      (setq eshell-highlight-prompt nil
-            eshell-prompt-function 'epe-theme-lambda))
-    )
-  (use-package eshell-vterm
-    :demand t
-    :after eshell
-    :config
-    (eshell-vterm-mode))
-  (use-package capf-autosuggest
-    :hook
-    ((comint-mode eshell-mode) . capf-autosuggest-mode))
-  (use-package pcmpl-args)
-
-#+end_src
-** virualenvwrapper
-#+begin_src emacs-lisp
-  (use-package virtualenvwrapper
-    :config
-    (venv-initialize-eshell))
-#+end_src
-** vterm
-#+begin_src emacs-lisp
-  (use-package vterm
-    :if (not (eq system-type 'windows-nt))
-    :config
-    (defun vterm-avy ()
-      (interactive)
-      (vterm-copy-mode +1)
-      (call-interactively 'avy-goto-word-2)
-      )
-    (defun vterm-yank-current-command ()
-      "Yank the current command from vterm to the kill ring."
-      (interactive)
-      (vterm-copy-mode 1)
-      (let ((start (point)))
-        (vterm-beginning-of-line)
-        (when (eq (current-column) 0)
-          (vterm-beginning-of-line))
-        (let ((beg (point)))
-          (vterm-end-of-line)
-          (kill-ring-save beg (point))
-          (goto-char start)
-          (vterm-copy-mode -1))
-        (message "Command yanked to kill ring!")))
-    (add-hook 'vterm-mode-hook  'with-editor-export-editor)
-    :bind
-    (:map vterm-mode-map
-          ;;("M-j" . vterm-avy)
-          ("M-j" . avy-goto-word-2)
-          ("C-q" . vterm-send-next-key)
-          ("C-c w" . vterm-yank-current-command)
-          ("<f5>" . previous-buffer)
-          ("<f6>" . next-buffer)
-          )
+  (use-package copilot
+    :vc (:url "https://github.com/copilot-emacs/copilot.el"
+              :rev :newest
+              :branch "main")
     :custom
-    (vterm-buffer-name-string "vterm %s")
-    (vterm-max-scrollback 50000)
+    (copilot-node-executable "/usr/bin/node")
+    (copilot-max-char-warning-disable t)
+    :bind (:map copilot-completion-map
+                ("C-e" . copilot-accept-completion)
+                ("M-f" . copilot-accept-completion-by-word)
+                ("M-n" . copilot-accept-completion-by-paragraph))
+    :hook ((prog-mode . copilot-mode))
     )
-#+end_src
-
-** popper
-#+begin_src emacs-lisp
-  (use-package popper
-    :ensure t ; or :straight t
-    :bind (("C-`"   . popper-toggle-latest)
-           ("M-`"   . popper-cycle)
-           ("C-M-`" . popper-toggle-type))
-    :bind
-    (:map prog-mode-map
-          ("C-'" . popper-toggle-latest))
-    (:map popper-mode-map
-          ("C-'" . popper-toggle-latest))
+  (use-package copilot-chat
+    ;;:disabled t
     :custom
-    (popper-group-function #'popper-group-by-directory)
-    :init
-    (setq popper-reference-buffers
-          '("\\*Messages\\*"
-            "Output\\*$"
-            "\\*Async Shell Command\\*"
-            help-mode
-            compilation-mode))
-    (popper-mode +1)
-    (popper-echo-mode +1))
+    (copilot-chat-list-added-buffers-only t)
+    :config
+    (add-hook 'git-commit-setup-hook 'copilot-chat-insert-commit-message)
+    (push '(copilot-chat-mode . markdown) tree-sitter-major-mode-language-alist)
+    (push '(copilot-chat-prompt-mode . markdown) tree-sitter-major-mode-language-alist)
+    )
 #+end_src
 * email
 * org-mode
@@ -2155,15 +2275,17 @@ Disable namespace indentation with TAB
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
-** org-gcal
-#+begin_src emacs-lisp
-  (use-package org-gcal)
-#+end_src
-** ox-reveal
 ** org-re-reveal
 #+begin_src emacs-lisp
+  (use-package emacs-reveal
+    :straight nil
+    :load-path "extra/emacs-reveal" ;; Path relative to `user-emacs-directory`
+    )
   (use-package org-re-reveal
-    :config (setq org-re-reveal-root "file:///home/egor/git/org-reveal")
+    :config (setq org-re-reveal-root "/home/eduplens/git/reveal.js")
+    :custom (org-re-reveal-theme "league")
+    ;;:straight nil
+    ;;:load-path "extra/org-re-reveal" ;; Path relative to `user-emacs-directory`
     )
 #+end_src
 ** org-present
@@ -2605,42 +2727,33 @@ Dimming the face of non-active buffers
     (chatgpt-shell-mode . flyspell-mode)
     )
 #+end_src
-* non-elpa
-* evil
-** evil-mode
+** gptel
 #+begin_src emacs-lisp
-  (use-package evil
-    :custom
-    (evil-undo-system 'undo-redo)
-    :bind
-    ("C-j" . avy-goto-word-2)
-    ("C-k" . kill-line))
-
-  (use-package evil-collection
-    :after evil
+  (use-package gptel
     :config
-    (evil-collection-init))
-
-  (use-package evil-org
-    :after org
-    :hook (org-mode . (lambda () evil-org-mode))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys))
-
-  (use-package evil-surround
-    :config
-    (global-evil-surround-mode 1))
-
-  (use-package evil-args
-    :config
-    (define-key evil-inner-text-objects-map "a" 'evil-inner-arg)
-    (define-key evil-outer-text-objects-map "a" 'evil-outer-arg)
-    )
+    (setq gptel-model   'deepseek-chat
+          gptel-backend
+          (gptel-make-openai "DeepSeek"     ;Any name you want
+            :host "api.deepseek.com"
+            :endpoint "/chat/completions"
+            :stream t
+            :key (auth-source-pick-first-password :host "api.openai.com")
+            :models '(deepseek-chat deepseek-coder))))
 #+end_src
+** selected-window-accent-mode
+#+begin_src emacs-lisp
+  (use-package selected-window-accent-mode
+    :custom
+    (selected-window-accent-fringe-thickness 10)
+    (selected-window-accent-use-blend-background t)
+    (selected-window-accent-use-blend-alpha 0.2)
+    (selected-window-accent-tab-accent t)
+    (selected-window-accent-custom-color "cyan4")
+    (selected-window-accent-mode-style 'default)
+  )
+#+end_src
+* non-elpa
 * tmp
 #+begin_src emacs-lisp
   (setenv "_FASD_DATA" (concat (getenv "HOME") "/.cache/fasd/.fasd"))
 #+end_src
-
-  

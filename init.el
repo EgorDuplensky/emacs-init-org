@@ -26,11 +26,11 @@
 ;;(setq use-package-verbose t)
 ;;(setq use-package-always-ensure t)
 (setq straight-use-package-by-default t)
-;; common configuration
-(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
 ;; load host specific settings, for example host specific proxy settings
 (if (file-exists-p "~/.emacs.d/host_config.org")
     (org-babel-load-file (expand-file-name "~/.emacs.d/host_config.org")))
+;; common configuration
+(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
 ;; autogenereated configuration (e.g. by use-package)
 (if (file-exists-p custom-file)
     (load custom-file))
