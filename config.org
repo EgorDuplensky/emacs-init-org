@@ -173,7 +173,8 @@ Make vertical split by default
 
 
   (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "microsoft-edge")
+        ;; browse-url-generic-program "microsoft-edge"
+        browse-url-generic-program "google-chrome")
 
 #+end_src
 ** autosave bookmarks
@@ -354,8 +355,6 @@ Otherwise it can slow down emacs by a lot
     ;; fullscreen
     (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
     (add-to-list 'default-frame-alist '(fullscreen . maximized))
-    :custom-face
-    (vertico-current ((t :inherit region :foreground unspecified :underline nil)))
     )
 
   (defvar ligatures-FiraCode
@@ -385,10 +384,11 @@ Otherwise it can slow down emacs by a lot
     :if (not (eq system-type 'windows-nt)))
   (use-package magit
     :bind
-    (("C-x g" . magit-status)
-     ("C-c g f" . magit-find-file)
-     ("C-c g F" . magit-find-file-other-window)
-     ("C-c g t" . git-timemachine)
+    (("C-x g g" . magit-status)
+     ("C-x g d" . magit-dispatch)
+     ("C-x g f" . magit-find-file)
+     ("C-x g F" . magit-find-file-other-window)
+     ("C-x g t" . git-timemachine)
      :map magit-file-section-map
      ("RET" . magit-diff-visit-file-other-window)
      :map magit-hunk-section-map
@@ -416,6 +416,23 @@ Otherwise it can slow down emacs by a lot
     (transient-append-suffix 'magit-submodule "u"
       '("U" magit-submodule-update-all))
 
+    ;; Function to diff against upstream merge-base
+    (transient-define-suffix magit-diff-base (args)
+      "Show diff between merge-base of upstream and HEAD.
+  Equivalent to: git diff $(git merge-base @{u} HEAD) HEAD"
+      :description "diff base"
+      (interactive (list (magit-diff-arguments)))
+      (let* ((upstream (magit-get-upstream-branch))
+             (merge-base (when upstream
+                           (magit-git-string "merge-base" upstream "HEAD"))))
+        (if merge-base
+            (magit-diff-range (concat merge-base "..HEAD") args)
+          (user-error "No upstream branch configured or merge-base not found"))))
+
+    ;; Add the function to magit-diff transient menu
+    (transient-append-suffix 'magit-diff "d"
+      '("b" "diff base" magit-diff-base))
+
     (setq ediff-make-buffers-readonly-at-startup t)
     (defun ediff-mode-face-config-hook ()
       (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
@@ -441,7 +458,52 @@ Otherwise it can slow down emacs by a lot
     ;; :config
     ;; forge-post-mode inherits from markdown mode
     ;; (push '(forge-post-mode . markdown) tree-sitter-major-mode-language-alist)
-    )
+    :config
+    (defun my/forge-insert-authored-pullreqs ()
+      "Insert pull requests authored by me into the magit status buffer."
+      (forge-insert-topics 'my-authored-pullreqs "My pull requests"
+        (lambda (repo)
+          (and-let* ((me (ghub--username repo)))
+            (forge--topics-spec :type 'pullreq
+                                :active nil
+                                :author me
+                                :state 'open
+                                :order 'recently-updated)))))
+    (defun my/forge-insert-assigned-pullreqs ()
+      "Insert assigned pullreqs to the magit status buffer."
+      (forge-insert-topics 'assigned-pullreqs "Assigned pull requests"
+        (lambda (repo)
+          (and-let* ((me (ghub--username repo)))
+            (forge--topics-spec :type 'pullreq :assignee me :active nil :state 'open :order 'recently-updated )
+            ))))
+    (defun my/forge-insert-review-requests ()
+      "Insert requested reviews to the magit status buffer."
+      (forge-insert-topics 'reviewer-pullreqs "Review requests"
+        (lambda (repo)
+          (and-let* ((me (ghub--username repo)))
+            (forge--topics-spec :type 'pullreq :active nil :state 'open :order 'recently-updated :reviewer me)))))
+
+    (defun my/forge-insert-assigned-issues ()
+      "Insert a list of issues that are assigned to you.
+  Mostly honor the buffer's filtering spec, overriding only the `type' and
+  `assignee' slots."
+      ;; Move any work you are tempted to do here ...
+      (forge-insert-topics 'assigned-issues "Assigned issues"
+        (lambda (repo)
+        ;;; ... to here instead.  For example ----,
+          (and-let* ((me (ghub--username repo)))
+            (forge--topics-spec :type 'issue :assignee me :active nil :state 'open)))))
+
+  (remove-hook 'magit-status-sections-hook #'forge-insert-issues)
+  (remove-hook 'magit-status-sections-hook #'forge-insert-pullreqs)
+  (remove-hook 'magit-status-sections-hook #'forge-insert-discussions)
+
+  (add-hook 'magit-status-sections-hook #'my/forge-insert-authored-pullreqs t)
+  (add-hook 'magit-status-sections-hook #'my/forge-insert-assigned-pullreqs t)
+  (add-hook 'magit-status-sections-hook #'my/forge-insert-review-requests t)
+  (add-hook 'magit-status-sections-hook #'my/forge-insert-assigned-issues t)
+  (add-hook 'magit-status-sections-hook #'magit-insert-worktrees t)
+  )
 #+end_src
 ** projectile
 #+begin_src emacs-lisp
@@ -451,6 +513,19 @@ Otherwise it can slow down emacs by a lot
     (setq projectile-completion-system 'auto)
     (setq projectile-enable-caching t)
     (setq compilation-scroll-output t)
+    (defun copy-project-relative-path ()
+      "Copy current file path relative to Projectile project root."
+      (interactive)
+      (let* ((file (cond
+                    ((derived-mode-p 'dired-mode) (dired-get-filename nil t))
+                    (t (buffer-file-name)))))
+        (unless file
+          (user-error "Current buffer is not visiting a file"))
+        (let* ((root (or (ignore-errors (projectile-project-root))
+                         (user-error "Not in a Projectile project")))
+               (rel  (file-relative-name (expand-file-name file) (expand-file-name root))))
+          (kill-new rel)
+          (message "Copied: %s" rel))))
     :bind
     (:map projectile-mode-map
           ("C-c p" . projectile-command-map))
@@ -577,7 +652,7 @@ Otherwise it can slow down emacs by a lot
     (add-hook 'eshell-mode-hook
               (lambda ()
                 (setq-local corfu-auto nil)
-                (corfu-mode)))
+                (corfu-mode 1)))
     (with-eval-after-load "esh-opt"
       (require 'virtualenvwrapper)
       (venv-initialize-eshell)
@@ -641,7 +716,12 @@ Otherwise it can slow down emacs by a lot
       ;; (message "Command yanked to kill ring!")
       )
 
-    (add-hook 'vterm-mode-hook  'with-editor-export-editor)
+    (add-hook 'vterm-mode-hook
+              (lambda ()
+                (unless (string-match-p "claude" (buffer-name))
+                  (with-editor-export-editor))))
+    :hook
+    (vterm-mode . xterm-mouse-mode)
     :bind
     (:map vterm-mode-map
           ("M-j" . vterm-avy)
@@ -666,6 +746,7 @@ Otherwise it can slow down emacs by a lot
     :bind ("M-'" . vterm-toggle)
     :custom
     (vterm-toggle-scope 'project)
+    (vterm-toggle-hide-method 'nil)
     (vterm-toggle-fullscreen-p t)
     )
 #+end_src
@@ -818,6 +899,8 @@ Otherwise it can slow down emacs by a lot
     ;;(add-to-list 'tree-sitter-major-mode-language-alist '(python-ts-mode . python))
     ;; (add-to-list 'tree-sitter-major-mode-language-alist '(c-ts-mode . c))
     (push '(forge-post-mode . markdown) tree-sitter-major-mode-language-alist)
+    (when (hash-table-p tree-sitter-major-mode-language-table)
+      (puthash 'forge-post-mode 'markdown tree-sitter-major-mode-language-table))
     :hook
     ((c++-mode c++-ts-mode) . tree-sitter-hl-mode)
     (c-mode . tree-sitter-hl-mode)
@@ -828,6 +911,7 @@ Otherwise it can slow down emacs by a lot
     (cmake-mode . tree-sitter-hl-mode)
     (plantuml-mode . tree-sitter-hl-mode)
     (yaml-mode . tree-sitter-hl-mode)
+    (nxml-mode . tree-sitter-hl-mode)
     )
 
   (use-package treesit-auto
@@ -1054,48 +1138,40 @@ Show file at point in other window
 ** bufferlo
 #+begin_src emacs-lisp
   (use-package bufferlo
+    :after consult
     :config
-    (defvar my-consult--source-buffer
-      `(:name "All Buffers"
-              :narrow   ?a
-              :hidden   t
-              :category buffer
-              :face     consult-buffer
-              :history  buffer-name-history
-              :state    ,#'consult--buffer-state
-              :items ,(lambda () (consult--buffer-query
-                                  :sort 'visibility
-                                  :as #'buffer-name)))
-      "All buffer candidate source for `consult-buffer'.")
-
-    (defvar my-consult--source-local-buffer
-      `(:name nil
-              :narrow   ?b
-              :category buffer
-              :face     consult-buffer
-              :history  buffer-name-history
-              :state    ,#'consult--buffer-state
-              :default  t
-              :items ,(lambda () (consult--buffer-query
+    (defvar my:bufferlo-consult--source-local-buffers
+      (list :name "Bufferlo Local Buffers"
+            :narrow   ?l
+            :category 'buffer
+            :face     'consult-buffer
+            :history  'buffer-name-history
+            :state    #'consult--buffer-state
+            :default  t
+            :items    (lambda () (consult--buffer-query
                                   :predicate #'bufferlo-local-buffer-p
                                   :sort 'visibility
                                   :as #'buffer-name)))
-      "Local buffer candidate source for `consult-buffer'.")
+      "Local Bufferlo buffer candidate source for `consult-buffer'.")
 
-    (setq consult-buffer-sources '(consult--source-hidden-buffer
-                                   my-consult--source-buffer
-                                   my-consult--source-local-buffer
-                                   consult--source-hidden-buffer
-                                   consult--source-modified-buffer
-                                   consult--source-buffer
-                                   consult--source-recent-file
-                                   consult--source-file-register
-                                   consult--source-bookmark
-                                   consult--source-project-buffer-hidden
-                                   consult--source-project-recent-file-hidden
-                                   ;; ... other sources ...
-                                   ))
-    (bufferlo-mode 1))
+    (defvar my:bufferlo-consult--source-other-buffers
+      (list :name "Bufferlo Other Buffers"
+            :narrow   ?o
+            :category 'buffer
+            :face     'consult-buffer
+            :history  'buffer-name-history
+            :state    #'consult--buffer-state
+            :items    (lambda () (consult--buffer-query
+                                  :predicate #'bufferlo-non-local-buffer-p
+                                  :sort 'visibility
+                                  :as #'buffer-name)))
+      "Non-local Bufferlo buffer candidate source for `consult-buffer'.")
+
+    ;; add in the reverse order of display preference
+    (add-to-list 'consult-buffer-sources 'my:bufferlo-consult--source-other-buffers)
+    (add-to-list 'consult-buffer-sources 'my:bufferlo-consult--source-local-buffers)
+    (bufferlo-mode 1)
+    )
 #+end_src
 ** midnight
 Automatically close the buffers that have not been visited in 3 days.
@@ -1116,255 +1192,261 @@ Automatically close the buffers that have not been visited in 3 days.
 #+end_src
 ** avy
 #+begin_src emacs-lisp
-      (use-package avy
-        :config
-        (defun avy-goto-line-smart()
-          (interactive)
-          (avy-goto-line)
-          (smarter-move-beginning-of-line 1)
-          )
-        (defun avy-goto-word-2 (char1 char2 &optional arg beg end symbol)
-          "Jump to the currently visible CHAR1 followed by CHAR2 at a word start.
+  (use-package avy
+    :config
+    (defun avy-goto-line-smart()
+      (interactive)
+      (avy-goto-line)
+      (smarter-move-beginning-of-line 1)
+      )
+    (defun avy-goto-word-2 (char1 char2 &optional arg beg end symbol)
+      "Jump to the currently visible CHAR1 followed by CHAR2 at a word start.
            The window scope is determined by `avy-all-windows'.
            When ARG is non-nil, do the opposite of `avy-all-windows'.
            BEG and END narrow the scope where candidates are searched.
            When SYMBOL is non-nil, jump to symbol start instead of word start."
-          (interactive (list (let ((c1 (read-char "char 1: " t)))
-                               (if (memq c1 '(? ?\b))
-                                   (keyboard-quit)
-                                 c1))
-                             (let ((c2 (read-char "char 2: " t)))
-                               (cond ((eq c2 ?)
-                                      (keyboard-quit))
-                                     ((memq c2 avy-del-last-char-by)
-                                      (keyboard-escape-quit)
-                                      (call-interactively 'avy-goto-char-2))
-                                     (t
-                                      c2)))
-                             current-prefix-arg
-                             nil nil))
-          (avy-with avy-goto-word-2
-            (let* ((str (string char1 char2))
-                   (regex (cond ((string= str ".")
-                                 "\\.")
-                                ((and avy-word-punc-regexp
-                                      (string-match avy-word-punc-regexp str))
-                                 (regexp-quote str))
-                                ((and (<= char1 26) (<= char2 26))
-                                 str)
-                                (t
-                                 (concat
-                                  (if symbol "\\_<" "\\b")
-                                  str)))))
-              (avy-jump regex
-                        :window-flip arg
-                        :beg beg
-                        :end end))))
-        :config
-        (setq avy-keys '(?a ?s ?d ?f ?g ?j ?l ?o
-                         ?v ?b ?n ?, ?/ ?u ?p ?e
-                         ?c ?q ?\;))
-        ;;(setq avy-keys '(?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0)))
-        ;;(setq avy-keys '(?\! ?@ ?\# ?$ ?% ?^ ?& ?\* ?\( ?\)))
-        (setq avy-single-candidate-jump nil)
-        (setq avy-dispatch-alist '(
-                                   ;; marking
-                                   (?m . avy-action-mark)
-                                   (?M . avy-action-mark-to-char)
-                                   ;; copying
-                                   (?w . avy-action-copy)
-                                   (23 . avy-action-copy-wrapped);; Ctrl-w
-                                   (?W . avy-action-copy-whole-line)
-                                   ;; killing
-                                   (?k . avy-action-kill-stay)
-                                   (11 . avy-action-kill-line);; Ctrl-k
-                                   (?K . avy-action-kill-whole-line)
-                                   ;; yanking
-                                   (?y . my-avy-action-yank)
-                                   (25 . avy-action-yank-line);; Ctrl-y
-                                   (?Y . avy-action-yank-whole-line)
-                                   ;; teleporting
-                                   (?t . avy-action-teleport)
-                                   (?T . avy-action-teleport-whole-line)
-                                   ;; misc
-                                   (?i . avy-action-ispell)
-                                   (?z . avy-action-zap-to-char)
-                                   (?. . avy-action-embark)
-                                   (?= . avy-action-define)
-                                   (?h . avy-action-helpful)
-                                   (?x . avy-action-exchange)
-                                   )
-              )
-        (setq avy-background nil)
+      (interactive (list (let ((c1 (read-char "char 1: " t)))
+                           (if (memq c1 '(? ?\b))
+                               (keyboard-quit)
+                             c1))
+                         (let ((c2 (read-char "char 2: " t)))
+                           (cond ((eq c2 ?)
+                                  (keyboard-quit))
+                                 ((memq c2 avy-del-last-char-by)
+                                  (keyboard-escape-quit)
+                                  (call-interactively 'avy-goto-char-2))
+                                 (t
+                                  c2)))
+                         current-prefix-arg
+                         nil nil))
+      (avy-with avy-goto-word-2
+        (let* ((str (string char1 char2))
+               (regex (cond ((string= str ".")
+                             "\\.")
+                            ((and avy-word-punc-regexp
+                                  (string-match avy-word-punc-regexp str))
+                             (regexp-quote str))
+                            ((and (<= char1 26) (<= char2 26))
+                             str)
+                            (t
+                             (concat
+                              (if symbol "\\_<" "\\b")
+                              str)))))
+          (avy-jump regex
+                    :window-flip arg
+                    :beg beg
+                    :end end))))
+    :config
+    (setq avy-keys '(?a ?s ?d ?f ?g ?j ?l ?o
+                        ?v ?b ?n ?, ?/ ?u ?p ?e
+                        ?c ?q ?\;))
+    ;;(setq avy-keys '(?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0)))
+    ;;(setq avy-keys '(?\! ?@ ?\# ?$ ?% ?^ ?& ?\* ?\( ?\)))
+    (setq avy-single-candidate-jump nil)
+    (setq avy-dispatch-alist '(
+                               ;; marking
+                               (?m . avy-action-mark)
+                               (?M . avy-action-mark-to-char)
+                               ;; copying
+                               (?w . avy-action-copy)
+                               (23 . avy-action-copy-wrapped);; Ctrl-w
+                               (?W . avy-action-copy-whole-line)
+                               ;; killing
+                               (?k . avy-action-kill-stay)
+                               (11 . avy-action-kill-line);; Ctrl-k
+                               (?K . avy-action-kill-whole-line)
+                               ;; yanking
+                               (?y . my-avy-action-yank)
+                               (25 . avy-action-yank-line);; Ctrl-y
+                               (?Y . avy-action-yank-whole-line)
+                               ;; teleporting
+                               (?t . avy-action-teleport)
+                               (?T . avy-action-teleport-whole-line)
+                               ;; misc
+                               (?i . avy-action-ispell)
+                               (?z . avy-action-zap-to-char)
+                               (?. . avy-action-embark)
+                               (?= . avy-action-define)
+                               (?h . avy-action-helpful)
+                               (?x . avy-action-exchange)
+                               )
+          )
+    (setq avy-background nil)
 
-        (defun avy-action-copy-wrapped (pt)
-          (save-excursion
-            (let (str)
-              (goto-char pt)
-              (backward-char 1)
-              (sp-forward-sexp)
-              (backward-char 1)
-              (setq str (buffer-substring pt (point)))
-              (kill-new str)
-              (message "Copied: %s" str)))
-          (let ((dat (ring-ref avy-ring 0)))
-            (select-frame-set-input-focus
-             (window-frame (cdr dat)))
-            (select-window (cdr dat))
-            (goto-char (car dat))))
-
-        (defun avy-action-easy-copy (pt)
-          (unless (require 'easy-kill nil t)
-            (user-error "Easy Kill not found, please install."))
+    (defun avy-action-copy-wrapped (pt)
+      (save-excursion
+        (let (str)
           (goto-char pt)
-          (cl-letf (((symbol-function 'easy-kill-activate-keymap)
-                     (lambda ()
-                       (let ((map (easy-kill-map)))
-                         (set-transient-map
-                          map
-                          (lambda ()
-                            ;; Prevent any error from activating the keymap forever.
-                            (condition-case err
-                                (or (and (not (easy-kill-exit-p this-command))
-                                         (or (eq this-command
-                                                 (lookup-key map (this-single-command-keys)))
-                                             (let ((cmd (key-binding
-                                                         (this-single-command-keys) nil t)))
-                                               (command-remapping cmd nil (list map)))))
-                                    (ignore
-                                     (easy-kill-destroy-candidate)
-                                     (unless (or (easy-kill-get mark) (easy-kill-exit-p this-command))
-                                       (easy-kill-save-candidate))))
-                              (error (message "%s:%s" this-command (error-message-string err))
-                                     nil)))
-                          (lambda ()
-                            (let ((dat (ring-ref avy-ring 0)))
-                              (select-frame-set-input-focus
-                               (window-frame (cdr dat)))
-                              (select-window (cdr dat))
-                              (goto-char (car dat)))))))))
-            (easy-kill)))
+          (backward-char 1)
+          (sp-forward-sexp)
+          (backward-char 1)
+          (setq str (buffer-substring pt (point)))
+          (kill-new str)
+          (message "Copied: %s" str)))
+      (let ((dat (ring-ref avy-ring 0)))
+        (select-frame-set-input-focus
+         (window-frame (cdr dat)))
+        (select-window (cdr dat))
+        (goto-char (car dat))))
 
-        (defun avy-action-exchange (pt)
-          "Exchange sexp at PT with the one at point."
-          (set-mark pt)
-          (transpose-sexps 0))
+    (defun avy-action-easy-copy (pt)
+      (unless (require 'easy-kill nil t)
+        (user-error "Easy Kill not found, please install."))
+      (goto-char pt)
+      (cl-letf (((symbol-function 'easy-kill-activate-keymap)
+                 (lambda ()
+                   (let ((map (easy-kill-map)))
+                     (set-transient-map
+                      map
+                      (lambda ()
+                        ;; Prevent any error from activating the keymap forever.
+                        (condition-case err
+                            (or (and (not (easy-kill-exit-p this-command))
+                                     (or (eq this-command
+                                             (lookup-key map (this-single-command-keys)))
+                                         (let ((cmd (key-binding
+                                                     (this-single-command-keys) nil t)))
+                                           (command-remapping cmd nil (list map)))))
+                                (ignore
+                                 (easy-kill-destroy-candidate)
+                                 (unless (or (easy-kill-get mark) (easy-kill-exit-p this-command))
+                                   (easy-kill-save-candidate))))
+                          (error (message "%s:%s" this-command (error-message-string err))
+                                 nil)))
+                      (lambda ()
+                        (let ((dat (ring-ref avy-ring 0)))
+                          (select-frame-set-input-focus
+                           (window-frame (cdr dat)))
+                          (select-window (cdr dat))
+                          (goto-char (car dat)))))))))
+        (easy-kill)))
 
-        (defun avy-action-helpful (pt)
-          (save-excursion
-            (goto-char pt)
-            ;; (helpful-at-point)
-            (my/describe-symbol-at-point)
-            )
-          (select-window
-           (cdr (ring-ref avy-ring 0)))
-          t)
+    (defun avy-action-exchange (pt)
+      "Exchange sexp at PT with the one at point."
+      (set-mark pt)
+      (transpose-sexps 0))
 
-        (defun avy-action-define (pt)
-          (cl-letf (((symbol-function 'keyboard-quit)
-                     #'abort-recursive-edit))
-            (save-excursion
-              (goto-char pt)
-              (dictionary-search-dwim))
-            (select-window
-             (cdr (ring-ref avy-ring 0))))
-          t)
-
-        (defun avy-action-embark (pt)
-          (unwind-protect
-              (save-excursion
-                (goto-char pt)
-                (embark-act))
-            (select-window
-             (cdr (ring-ref avy-ring 0))))
-          t)
-
-        (defun avy-action-kill-line (pt)
-          (save-excursion
-            (goto-char pt)
-            (kill-line))
-          (select-window
-           (cdr (ring-ref avy-ring 0)))
-          t)
-
-
-  (defun my/flash-region (start end)
-    "Temporarily highlight region from START to END."
-    (let ((overlay (make-overlay start end)))
-      (overlay-put overlay 'face 'secondary-selection)
-      (overlay-put overlay 'priority 100)
-      (run-with-timer 0.2 nil 'delete-overlay overlay)))
-
-        (defun avy-action-copy-whole-line (pt)
-          (save-excursion
-            (goto-char pt)
-            (cl-destructuring-bind (start . end)
-                (bounds-of-thing-at-point 'line)
-              (copy-region-as-kill start end)
-              (my/flash-region start end)
-              ))
-          (select-window
-           (cdr
-            (ring-ref avy-ring 0)))
-          t)
-
-        (defun avy-action-kill-whole-line (pt)
-          (save-excursion
-            (goto-char pt)
-            (kill-whole-line))
-          (select-window
-           (cdr
-            (ring-ref avy-ring 0)))
-          t)
-
-        (defun avy-action-yank-whole-line (pt)
-          (avy-action-copy-whole-line pt)
-          (save-excursion (yank))
-          t)
-
-        (defun avy-action-teleport-whole-line (pt)
-          (avy-action-kill-whole-line pt)
-          (save-excursion (yank)) t)
-
-        (defun avy-action-mark-to-char (pt)
-          (activate-mark)
-          (goto-char pt))
-
-        (defun my-avy-action-copy (pt)
-          (avy-action-copy pt)
-          (if vterm-copy-mode
-              (progn (vterm-copy-mode -1)
-                     (let ((current-prefix-arg 4))
-                       (vterm-yank))
-                     )
-            )
-          )
-
-        (defun my-avy-action-yank (pt)
-          (if (eq major-mode 'vterm-mode)
-              (progn
-                (vterm-copy-mode +1)
-                (avy-action-copy pt)
-                (vterm-copy-mode -1)
-                (let ((current-prefix-arg 4))
-                  (vterm-yank))
-                )
-            (avy-action-yank pt)
-            )
-          )
-        :bind
-        ("M-o" . avy-pop-mark)
-        ("M-j" . avy-goto-word-2)
-        ("C-j" . avy-goto-word-2)
-        ("M-l" . avy-goto-line-smart)
-        (:map isearch-mode-map ("M-j" . avy-isearch))
-        :custom-face
-        (avy-lead-face ((t (:foreground "white" :background "#e52b50"))))
-        (avy-lead-face ((t (:foreground "white" :background "#e52b50"))))
-        (avy-lead-face-0 ((t (:foreground "white" :background "#e52b50"))))
-        (avy-background-face ((t (:foreground unspecified :background unspecified  :inherit default))))
-        :commands (avy-goto-word-1 avy-goto-word-2 avy-goto-char-2 avy-goto-char-timer)
+    (defun avy-action-helpful (pt)
+      (save-excursion
+        (goto-char pt)
+        ;; (helpful-at-point)
+        (my/describe-symbol-at-point)
         )
+      (select-window
+       (cdr (ring-ref avy-ring 0)))
+      t)
+
+    (defun avy-action-define (pt)
+      (cl-letf (((symbol-function 'keyboard-quit)
+                 #'abort-recursive-edit))
+        (save-excursion
+          (goto-char pt)
+          (dictionary-search-dwim))
+        (select-window
+         (cdr (ring-ref avy-ring 0))))
+      t)
+
+    (defun avy-action-embark (pt)
+      (unwind-protect
+          (save-excursion
+            (goto-char pt)
+            (embark-act))
+        (select-window
+         (cdr (ring-ref avy-ring 0))))
+      t)
+
+    (defun avy-action-kill-line (pt)
+      (save-excursion
+        (goto-char pt)
+        (kill-line))
+      (select-window
+       (cdr (ring-ref avy-ring 0)))
+      t)
+
+
+    (defun my/flash-region (start end)
+      "Temporarily highlight region from START to END."
+      (let ((overlay (make-overlay start end)))
+        (overlay-put overlay 'face 'secondary-selection)
+        (overlay-put overlay 'priority 100)
+        (run-with-timer 0.2 nil 'delete-overlay overlay)))
+
+    (defun avy-action-copy-whole-line (pt)
+      (save-excursion
+        (goto-char pt)
+        (cl-destructuring-bind (start . end)
+            (bounds-of-thing-at-point 'line)
+          (copy-region-as-kill start end)
+          (my/flash-region start end)
+          ))
+      (select-window
+       (cdr
+        (ring-ref avy-ring 0)))
+      t)
+
+    (defun avy-action-kill-whole-line (pt)
+      (save-excursion
+        (goto-char pt)
+        (kill-whole-line))
+      (select-window
+       (cdr
+        (ring-ref avy-ring 0)))
+      t)
+
+    (defun avy-action-yank-whole-line (pt)
+      (avy-action-copy-whole-line pt)
+      (save-excursion (yank))
+      t)
+
+    (defun avy-action-teleport-whole-line (pt)
+      (avy-action-kill-whole-line pt)
+      (save-excursion (yank)) t)
+
+    (defun avy-action-mark-to-char (pt)
+      (activate-mark)
+      (goto-char pt))
+
+    (defun my-avy-action-copy (pt)
+      (avy-action-copy pt)
+      (if vterm-copy-mode
+          (progn (vterm-copy-mode -1)
+                 (let ((current-prefix-arg 4))
+                   (vterm-yank))
+                 )
+        )
+      )
+
+    (defun my-avy-action-yank (pt)
+      (if (eq major-mode 'vterm-mode)
+          (progn
+            (vterm-copy-mode +1)
+            (avy-action-copy pt)
+            (vterm-copy-mode -1)
+            (let ((current-prefix-arg 4))
+              (vterm-yank))
+            )
+        (avy-action-yank pt)
+        )
+      )
+    :bind
+    ("M-o" . avy-pop-mark)
+    ("M-j" . avy-goto-word-2)
+    ("C-j" . avy-goto-word-2)
+    ;; ("M-l" . avy-goto-line-smart)
+    (:map isearch-mode-map ("M-j" . avy-isearch))
+    :custom-face
+    (avy-lead-face ((t (:foreground "white" :background "#e52b50"))))
+    (avy-lead-face-0 ((t (:foreground "white" :background "#e52b50"))))
+    (avy-background-face ((t (:foreground unspecified :background unspecified  :inherit default))))
+    :config
+    (custom-set-faces
+     ;; custom-set-faces was added by Custom.
+     ;; If you edit it by hand, you could mess it up, so be careful.
+     ;; Your init file should contain only one such instance.
+     ;; If there is more than one, they won't work right.
+     '(avy-lead-face ((t (:foreground "white" :background "#e52b50")))))
+    :commands (avy-goto-word-1 avy-goto-word-2 avy-goto-char-2 avy-goto-char-timer)
+    )
 #+end_src
 
 ** ace-window
@@ -1513,7 +1595,7 @@ Isearch other window
     :custom
     (vertico-count-format nil)
     :config
-    (setq read-file-name-completion-ignore-case t
+    (setq read-file-name-completion-ignore-case nil
           read-buffer-completion-ignore-case t
           completion-ignore-case t)
     (auto-save-mode)
@@ -1525,6 +1607,12 @@ Isearch other window
             (consult-outline buffer indexed)))
     (setq vertico-preselect 'directory)
     (setq vertico-resize nil) ;; consistent minibuffer size
+    (set-face-attribute 'vertico-current nil
+                        :inherit 'region
+                        :foreground 'unspecified
+                        :underline nil)
+    ;;:custom-face
+    ;;(vertico-current ((t :inherit 'region :foreground 'unspecified :underline nil)))
     )
 
   (use-package vertico-multiform
@@ -1637,9 +1725,9 @@ Isearch other window
     ("M-g g" . consult-goto-line)
     ("M-g M-g" . consult-goto-line)
     ("M-g o" . consult-outline)
-    ("M-g s" . consult-register-store)
-    ("M-g l" . consult-register-load)
-    ("M-g r" . consult-register)
+    ("M-g r s" . consult-register-store)
+    ("M-g r l" . consult-register-load)
+    ("M-g r r" . consult-register)
     ("M-g m" . consult-mark)
     ("M-g M" . consult-global-mark)
     ("<f1>" .  consult-ripgrep)
@@ -1713,7 +1801,15 @@ Isearch other window
     (setq prefix-help-command #'embark-prefix-help-command)
     (setq embark-indicators '(embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
     (setq embark-mixed-indicator-delay 2)
-    )
+    :config
+    (with-eval-after-load 'embark
+      (defun my/embark-projectile-vterm (project-root)
+        "Open vterm in PROJECT-ROOT (a Projectile project directory string)."
+        (interactive "DProject root: ")
+        (let ((default-directory (file-name-as-directory project-root)))
+          (vterm)))
+      )
+    (define-key embark-file-map (kbd "v") #'my/embark-projectile-vterm))
   (use-package embark-consult
     :after (embark consult))
 #+end_src
@@ -1902,7 +1998,7 @@ Try out to be always centered
     (dolist (mode '(vterm-mode-hook
                     eshell-mode-hook
                     chatgpt-shell-mode-hook
-                    multiple-cursors-mode-hook
+                    multiple-cursors-mode-enabled-hook
                     minibuffer-mode))
       (add-hook mode (lambda () (centered-cursor-mode 0))))
   )
@@ -1944,9 +2040,11 @@ Try out to be always centered
                                     "--clang-tidy"
                                     "--completion-style=detailed"
                                     "--background-index"
+                                    "--background-index-priority=normal"
                                     "--enable-config"
+                                    "-j=8"
                                     ))
-    (setq clang-format-executable "clang-format-15")
+    (setq clang-format-executable "clang-format-18")
     (setq lsp-auto-guess-root t)
     (setq lsp-signature-render-documentation t)
     (setq lsp-signature-auto-activate nil)
@@ -1968,7 +2066,8 @@ Try out to be always centered
     (lsp-completion-mode . my/lsp-mode-setup-completion)
     :bind
     (:map lsp-command-map ("r e" . lsp-iedit-highlights))
-    (:map lsp-command-map ("e" . consult-lsp-diagnostics))
+    (:map lsp-command-map ("e" . consult-lsp-file-diagnostics))
+    (:map lsp-command-map ("E" . consult-lsp-diagnostics-repo))
     (:map lsp-command-map ("f" . lsp-format-buffer))
     (:map lsp-command-map ("o" . lsp-clangd-find-other-file))
     (:map lsp-command-map ("i" . lsp-inlay-hints-mode))
@@ -1983,6 +2082,7 @@ Try out to be always centered
     (lsp-face-semhl-static ((t (:weight normal ))))
     (lsp-face-semhl-namespace ((t (:weight normal ))))
     (lsp-face-semhl-variable ((t (:inherit unspecified ))))
+    (lsp-inlay-hint-face ((t (:inherit font-lock-comment-face ))))
     )
   (use-package lsp-ui
     ;;:disabled t
@@ -2063,9 +2163,11 @@ Try out to be always centered
     :hook (flycheck-mode . flycheck-pos-tip-mode)
     )
 #+end_src
-** corfu
+**  corfu
 #+begin_src emacs-lisp
   (use-package corfu
+    ;; :init
+    ;; (global-corfu-mode 1)
     :custom
     (corfu-cycle t)
     (corfu-auto t)
@@ -2082,7 +2184,7 @@ Try out to be always centered
     :config
     (setq completion-ignore-case t)
     (dolist (mode '(chatgpt-shell-mode-hook
-                    multiple-cursors-mode-hook
+                    multiple-cursors-mode-enabled-hook
                     gud-mode-hook))
       (add-hook mode (lambda () (corfu-mode 0))))
     (defun my-trigger-hook ()
@@ -2090,13 +2192,7 @@ Try out to be always centered
       (message "Hook of corfu-mode")
       (message "corfu-mode is %s" (if corfu-mode "enabled" "disabled"))
       )
-    (defun my-test-hook ()
-      (interactive)
-      (message "Enabling corfu-mode")
-      (message "corfu-mode is %s" (if corfu-mode "enabled" "disabled"))
-      (corfu-mode 1)
-      (message "corfu-mode is %s" (if corfu-mode "enabled" "disabled"))
-      )
+    ;;(add-hook 'corfu-mode-hook 'my-trigger-hook)
     :hook ((prog-mode . corfu-mode)
            (shell-mode . corfu-mode)
            (eshell-mode . corfu-mode)
@@ -2204,6 +2300,7 @@ Try out to be always centered
 ** ws-butler
 #+begin_src emacs-lisp
   (use-package ws-butler
+    :disabled t
     :hook (prog-mode . ws-butler-mode))
 #+end_src
 ** c++-mode
@@ -2216,11 +2313,12 @@ Disable namespace indentation with TAB
 ** copilot
 #+begin_src emacs-lisp
   (use-package copilot
+    ;;:disabled t
     :vc (:url "https://github.com/copilot-emacs/copilot.el"
               :rev :newest
               :branch "main")
     :custom
-    (copilot-node-executable "/usr/bin/node")
+    (copilot-node-executable "/home/eduplens/.local/bin/node")
     (copilot-max-char-warning-disable t)
     :bind (:map copilot-completion-map
                 ("C-e" . copilot-accept-completion)
@@ -2229,15 +2327,27 @@ Disable namespace indentation with TAB
     :hook ((prog-mode . copilot-mode))
     )
   (use-package copilot-chat
-    ;;:disabled t
+    :disabled t
     :custom
     (copilot-chat-list-added-buffers-only t)
     :config
-    (add-hook 'git-commit-setup-hook 'copilot-chat-insert-commit-message)
+    ;; (add-hook 'git-commit-setup-hook 'copilot-chat-insert-commit-message)
     (push '(copilot-chat-mode . markdown) tree-sitter-major-mode-language-alist)
     (push '(copilot-chat-prompt-mode . markdown) tree-sitter-major-mode-language-alist)
     )
 #+end_src
+** claude
+#+begin_src emacs-lisp
+  (use-package claude-code
+    :straight (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
+                     :files ("*.el" (:exclude "images/*")))
+    :bind-keymap
+    ("C-c a" . claude-code-command-map) ;; or your preferred key
+    :config
+    (claude-code-mode)
+    (setq claude-code-terminal-backend 'vterm)
+    )
+  #+end_src
 * email
 * org-mode
 ** org
@@ -2448,8 +2558,6 @@ Disable namespace indentation with TAB
            ("\\.md\\'" . markdown-mode)
            ("\\.markdown\\'" . markdown-mode))
     :init (setq markdown-command "multimarkdown")
-    :config
-    (setq browse-url-browser-function 'browse-url-chrome)
     )
 #+end_src
 **** flymd
@@ -2752,8 +2860,60 @@ Dimming the face of non-active buffers
     (selected-window-accent-mode-style 'default)
   )
 #+end_src
+** leetcode
+#+begin_src emacs-lisp
+  (use-package leetcode
+    :config
+    (setq leetcode-prefer-language "c++")
+    (setq leetcode-save-solutions t)
+    (setq leetcode-directory "~/leetcode"))
+#+end_src
+** compilation
+#+begin_src emacs-lisp
+  (use-package ansi-color
+    :hook (compilation-filter . ansi-color-compilation-filter)
+    )
+#+end_src
 * non-elpa
+#+begin_src emacs-lisp
+  (use-package llvm
+    :disabled t
+    :straight (:type git
+                     :host github
+                     :repo "nverno/llvm-mode"))
+#+end_src
 * tmp
 #+begin_src emacs-lisp
   (setenv "_FASD_DATA" (concat (getenv "HOME") "/.cache/fasd/.fasd"))
+#+end_src
+** eaf
+#+begin_src emacs-lisp
+  (use-package eaf
+    :straight
+    (eaf :type git
+         :host github
+         :repo "emacs-eaf/emacs-application-framework"
+         :files (:defaults
+                 "app"               ;; all EAF apps
+                 "core"              ;; core lisp
+                 "eaf.py"
+                 "install-eaf.py"
+                 "applications.json"
+                 "dependencies.json"))
+    :custom
+    (eaf-browser-auto-import-chrome-cookies nil)
+    (eaf-browser-continue-where-left-off nil)
+    (eaf-browser-enable-adblocker t)
+    (browse-url-browser-function 'eaf-open-browser)
+    ;;(eaf-browser-chrome-browser-name "chrome")
+    (eaf-browser-chrome-browser-name "chromium")
+    (eaf-browser-dark-mode nil)
+    (eaf-proxy-type "http")
+    (eaf-proxy-host "proxy-mu.intel.com")
+    (eaf-proxy-port "911")
+    :config
+    (require 'eaf-browser)
+    (require 'eaf-system-monitor)
+    (setq eaf-python-command "~/.virtualenvs/openvino/bin/python3")
+    )
 #+end_src
