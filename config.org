@@ -1,4 +1,4 @@
-#+PROPERTY: header-args    :results silent
+#+PROPERTY: header-args :results silent
 * common settings
 ** Increase gc threshold
 #+begin_src emacs-lisp
@@ -403,6 +403,8 @@ Otherwise it can slow down emacs by a lot
     (magit-mode-line-process ((t :inherit 'mode-line-buffer-id )))
 
     :config
+    ;; ensure magit does not split window more than once
+    (setq split-width-threshold 200)
     (setq magit-diff-refine-hunk t)
     (setq transient-display-buffer-action '(display-buffer-below-selected))
     (setq magit-ediff-dwim-show-on-hunks t)
@@ -433,6 +435,25 @@ Otherwise it can slow down emacs by a lot
     (transient-append-suffix 'magit-diff "d"
       '("b" "diff base" magit-diff-base))
 
+    ;; Rebase onto upstream merge-base
+    (transient-define-suffix magit-rebase-base (args)
+      "Rebase onto merge-base of upstream and HEAD.
+  Equivalent to: git rebase $(git merge-base @{u} HEAD)"
+      :description "merge-base"
+      (interactive (list (magit-rebase-arguments)))
+      (let* ((upstream (magit-get-upstream-branch))
+             (merge-base (when upstream
+                           (magit-git-string "merge-base" upstream "HEAD"))))
+        (if merge-base
+            (progn
+              (message "Rebasing...")
+              (magit-git-rebase merge-base args)
+              (message "Rebasing...done"))
+          (user-error "No upstream branch configured or merge-base not found"))))
+
+    (transient-append-suffix 'magit-rebase "e"
+      '("b" "merge-base" magit-rebase-base))
+
     (setq ediff-make-buffers-readonly-at-startup t)
     (defun ediff-mode-face-config-hook ()
       (set-face-attribute 'ediff-even-diff-A nil :inherit 'magit-diff-removed)
@@ -440,11 +461,42 @@ Otherwise it can slow down emacs by a lot
       (set-face-attribute 'ediff-odd-diff-A nil :inherit 'magit-diff-removed)
       (set-face-attribute 'ediff-odd-diff-B nil :inherit 'magit-diff-added))
     (add-hook 'ediff-mode 'ediff-mode-face-config-hook)
+
+    (defun my-magit-read-worktree-directory-in-repo (prompt branch)
+      "Read worktree directory defaulting to <repo-root>/worktrees/BRANCH."
+      (let ((default-directory
+             (expand-file-name "worktrees/"                                                                                                                                                                                                                                                                              (magit-toplevel))))
+        (make-directory default-directory t)
+        (read-directory-name prompt nil nil nil
+                             (and branch (string-replace "/" "-" branch)))))
+    
+    (setq magit-read-worktree-directory-function
+          #'my-magit-read-worktree-directory-in-repo)
+    
     :hook
     (ediff-mode . ediff-mode-face-config-hook)
     )
 
-  (use-package with-editor)
+  (use-package with-editor
+    :config
+    (defun my-server-edit-dwim ()
+      (interactive)
+      (if server-buffer-clients
+          (progn
+            (when (and buffer-file-name (buffer-modified-p))
+              (save-buffer))
+            (server-edit))
+        (call-interactively #'server-edit)))
+    (setq server-kill-new-buffers t)
+    (setq with-editor-server-window-alist
+          '((".*" . (lambda (buf)
+                      (let ((display-buffer-overriding-action
+                             '((display-buffer-below-selected)
+                               (window-height . 0.4))))
+                        (pop-to-buffer buf))))))
+    :bind
+    ("C-x #" . my-server-edit-dwim)
+    )
 
   (with-eval-after-load 'info
     (info-initialize)
@@ -508,10 +560,51 @@ Otherwise it can slow down emacs by a lot
 ** projectile
 #+begin_src emacs-lisp
   (use-package projectile
+    :custom
+    (projectile-switch-project-action 'projectile-run-vterm)
     :config
+    (defun my/project-switch-to-recent ()
+      "Switch to the most recently used buffer in the project.
+Falls back to the most recent file from `recentf-list',
+then to `project-find-file'."
+      (interactive)
+      (let* ((proj (project-current t))
+             (root (expand-file-name (project-root proj)))
+             (buf  (car (project-buffers proj))))
+        (cond
+         (buf (switch-to-buffer buf))
+         ((and (bound-and-true-p recentf-mode)
+               (seq-find (lambda (f) (file-in-directory-p f root)) recentf-list))
+          (find-file (seq-find (lambda (f) (file-in-directory-p f root)) recentf-list)))
+         (t (project-find-file)))))
+    (setq project-switch-commands #'my/project-switch-to-recent)
+    (defun my/project-prompt-prefer-previous (orig &rest args)
+      "Preselect the previous project in `project-prompt-project-dir',
+mimicking `switch-to-buffer'. Relies on `project--list' being MRU-ordered."
+      (project--ensure-read-project-list)
+      (let ((prev (car-safe (cadr project--list))))
+        (if (null prev)
+            (apply orig args)
+          (cl-letf* ((orig-cr (symbol-function 'completing-read))
+                     ((symbol-function 'completing-read)
+                      (lambda (_prompt coll &optional pred req init hist _def inherit)
+                        (funcall orig-cr
+                                 (format "Select project (default %s): "
+                                         (abbreviate-file-name prev))
+                                 coll pred req init hist prev inherit))))
+            (apply orig args)))))
+    (advice-add 'project-prompt-project-dir :around #'my/project-prompt-prefer-previous)
+    (with-eval-after-load 'consult
+      (plist-put consult-source-project-root
+                 :action (lambda (root)
+                           (let ((default-directory root))
+                             (my/project-switch-to-recent)))))
     (projectile-mode 1)
     (setq projectile-completion-system 'auto)
     (setq projectile-enable-caching t)
+    ;; Skip TRAMP paths during project root detection to avoid slow
+    ;; consult-buffer when vterm buffers are SSH'd into remote hosts
+    (setq projectile-ignored-project-function #'file-remote-p)
     (setq compilation-scroll-output t)
     (defun copy-project-relative-path ()
       "Copy current file path relative to Projectile project root."
@@ -720,18 +813,31 @@ Otherwise it can slow down emacs by a lot
               (lambda ()
                 (unless (string-match-p "claude" (buffer-name))
                   (with-editor-export-editor))))
+    ;; fix cursor disappearing in copy mode when using claude-code
+    (add-hook 'vterm-copy-mode-hook
+              (lambda ()
+                (when (bound-and-true-p claude-code-mode)
+                  (setq-local cursor-type (if vterm-copy-mode t t)))))
     :hook
-    (vterm-mode . xterm-mouse-mode)
+    (vterm-mode . (lambda ()
+                    (unless (string-match-p "claude" (buffer-name))
+                      (xterm-mouse-mode 1))))
     :bind
     (:map vterm-mode-map
           ("M-j" . vterm-avy)
-          ("M-'" . vterm-toggle)
+          ("M-\"" . vterm-toggle)
+          ("M-'" . claude-code-ide-continue)
           ("M-i" . vterm-copy-mode)
           ("C-q" . vterm-send-next-key)
           ("C-c w" . vterm-yank-current-command)
           ("<f5>" . previous-buffer)
           ("<f6>" . next-buffer)
+          ("C-x C-e" . (lambda () (interactive)
+                         (vterm-send-key "x" nil nil t)
+                         (vterm-send-key "e" nil nil t)))
+          ("C-g" . vterm-send-escape)
           )
+    
     :bind
     (:map vterm-copy-mode-map
           ("M-i" . vterm-copy-mode)
@@ -743,11 +849,13 @@ Otherwise it can slow down emacs by a lot
 
   (use-package multi-vterm)
   (use-package vterm-toggle
-    :bind ("M-'" . vterm-toggle)
+    :bind ("M-\"" . vterm-toggle)
     :custom
     (vterm-toggle-scope 'project)
     (vterm-toggle-hide-method 'nil)
     (vterm-toggle-fullscreen-p t)
+    :config
+    (setq vterm-toggle-reset-window-configration-after-exit t)
     )
 #+end_src
 
@@ -1632,26 +1740,28 @@ Isearch other window
     :config
     (vertico-posframe-mode)
     (setq vertico-posframe-max-width 9999)
-    (setq vertico-posframe-default-width 150)
+    (setq vertico-posframe-default-width (round (* 0.6 (frame-width))))
     (defun vertico-posframe-cycle-width ()
       (interactive)
       (if (eq vertico-posframe-width vertico-posframe-max-width)
-          (setq vertico-posframe-width vertico-posframe-default-width)
+          (setq vertico-posframe-width (round (* 0.6 (frame-width))))
         (setq vertico-posframe-width vertico-posframe-max-width)
         )
       )
     :custom
-    (vertico-posframe-height 11)
+    (vertico-posframe-height nil)
+    (vertico-posframe-min-height 10)
     (vertico-posframe-width 140)
     (vertico-posframe-parameters
          '(
-           (internal-border-width . 2)
+           (internal-border-width . 10)
            (internal-border-color . "#7F9F7F")
            (left-fringe . 5)
            (right-fringe . 5)
+           (line-spacing . 1)
            )
          )
-    (vertico-posframe-border-width 2)
+    (vertico-posframe-border-width 10)
     (vertico-posframe-show-minibuffer-rules '(".*"))
     :custom-face
     (vertico-posframe-border ((t (:inherit minibuffer-prompt :background "#F0DFAF"))))
@@ -1711,8 +1821,9 @@ Isearch other window
     ("M-i" . consult-imenu)
     ;; ("C-c k" . consult-kmacro)
     ;; C-x bindings in `ctl-x-map'
-    ("C-x C-b" . consult-buffer)
-    ("C-x b" . consult-buffer)
+    ("C-x C-b" . consult-project-buffer)
+    ("C-x b" . consult-project-buffer)
+    ("C-x B" . consult-buffer)
     ;; M-s bindings in `search-map'
     ("M-s f" . consult-fd)
     ("M-s l" . consult-line)
@@ -2314,9 +2425,8 @@ Disable namespace indentation with TAB
 #+begin_src emacs-lisp
   (use-package copilot
     ;;:disabled t
-    :vc (:url "https://github.com/copilot-emacs/copilot.el"
-              :rev :newest
-              :branch "main")
+    :straight (:host github :repo "copilot-emacs/copilot.el"
+                     :branch "main")
     :custom
     (copilot-node-executable "/home/eduplens/.local/bin/node")
     (copilot-max-char-warning-disable t)
@@ -2338,14 +2448,32 @@ Disable namespace indentation with TAB
 #+end_src
 ** claude
 #+begin_src emacs-lisp
-  (use-package claude-code
-    :straight (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
-                     :files ("*.el" (:exclude "images/*")))
-    :bind-keymap
-    ("C-c a" . claude-code-command-map) ;; or your preferred key
+  (use-package web-server)  ;; required by claude-code-ide MCP server
+  (use-package websocket)   ;; required by claude-code-ide MCP server
+  (use-package claude-code-ide
+    :straight (:host github :repo "manzaltu/claude-code-ide.el")
+    :bind
+    ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+    ("M-'" . claude-code-ide-continue) ; Set your favorite keybinding
+    ("C-g" . keyboard-quit) ; Set your favorite keybinding
     :config
-    (claude-code-mode)
-    (setq claude-code-terminal-backend 'vterm)
+    (claude-code-ide-emacs-tools-setup)
+    ;; Prevent vterm from renaming claude-code-ide buffers (gh#103)
+    (advice-add 'claude-code-ide--configure-vterm-buffer :after
+                (lambda () (setq-local vterm-buffer-name-string nil)))
+    ;; C-g sends Escape to CLI (like claude-code.el does)
+    (add-hook 'vterm-mode-hook
+              (lambda ()
+                (when (string-match-p "claude-code" (buffer-name))
+                  (let ((map (make-sparse-keymap)))
+                    (set-keymap-parent map (current-local-map))
+                    (define-key map (kbd "C-g")
+                                (lambda () (interactive) (vterm-send-key "\C-[")))
+                    (use-local-map map)))))
+    :custom
+    (claude-code-ide-window-width (lambda (_win) (/ (frame-width) 2)))
+    (claude-code-ide-prevent-reflow-glitch nil)
+    (claude-code-ide-no-flicker nil) ;; does not allow to scroll back
     )
   #+end_src
 * email
@@ -2353,7 +2481,6 @@ Disable namespace indentation with TAB
 ** org
 #+begin_src emacs-lisp
   (use-package org
-    :straight (:type built-in)
     :init
     (add-hook 'org-mode-hook
               (lambda ()
@@ -2409,6 +2536,12 @@ Disable namespace indentation with TAB
 ** ox-pandoc
 #+begin_src emacs-lisp
   (use-package ox-pandoc)
+#+end_src
+** TODO ox-md
+#+begin_src emacs-lisp
+  (use-package ox-md
+    :straight (:type built-in)
+    :after ox)
 #+end_src
 ** org-capture
 *** org-capture-templates

@@ -1,4 +1,4 @@
-;;; package -- Summary
+;;; init.el --- Emacs init file -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Lisp modules goes here -- load some buffers
 ;;; Code:
@@ -26,6 +26,12 @@
 ;;(setq use-package-verbose t)
 ;;(setq use-package-always-ensure t)
 (setq straight-use-package-by-default t)
+
+;; Install org early, before org-babel-load-file triggers the built-in version.
+;; This prevents version mismatch when packages inside config.org pull in
+;; a newer org as a straight.el dependency.
+(straight-use-package 'org)
+
 ;; load host specific settings, for example host specific proxy settings
 (if (file-exists-p "~/.emacs.d/host_config.org")
     (org-babel-load-file (expand-file-name "~/.emacs.d/host_config.org")))
