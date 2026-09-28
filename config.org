@@ -818,6 +818,10 @@ mimicking `switch-to-buffer'. Relies on `project--list' being MRU-ordered."
               (lambda ()
                 (when (bound-and-true-p claude-code-mode)
                   (setq-local cursor-type (if vterm-copy-mode t t)))))
+    ;; enable centered-cursor-mode while in vterm-copy-mode
+    (add-hook 'vterm-copy-mode-hook
+              (lambda ()
+                (centered-cursor-mode (if vterm-copy-mode 1 -1))))
     :hook
     (vterm-mode . (lambda ()
                     (unless (string-match-p "claude" (buffer-name))
@@ -1792,6 +1796,31 @@ Isearch other window
           (marginalia--fields ("(dead buffer)" :face 'error)))))
 
     (setq marginalia-align 'center)
+    ;; disable uniquify, marginalia info is enought
+    (setq uniquify-buffer-name-style nil)
+
+    ;; annotate project-switch-project candidates with repo name + git branch
+    (defun my/marginalia-annotate-project-root (cand)
+      "Annotate project CAND with remote repo name and current branch."
+      (require 'vc-git)
+      (let* ((root (expand-file-name cand))
+             (url (ignore-errors (vc-git-repository-url root)))
+             (name (if url
+                       (file-name-base (directory-file-name url))
+                     (file-name-nondirectory (directory-file-name root))))
+             (branch (ignore-errors
+                       (with-temp-buffer
+                         (let ((default-directory (file-name-as-directory root)))
+                           (when (zerop (process-file
+                                         vc-git-program nil t nil
+                                         "symbolic-ref" "--short" "HEAD"))
+                             (string-trim (buffer-string))))))))
+        (marginalia--fields
+         (name :width 35 :face 'marginalia-value)
+         ((or branch "-") :truncate 40 :face 'marginalia-documentation))))
+
+    (setf (alist-get 'project-file marginalia-annotators)
+          '(my/marginalia-annotate-project-root builtin none))
     ;; (all-the-icons-completion-mode 1)
     (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
     :custom-face
@@ -2474,6 +2503,7 @@ Disable namespace indentation with TAB
     (claude-code-ide-window-width (lambda (_win) (/ (frame-width) 2)))
     (claude-code-ide-prevent-reflow-glitch nil)
     (claude-code-ide-no-flicker nil) ;; does not allow to scroll back
+    (claude-code-ide-cli-path "gnai-claude")
     )
   #+end_src
 * email
@@ -2749,6 +2779,10 @@ Disable namespace indentation with TAB
     (setq doom-modeline-icon t)
     (setq doom-modeline-height 35)
     (setq doom-modeline-major-mode-color-icon nil))
+#+end_src
+#+begin_src emacs-lisp
+  (use-package hide-mode-line
+    :hook (vterm-mode . hide-mode-line-mode))
 #+end_src
 ** which-key
 #+begin_src emacs-lisp
